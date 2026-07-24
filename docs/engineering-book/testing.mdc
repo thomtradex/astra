@@ -1,0 +1,20 @@
+---
+alwaysApply: true
+---
+---
+alwaysApply: true
+---
+
+# Testing
+
+Every feature must be testable.
+
+Prefer Unit Tests.
+
+Domain must run without infrastructure.
+
+Business rules must always be covered.
+
+Avoid brittle integration tests.
+
+Infrastructure can be mocked.

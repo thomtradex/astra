@@ -1,0 +1,27 @@
+---
+alwaysApply: true
+---
+---
+alwaysApply: true
+---
+
+# Architecture
+
+Always follow:
+
+- Clean Architecture
+- Hexagonal Architecture
+- Domain Driven Design
+- SOLID
+- Ports and Adapters
+
+Rules:
+
+- Domain never depends on Infrastructure.
+- Business logic belongs only in Domain.
+- Infrastructure implements Ports.
+- Delivery contains no business logic.
+- Frameworks are implementation details.
+- Database is an implementation detail.
+- LLMs are implementation details.
+- Protect the business domain above all else.

@@ -1,0 +1,22 @@
+---
+alwaysApply: true
+---
+---
+alwaysApply: true
+---
+
+# Engineering Book
+
+The ASTRA Engineering Book is the single source of truth.
+
+Location:
+docs/engineering-book/ASTRA_ENGINEERING_BOOK_MASTER.md
+
+Before generating code:
+
+- Read the Engineering Book.
+- Follow the Engineering Book.
+- Never contradict the Engineering Book.
+- If code conflicts with the Engineering Book, the Engineering Book always wins.
+
+Every architectural decision must preserve the ASTRA vision.

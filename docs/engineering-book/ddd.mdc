@@ -1,0 +1,23 @@
+---
+alwaysApply: true
+---
+---
+alwaysApply: true
+---
+
+# Domain Driven Design
+
+Always create:
+
+- Entities
+- Value Objects
+- Aggregates
+- Domain Services
+- Domain Events
+- Repositories
+
+Use ubiquitous language.
+
+Business logic belongs only in the Domain.
+
+Never move business rules into Controllers, APIs or Infrastructure.

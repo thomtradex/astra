@@ -1,0 +1,28 @@
+---
+alwaysApply: true
+---
+---
+alwaysApply: true
+---
+
+# Coding Standards
+
+Generate clean code.
+
+Prefer readability.
+
+Avoid duplication.
+
+Prefer composition over inheritance.
+
+Use meaningful names.
+
+Keep methods small.
+
+Keep classes focused.
+
+Follow SOLID.
+
+Write self-documenting code.
+
+Never violate the Engineering Book.

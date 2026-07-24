@@ -1,0 +1,11 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-astra-50 text-astra-950 antialiased;
+}

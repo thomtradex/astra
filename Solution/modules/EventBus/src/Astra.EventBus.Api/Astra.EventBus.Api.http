@@ -1,0 +1,6 @@
+@Astra.EventBus.Api_HostAddress = http://localhost:5076
+
+GET {{Astra.EventBus.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

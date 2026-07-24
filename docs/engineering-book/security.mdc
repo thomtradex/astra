@@ -1,0 +1,20 @@
+---
+alwaysApply: true
+---
+---
+alwaysApply: true
+---
+
+# Security
+
+Never expose secrets.
+
+Validate every input.
+
+Apply least privilege.
+
+Always audit critical operations.
+
+Authentication and Authorization are mandatory.
+
+Follow the Engineering Book security principles.
