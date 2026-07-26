@@ -1,0 +1,258 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Application/Astra.CompanyBrain.Application.csproj": {}
+  },
+  "projects": {
+    "/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Application/Astra.CompanyBrain.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Application/Astra.CompanyBrain.Application.csproj",
+        "projectName": "Astra.CompanyBrain.Application",
+        "projectPath": "/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Application/Astra.CompanyBrain.Application.csproj",
+        "packagesPath": "/Users/lelialopes/.nuget/packages/",
+        "outputPath": "/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Application/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/lelialopes/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Domain/Astra.CompanyBrain.Domain.csproj": {
+                "projectPath": "/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Domain/Astra.CompanyBrain.Domain.csproj"
+              },
+              "/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Domain/Astra.SharedKernel.Domain.csproj": {
+                "projectPath": "/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Domain/Astra.SharedKernel.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.422/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Domain/Astra.CompanyBrain.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Domain/Astra.CompanyBrain.Domain.csproj",
+        "projectName": "Astra.CompanyBrain.Domain",
+        "projectPath": "/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Domain/Astra.CompanyBrain.Domain.csproj",
+        "packagesPath": "/Users/lelialopes/.nuget/packages/",
+        "outputPath": "/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Domain/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/lelialopes/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/Users/lelialopes/Projects/astra/Solution/modules/Organization/src/Astra.Organization.Domain/Astra.Organization.Domain.csproj": {
+                "projectPath": "/Users/lelialopes/Projects/astra/Solution/modules/Organization/src/Astra.Organization.Domain/Astra.Organization.Domain.csproj"
+              },
+              "/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Domain/Astra.SharedKernel.Domain.csproj": {
+                "projectPath": "/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Domain/Astra.SharedKernel.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.422/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/lelialopes/Projects/astra/Solution/modules/Organization/src/Astra.Organization.Domain/Astra.Organization.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/lelialopes/Projects/astra/Solution/modules/Organization/src/Astra.Organization.Domain/Astra.Organization.Domain.csproj",
+        "projectName": "Astra.Organization.Domain",
+        "projectPath": "/Users/lelialopes/Projects/astra/Solution/modules/Organization/src/Astra.Organization.Domain/Astra.Organization.Domain.csproj",
+        "packagesPath": "/Users/lelialopes/.nuget/packages/",
+        "outputPath": "/Users/lelialopes/Projects/astra/Solution/modules/Organization/src/Astra.Organization.Domain/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/lelialopes/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Domain/Astra.SharedKernel.Domain.csproj": {
+                "projectPath": "/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Domain/Astra.SharedKernel.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.422/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Domain/Astra.SharedKernel.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Domain/Astra.SharedKernel.Domain.csproj",
+        "projectName": "Astra.SharedKernel.Domain",
+        "projectPath": "/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Domain/Astra.SharedKernel.Domain.csproj",
+        "packagesPath": "/Users/lelialopes/.nuget/packages/",
+        "outputPath": "/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Domain/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/lelialopes/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.422/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

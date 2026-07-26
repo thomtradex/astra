@@ -1,0 +1,12 @@
+/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Contracts/bin/Debug/net8.0/Astra.CompanyBrain.Contracts.deps.json
+/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Contracts/bin/Debug/net8.0/Astra.CompanyBrain.Contracts.dll
+/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Contracts/bin/Debug/net8.0/Astra.CompanyBrain.Contracts.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Contracts/obj/Debug/net8.0/Astra.CompanyBrain.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Contracts/obj/Debug/net8.0/Astra.CompanyBrain.Contracts.AssemblyInfoInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Contracts/obj/Debug/net8.0/Astra.CompanyBrain.Contracts.AssemblyInfo.cs
+/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Contracts/obj/Debug/net8.0/Astra.CompanyBrain.Contracts.csproj.CoreCompileInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Contracts/obj/Debug/net8.0/Astra.CompanyBrain.Contracts.sourcelink.json
+/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Contracts/obj/Debug/net8.0/Astra.CompanyBrain.Contracts.dll
+/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Contracts/obj/Debug/net8.0/refint/Astra.CompanyBrain.Contracts.dll
+/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Contracts/obj/Debug/net8.0/Astra.CompanyBrain.Contracts.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/CompanyBrain/src/Astra.CompanyBrain.Contracts/obj/Debug/net8.0/ref/Astra.CompanyBrain.Contracts.dll

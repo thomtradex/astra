@@ -1,0 +1,12 @@
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Contracts/bin/Debug/net8.0/Astra.Audit.Contracts.deps.json
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Contracts/bin/Debug/net8.0/Astra.Audit.Contracts.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Contracts/bin/Debug/net8.0/Astra.Audit.Contracts.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Contracts/obj/Debug/net8.0/Astra.Audit.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Contracts/obj/Debug/net8.0/Astra.Audit.Contracts.AssemblyInfoInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Contracts/obj/Debug/net8.0/Astra.Audit.Contracts.AssemblyInfo.cs
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Contracts/obj/Debug/net8.0/Astra.Audit.Contracts.csproj.CoreCompileInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Contracts/obj/Debug/net8.0/Astra.Audit.Contracts.sourcelink.json
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Contracts/obj/Debug/net8.0/Astra.Audit.Contracts.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Contracts/obj/Debug/net8.0/refint/Astra.Audit.Contracts.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Contracts/obj/Debug/net8.0/Astra.Audit.Contracts.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Contracts/obj/Debug/net8.0/ref/Astra.Audit.Contracts.dll

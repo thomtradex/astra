@@ -1,4 +1,4 @@
-using Astra.Identity.Domain.Common;
+using Astra.SharedKernel.Domain.Entities;
 using Astra.Identity.Domain.ValueObjects;
 
 namespace Astra.Identity.Domain.Entities;

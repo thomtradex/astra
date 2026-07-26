@@ -1,0 +1,16 @@
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/bin/Debug/net8.0/Astra.Projects.Domain.deps.json
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/bin/Debug/net8.0/Astra.Projects.Domain.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/bin/Debug/net8.0/Astra.Projects.Domain.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/bin/Debug/net8.0/Astra.SharedKernel.Domain.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/bin/Debug/net8.0/Astra.SharedKernel.Domain.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/obj/Debug/net8.0/Astra.Projects.Domain.csproj.AssemblyReference.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/obj/Debug/net8.0/Astra.Projects.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/obj/Debug/net8.0/Astra.Projects.Domain.AssemblyInfoInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/obj/Debug/net8.0/Astra.Projects.Domain.AssemblyInfo.cs
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/obj/Debug/net8.0/Astra.Projects.Domain.csproj.CoreCompileInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/obj/Debug/net8.0/Astra.Projects.Domain.sourcelink.json
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/obj/Debug/net8.0/Astra.Pr.B25F5413.Up2Date
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/obj/Debug/net8.0/Astra.Projects.Domain.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/obj/Debug/net8.0/refint/Astra.Projects.Domain.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/obj/Debug/net8.0/Astra.Projects.Domain.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Projects/src/Astra.Projects.Domain/obj/Debug/net8.0/ref/Astra.Projects.Domain.dll

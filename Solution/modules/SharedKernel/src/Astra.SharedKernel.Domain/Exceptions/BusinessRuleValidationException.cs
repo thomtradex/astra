@@ -1,4 +1,4 @@
-using Astra.SharedKernel.Domain.Entities;
+using Astra.SharedKernel.Domain.Interfaces;
 
 namespace Astra.SharedKernel.Domain.Exceptions;
 

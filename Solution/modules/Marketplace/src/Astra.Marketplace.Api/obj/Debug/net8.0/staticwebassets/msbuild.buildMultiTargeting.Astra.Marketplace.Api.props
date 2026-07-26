@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../build/Astra.Marketplace.Api.props" />
+</Project>

@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../buildMultiTargeting/Astra.Notifications.Api.props" />
+</Project>

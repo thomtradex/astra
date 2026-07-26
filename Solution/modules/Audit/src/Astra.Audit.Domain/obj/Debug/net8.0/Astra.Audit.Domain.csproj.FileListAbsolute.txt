@@ -1,0 +1,16 @@
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/bin/Debug/net8.0/Astra.Audit.Domain.deps.json
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/bin/Debug/net8.0/Astra.Audit.Domain.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/bin/Debug/net8.0/Astra.Audit.Domain.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/bin/Debug/net8.0/Astra.SharedKernel.Domain.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/bin/Debug/net8.0/Astra.SharedKernel.Domain.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/obj/Debug/net8.0/Astra.Audit.Domain.csproj.AssemblyReference.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/obj/Debug/net8.0/Astra.Audit.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/obj/Debug/net8.0/Astra.Audit.Domain.AssemblyInfoInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/obj/Debug/net8.0/Astra.Audit.Domain.AssemblyInfo.cs
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/obj/Debug/net8.0/Astra.Audit.Domain.csproj.CoreCompileInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/obj/Debug/net8.0/Astra.Audit.Domain.sourcelink.json
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/obj/Debug/net8.0/Astra.Au.FCECC1EC.Up2Date
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/obj/Debug/net8.0/Astra.Audit.Domain.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/obj/Debug/net8.0/refint/Astra.Audit.Domain.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/obj/Debug/net8.0/Astra.Audit.Domain.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Audit/src/Astra.Audit.Domain/obj/Debug/net8.0/ref/Astra.Audit.Domain.dll

@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "vcwkBwGkQp54GgqPVUMkh9JJCs7uqwmKnC0KGaEEtxI=",
+  "Source": "Astra.CompanyBrain.Api",
+  "BasePath": "_content/Astra.CompanyBrain.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

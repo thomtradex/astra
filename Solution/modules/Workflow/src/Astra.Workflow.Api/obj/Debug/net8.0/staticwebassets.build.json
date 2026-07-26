@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "rI8HSel6aUXjLxXYKPutVIGHMelMlRjHdVqtGt9n7zo=",
+  "Source": "Astra.Workflow.Api",
+  "BasePath": "_content/Astra.Workflow.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

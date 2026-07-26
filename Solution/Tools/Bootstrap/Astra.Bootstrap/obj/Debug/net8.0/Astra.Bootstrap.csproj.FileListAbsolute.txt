@@ -1,0 +1,15 @@
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/bin/Debug/net8.0/Astra.Bootstrap
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/bin/Debug/net8.0/Astra.Bootstrap.deps.json
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/bin/Debug/net8.0/Astra.Bootstrap.runtimeconfig.json
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/bin/Debug/net8.0/Astra.Bootstrap.dll
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/bin/Debug/net8.0/Astra.Bootstrap.pdb
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/obj/Debug/net8.0/Astra.Bootstrap.GeneratedMSBuildEditorConfig.editorconfig
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/obj/Debug/net8.0/Astra.Bootstrap.AssemblyInfoInputs.cache
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/obj/Debug/net8.0/Astra.Bootstrap.AssemblyInfo.cs
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/obj/Debug/net8.0/Astra.Bootstrap.csproj.CoreCompileInputs.cache
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/obj/Debug/net8.0/Astra.Bootstrap.sourcelink.json
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/obj/Debug/net8.0/Astra.Bootstrap.dll
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/obj/Debug/net8.0/refint/Astra.Bootstrap.dll
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/obj/Debug/net8.0/Astra.Bootstrap.pdb
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/obj/Debug/net8.0/Astra.Bootstrap.genruntimeconfig.cache
+/Users/lelialopes/Projects/astra/Solution/Tools/Bootstrap/Astra.Bootstrap/obj/Debug/net8.0/ref/Astra.Bootstrap.dll

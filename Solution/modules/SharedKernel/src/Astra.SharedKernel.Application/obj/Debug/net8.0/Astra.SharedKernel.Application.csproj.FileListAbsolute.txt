@@ -1,0 +1,16 @@
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/bin/Debug/net8.0/Astra.SharedKernel.Application.deps.json
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/bin/Debug/net8.0/Astra.SharedKernel.Application.dll
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/bin/Debug/net8.0/Astra.SharedKernel.Application.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/bin/Debug/net8.0/Astra.SharedKernel.Domain.dll
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/bin/Debug/net8.0/Astra.SharedKernel.Domain.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/obj/Debug/net8.0/Astra.SharedKernel.Application.csproj.AssemblyReference.cache
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/obj/Debug/net8.0/Astra.SharedKernel.Application.GeneratedMSBuildEditorConfig.editorconfig
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/obj/Debug/net8.0/Astra.SharedKernel.Application.AssemblyInfoInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/obj/Debug/net8.0/Astra.SharedKernel.Application.AssemblyInfo.cs
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/obj/Debug/net8.0/Astra.SharedKernel.Application.csproj.CoreCompileInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/obj/Debug/net8.0/Astra.SharedKernel.Application.sourcelink.json
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/obj/Debug/net8.0/Astra.Sh.B7DA2C81.Up2Date
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/obj/Debug/net8.0/Astra.SharedKernel.Application.dll
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/obj/Debug/net8.0/refint/Astra.SharedKernel.Application.dll
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/obj/Debug/net8.0/Astra.SharedKernel.Application.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/obj/Debug/net8.0/ref/Astra.SharedKernel.Application.dll

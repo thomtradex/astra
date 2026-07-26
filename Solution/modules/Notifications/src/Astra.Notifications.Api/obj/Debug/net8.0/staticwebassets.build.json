@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "zEIE2z9tof0PKQPtDhgF6im2RT2ptWqYQ6Ry44Lm+7I=",
+  "Source": "Astra.Notifications.Api",
+  "BasePath": "_content/Astra.Notifications.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

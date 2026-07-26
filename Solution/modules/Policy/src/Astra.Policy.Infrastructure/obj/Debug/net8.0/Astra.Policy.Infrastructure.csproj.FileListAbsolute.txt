@@ -1,0 +1,12 @@
+/Users/lelialopes/Projects/astra/Solution/modules/Policy/src/Astra.Policy.Infrastructure/bin/Debug/net8.0/Astra.Policy.Infrastructure.deps.json
+/Users/lelialopes/Projects/astra/Solution/modules/Policy/src/Astra.Policy.Infrastructure/bin/Debug/net8.0/Astra.Policy.Infrastructure.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Policy/src/Astra.Policy.Infrastructure/bin/Debug/net8.0/Astra.Policy.Infrastructure.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Policy/src/Astra.Policy.Infrastructure/obj/Debug/net8.0/Astra.Policy.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Users/lelialopes/Projects/astra/Solution/modules/Policy/src/Astra.Policy.Infrastructure/obj/Debug/net8.0/Astra.Policy.Infrastructure.AssemblyInfoInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Policy/src/Astra.Policy.Infrastructure/obj/Debug/net8.0/Astra.Policy.Infrastructure.AssemblyInfo.cs
+/Users/lelialopes/Projects/astra/Solution/modules/Policy/src/Astra.Policy.Infrastructure/obj/Debug/net8.0/Astra.Policy.Infrastructure.csproj.CoreCompileInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Policy/src/Astra.Policy.Infrastructure/obj/Debug/net8.0/Astra.Policy.Infrastructure.sourcelink.json
+/Users/lelialopes/Projects/astra/Solution/modules/Policy/src/Astra.Policy.Infrastructure/obj/Debug/net8.0/Astra.Policy.Infrastructure.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Policy/src/Astra.Policy.Infrastructure/obj/Debug/net8.0/refint/Astra.Policy.Infrastructure.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Policy/src/Astra.Policy.Infrastructure/obj/Debug/net8.0/Astra.Policy.Infrastructure.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Policy/src/Astra.Policy.Infrastructure/obj/Debug/net8.0/ref/Astra.Policy.Infrastructure.dll

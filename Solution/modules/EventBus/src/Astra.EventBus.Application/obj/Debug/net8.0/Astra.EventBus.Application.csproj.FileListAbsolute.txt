@@ -1,0 +1,12 @@
+/Users/lelialopes/Projects/astra/Solution/modules/EventBus/src/Astra.EventBus.Application/bin/Debug/net8.0/Astra.EventBus.Application.deps.json
+/Users/lelialopes/Projects/astra/Solution/modules/EventBus/src/Astra.EventBus.Application/bin/Debug/net8.0/Astra.EventBus.Application.dll
+/Users/lelialopes/Projects/astra/Solution/modules/EventBus/src/Astra.EventBus.Application/bin/Debug/net8.0/Astra.EventBus.Application.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/EventBus/src/Astra.EventBus.Application/obj/Debug/net8.0/Astra.EventBus.Application.GeneratedMSBuildEditorConfig.editorconfig
+/Users/lelialopes/Projects/astra/Solution/modules/EventBus/src/Astra.EventBus.Application/obj/Debug/net8.0/Astra.EventBus.Application.AssemblyInfoInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/EventBus/src/Astra.EventBus.Application/obj/Debug/net8.0/Astra.EventBus.Application.AssemblyInfo.cs
+/Users/lelialopes/Projects/astra/Solution/modules/EventBus/src/Astra.EventBus.Application/obj/Debug/net8.0/Astra.EventBus.Application.csproj.CoreCompileInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/EventBus/src/Astra.EventBus.Application/obj/Debug/net8.0/Astra.EventBus.Application.sourcelink.json
+/Users/lelialopes/Projects/astra/Solution/modules/EventBus/src/Astra.EventBus.Application/obj/Debug/net8.0/Astra.EventBus.Application.dll
+/Users/lelialopes/Projects/astra/Solution/modules/EventBus/src/Astra.EventBus.Application/obj/Debug/net8.0/refint/Astra.EventBus.Application.dll
+/Users/lelialopes/Projects/astra/Solution/modules/EventBus/src/Astra.EventBus.Application/obj/Debug/net8.0/Astra.EventBus.Application.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/EventBus/src/Astra.EventBus.Application/obj/Debug/net8.0/ref/Astra.EventBus.Application.dll

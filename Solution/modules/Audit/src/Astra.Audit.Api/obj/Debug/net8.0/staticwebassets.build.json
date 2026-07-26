@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "NUPWH2gtpqpdHUqQCla6vne74uAM0OHR9DR7cykQv28=",
+  "Source": "Astra.Audit.Api",
+  "BasePath": "_content/Astra.Audit.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

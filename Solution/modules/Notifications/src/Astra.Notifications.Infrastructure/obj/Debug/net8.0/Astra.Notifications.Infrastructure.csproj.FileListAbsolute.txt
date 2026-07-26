@@ -1,0 +1,12 @@
+/Users/lelialopes/Projects/astra/Solution/modules/Notifications/src/Astra.Notifications.Infrastructure/bin/Debug/net8.0/Astra.Notifications.Infrastructure.deps.json
+/Users/lelialopes/Projects/astra/Solution/modules/Notifications/src/Astra.Notifications.Infrastructure/bin/Debug/net8.0/Astra.Notifications.Infrastructure.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Notifications/src/Astra.Notifications.Infrastructure/bin/Debug/net8.0/Astra.Notifications.Infrastructure.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Notifications/src/Astra.Notifications.Infrastructure/obj/Debug/net8.0/Astra.Notifications.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Users/lelialopes/Projects/astra/Solution/modules/Notifications/src/Astra.Notifications.Infrastructure/obj/Debug/net8.0/Astra.Notifications.Infrastructure.AssemblyInfoInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Notifications/src/Astra.Notifications.Infrastructure/obj/Debug/net8.0/Astra.Notifications.Infrastructure.AssemblyInfo.cs
+/Users/lelialopes/Projects/astra/Solution/modules/Notifications/src/Astra.Notifications.Infrastructure/obj/Debug/net8.0/Astra.Notifications.Infrastructure.csproj.CoreCompileInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Notifications/src/Astra.Notifications.Infrastructure/obj/Debug/net8.0/Astra.Notifications.Infrastructure.sourcelink.json
+/Users/lelialopes/Projects/astra/Solution/modules/Notifications/src/Astra.Notifications.Infrastructure/obj/Debug/net8.0/Astra.Notifications.Infrastructure.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Notifications/src/Astra.Notifications.Infrastructure/obj/Debug/net8.0/refint/Astra.Notifications.Infrastructure.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Notifications/src/Astra.Notifications.Infrastructure/obj/Debug/net8.0/Astra.Notifications.Infrastructure.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Notifications/src/Astra.Notifications.Infrastructure/obj/Debug/net8.0/ref/Astra.Notifications.Infrastructure.dll

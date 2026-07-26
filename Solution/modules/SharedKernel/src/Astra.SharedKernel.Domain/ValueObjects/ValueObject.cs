@@ -1,4 +1,5 @@
-using Astra.SharedKernel.Domain.ValueObjects;
+using Astra.SharedKernel.Domain.Interfaces;
+
 namespace Astra.SharedKernel.Domain.ValueObjects;
 
 public abstract class ValueObject : IValueObject
@@ -22,13 +23,13 @@ public abstract class ValueObject : IValueObject
             .Aggregate(0, HashCode.Combine);
     }
 
-    public static bool operator ==(ValueObject? left, ValueObject? right)
-    {
-        return Equals(left, right);
-    }
+    public static bool operator ==(
+        ValueObject? left,
+        ValueObject? right)
+        => Equals(left, right);
 
-    public static bool operator !=(ValueObject? left, ValueObject? right)
-    {
-        return !Equals(left, right);
-    }
+    public static bool operator !=(
+        ValueObject? left,
+        ValueObject? right)
+        => !Equals(left, right);
 }

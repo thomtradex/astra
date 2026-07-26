@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "mDFGId3MhGHbUxkFr6mZKyHD3JwBBrSwh5Oig41Qeu8=",
+  "Source": "Astra.Gateway.Api",
+  "BasePath": "_content/Astra.Gateway.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

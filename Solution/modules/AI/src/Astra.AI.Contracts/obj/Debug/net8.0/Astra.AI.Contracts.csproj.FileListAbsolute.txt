@@ -1,0 +1,12 @@
+/Users/lelialopes/Projects/astra/Solution/modules/AI/src/Astra.AI.Contracts/bin/Debug/net8.0/Astra.AI.Contracts.deps.json
+/Users/lelialopes/Projects/astra/Solution/modules/AI/src/Astra.AI.Contracts/bin/Debug/net8.0/Astra.AI.Contracts.dll
+/Users/lelialopes/Projects/astra/Solution/modules/AI/src/Astra.AI.Contracts/bin/Debug/net8.0/Astra.AI.Contracts.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/AI/src/Astra.AI.Contracts/obj/Debug/net8.0/Astra.AI.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+/Users/lelialopes/Projects/astra/Solution/modules/AI/src/Astra.AI.Contracts/obj/Debug/net8.0/Astra.AI.Contracts.AssemblyInfoInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/AI/src/Astra.AI.Contracts/obj/Debug/net8.0/Astra.AI.Contracts.AssemblyInfo.cs
+/Users/lelialopes/Projects/astra/Solution/modules/AI/src/Astra.AI.Contracts/obj/Debug/net8.0/Astra.AI.Contracts.csproj.CoreCompileInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/AI/src/Astra.AI.Contracts/obj/Debug/net8.0/Astra.AI.Contracts.sourcelink.json
+/Users/lelialopes/Projects/astra/Solution/modules/AI/src/Astra.AI.Contracts/obj/Debug/net8.0/Astra.AI.Contracts.dll
+/Users/lelialopes/Projects/astra/Solution/modules/AI/src/Astra.AI.Contracts/obj/Debug/net8.0/refint/Astra.AI.Contracts.dll
+/Users/lelialopes/Projects/astra/Solution/modules/AI/src/Astra.AI.Contracts/obj/Debug/net8.0/Astra.AI.Contracts.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/AI/src/Astra.AI.Contracts/obj/Debug/net8.0/ref/Astra.AI.Contracts.dll

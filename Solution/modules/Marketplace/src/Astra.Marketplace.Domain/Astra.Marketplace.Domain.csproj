@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Organization\src\Astra.Organization.Domain\Astra.Organization.Domain.csproj" />
+    <ProjectReference Include="..\..\..\SharedKernel\src\Astra.SharedKernel.Domain\Astra.SharedKernel.Domain.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

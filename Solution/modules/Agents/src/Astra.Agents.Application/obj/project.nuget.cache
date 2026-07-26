@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "7P+Ubw5G4Rg=",
+  "success": true,
+  "projectFilePath": "/Users/lelialopes/Projects/astra/Solution/modules/Agents/src/Astra.Agents.Application/Astra.Agents.Application.csproj",
+  "expectedPackageFiles": [
+    "/Users/lelialopes/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/8.0.2/microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}

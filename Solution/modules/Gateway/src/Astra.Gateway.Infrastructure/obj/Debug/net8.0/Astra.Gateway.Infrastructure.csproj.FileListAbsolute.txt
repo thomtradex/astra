@@ -1,0 +1,12 @@
+/Users/lelialopes/Projects/astra/Solution/modules/Gateway/src/Astra.Gateway.Infrastructure/bin/Debug/net8.0/Astra.Gateway.Infrastructure.deps.json
+/Users/lelialopes/Projects/astra/Solution/modules/Gateway/src/Astra.Gateway.Infrastructure/bin/Debug/net8.0/Astra.Gateway.Infrastructure.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Gateway/src/Astra.Gateway.Infrastructure/bin/Debug/net8.0/Astra.Gateway.Infrastructure.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Gateway/src/Astra.Gateway.Infrastructure/obj/Debug/net8.0/Astra.Gateway.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Users/lelialopes/Projects/astra/Solution/modules/Gateway/src/Astra.Gateway.Infrastructure/obj/Debug/net8.0/Astra.Gateway.Infrastructure.AssemblyInfoInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Gateway/src/Astra.Gateway.Infrastructure/obj/Debug/net8.0/Astra.Gateway.Infrastructure.AssemblyInfo.cs
+/Users/lelialopes/Projects/astra/Solution/modules/Gateway/src/Astra.Gateway.Infrastructure/obj/Debug/net8.0/Astra.Gateway.Infrastructure.csproj.CoreCompileInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Gateway/src/Astra.Gateway.Infrastructure/obj/Debug/net8.0/Astra.Gateway.Infrastructure.sourcelink.json
+/Users/lelialopes/Projects/astra/Solution/modules/Gateway/src/Astra.Gateway.Infrastructure/obj/Debug/net8.0/Astra.Gateway.Infrastructure.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Gateway/src/Astra.Gateway.Infrastructure/obj/Debug/net8.0/refint/Astra.Gateway.Infrastructure.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Gateway/src/Astra.Gateway.Infrastructure/obj/Debug/net8.0/Astra.Gateway.Infrastructure.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Gateway/src/Astra.Gateway.Infrastructure/obj/Debug/net8.0/ref/Astra.Gateway.Infrastructure.dll

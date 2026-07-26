@@ -1,0 +1,12 @@
+/Users/lelialopes/Projects/astra/Solution/modules/Marketplace/src/Astra.Marketplace.Contracts/bin/Debug/net8.0/Astra.Marketplace.Contracts.deps.json
+/Users/lelialopes/Projects/astra/Solution/modules/Marketplace/src/Astra.Marketplace.Contracts/bin/Debug/net8.0/Astra.Marketplace.Contracts.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Marketplace/src/Astra.Marketplace.Contracts/bin/Debug/net8.0/Astra.Marketplace.Contracts.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Marketplace/src/Astra.Marketplace.Contracts/obj/Debug/net8.0/Astra.Marketplace.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+/Users/lelialopes/Projects/astra/Solution/modules/Marketplace/src/Astra.Marketplace.Contracts/obj/Debug/net8.0/Astra.Marketplace.Contracts.AssemblyInfoInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Marketplace/src/Astra.Marketplace.Contracts/obj/Debug/net8.0/Astra.Marketplace.Contracts.AssemblyInfo.cs
+/Users/lelialopes/Projects/astra/Solution/modules/Marketplace/src/Astra.Marketplace.Contracts/obj/Debug/net8.0/Astra.Marketplace.Contracts.csproj.CoreCompileInputs.cache
+/Users/lelialopes/Projects/astra/Solution/modules/Marketplace/src/Astra.Marketplace.Contracts/obj/Debug/net8.0/Astra.Marketplace.Contracts.sourcelink.json
+/Users/lelialopes/Projects/astra/Solution/modules/Marketplace/src/Astra.Marketplace.Contracts/obj/Debug/net8.0/Astra.Marketplace.Contracts.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Marketplace/src/Astra.Marketplace.Contracts/obj/Debug/net8.0/refint/Astra.Marketplace.Contracts.dll
+/Users/lelialopes/Projects/astra/Solution/modules/Marketplace/src/Astra.Marketplace.Contracts/obj/Debug/net8.0/Astra.Marketplace.Contracts.pdb
+/Users/lelialopes/Projects/astra/Solution/modules/Marketplace/src/Astra.Marketplace.Contracts/obj/Debug/net8.0/ref/Astra.Marketplace.Contracts.dll
