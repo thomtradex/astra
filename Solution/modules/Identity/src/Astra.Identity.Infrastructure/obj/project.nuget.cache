@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "nTc9LUcVKjA=",
+  "dgSpecHash": "R9fCr1RubqY=",
   "success": true,
   "projectFilePath": "/Users/lelialopes/Projects/astra/Solution/modules/Identity/src/Astra.Identity.Infrastructure/Astra.Identity.Infrastructure.csproj",
   "expectedPackageFiles": [
@@ -10,7 +10,6 @@
     "/Users/lelialopes/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/Users/lelialopes/.nuget/packages/mediatr/14.2.0/mediatr.14.2.0.nupkg.sha512",
     "/Users/lelialopes/.nuget/packages/mediatr.contracts/2.0.1/mediatr.contracts.2.0.1.nupkg.sha512",
-    "/Users/lelialopes/.nuget/packages/mediatr.extensions.microsoft.dependencyinjection/11.1.0/mediatr.extensions.microsoft.dependencyinjection.11.1.0.nupkg.sha512",
     "/Users/lelialopes/.nuget/packages/microsoft.bcl.asyncinterfaces/6.0.0/microsoft.bcl.asyncinterfaces.6.0.0.nupkg.sha512",
     "/Users/lelialopes/.nuget/packages/microsoft.bcl.cryptography/10.0.2/microsoft.bcl.cryptography.10.0.2.nupkg.sha512",
     "/Users/lelialopes/.nuget/packages/microsoft.codeanalysis.analyzers/3.3.3/microsoft.codeanalysis.analyzers.3.3.3.nupkg.sha512",
@@ -59,16 +58,5 @@
     "/Users/lelialopes/.nuget/packages/system.text.encoding.codepages/6.0.0/system.text.encoding.codepages.6.0.0.nupkg.sha512",
     "/Users/lelialopes/.nuget/packages/system.threading.channels/6.0.0/system.threading.channels.6.0.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1608",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Detected package version outside of dependency constraint: MediatR.Extensions.Microsoft.DependencyInjection 11.1.0 requires MediatR (>= 11.0.0 && < 12.0.0) but version MediatR 14.2.0 was resolved.",
-      "libraryId": "MediatR",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  "logs": []
 }

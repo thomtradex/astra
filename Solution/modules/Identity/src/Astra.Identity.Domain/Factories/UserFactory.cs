@@ -6,13 +6,12 @@ namespace Astra.Identity.Domain.Factories;
 public static class UserFactory
 {
     public static User Create(
-        Guid id,
-        string email,
+        Email email,
         string name,
         PasswordHash passwordHash)
     {
         return new User(
-            id,
+            UserId.New(),
             email,
             name,
             passwordHash);

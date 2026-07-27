@@ -11,7 +11,6 @@
 /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/Astra.Identity.Api/bin/Debug/net8.0/Humanizer.dll
 /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/Astra.Identity.Api/bin/Debug/net8.0/MediatR.dll
 /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/Astra.Identity.Api/bin/Debug/net8.0/MediatR.Contracts.dll
-/Users/lelialopes/Projects/astra/Solution/modules/Identity/src/Astra.Identity.Api/bin/Debug/net8.0/MediatR.Extensions.Microsoft.DependencyInjection.dll
 /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/Astra.Identity.Api/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
 /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/Astra.Identity.Api/bin/Debug/net8.0/Microsoft.AspNetCore.OpenApi.dll
 /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/Astra.Identity.Api/bin/Debug/net8.0/Microsoft.Bcl.AsyncInterfaces.dll

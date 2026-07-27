@@ -1,29 +1,27 @@
+using Astra.Identity.Domain.ValueObjects;
 using Astra.SharedKernel.Domain.Entities;
 
 namespace Astra.Identity.Domain.Entities;
 
-public sealed class RefreshToken : AggregateRoot<Guid>
+public sealed class RefreshToken : AggregateRoot<RefreshTokenId>
 {
     private RefreshToken()
     {
     }
 
     public RefreshToken(
-        Guid id,
-        Guid userId,
+        RefreshTokenId id,
+        UserId userId,
         string token,
         DateTime expiresAtUtc)
+        : base(id)
     {
-        Id = id;
-
         UserId = userId;
-
         Token = token;
-
         ExpiresAtUtc = expiresAtUtc;
     }
 
-    public Guid UserId { get; private set; }
+    public UserId UserId { get; private set; }
 
     public string Token { get; private set; } = string.Empty;
 
@@ -40,8 +38,6 @@ public sealed class RefreshToken : AggregateRoot<Guid>
     public void Revoke()
     {
         if (!IsRevoked)
-        {
             RevokedAtUtc = DateTime.UtcNow;
-        }
     }
 }

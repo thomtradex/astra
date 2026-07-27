@@ -14,7 +14,8 @@ public sealed class PermissionConfiguration
 
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.Id);
+        builder.Property(x => x.Id)
+            .ValueGeneratedNever();
 
         builder.OwnsOne(
             x => x.Name,

@@ -24,6 +24,7 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
                     .IsRequired();
             });
 
-        builder.Ignore(x => x.Permissions);
+        builder.Property(x => x.Type)
+            .IsRequired();
     }
 }

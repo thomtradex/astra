@@ -4,36 +4,50 @@ using Astra.SharedKernel.Domain.Entities;
 
 namespace Astra.Identity.Domain.Entities;
 
-public sealed class User : AggregateRoot<Guid>
+public sealed class User : AggregateRoot<UserId>
 {
+    private readonly List<RefreshToken> _refreshTokens = [];
+
+    private readonly List<UserRole> _userRoles = [];
+
     private User()
     {
     }
 
     public User(
-        Guid id,
-        string email,
+        UserId id,
+        Email email,
         string name,
         PasswordHash passwordHash)
+        : base(id)
     {
-        Id = id;
-
-        Email = new Email(email);
-
+        Email = email;
         Name = name;
-
         PasswordHash = passwordHash;
-
         Status = UserStatus.Active;
     }
 
     public Email Email { get; private set; } = null!;
 
-    public string Name { get; private set; } = string.Empty;
+    public string Name { get; private set; } = null!;
 
     public PasswordHash PasswordHash { get; private set; } = null!;
 
     public UserStatus Status { get; private set; }
+
+    public IReadOnlyCollection<RefreshToken> RefreshTokens
+        => _refreshTokens;
+
+    public IReadOnlyCollection<UserRole> UserRoles
+        => _userRoles;
+
+    public void UpdateProfile(
+        string name,
+        Email email)
+    {
+        Name = name;
+        Email = email;
+    }
 
     public void ChangePassword(
         PasswordHash passwordHash)
@@ -41,26 +55,21 @@ public sealed class User : AggregateRoot<Guid>
         PasswordHash = passwordHash;
     }
 
-    public void ChangeName(
-        string name)
+    public void AddRefreshToken(
+        RefreshToken refreshToken)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
-        Name = name.Trim();
+        _refreshTokens.Add(refreshToken);
     }
 
-    public void Suspend()
+    public void AddRole(
+        UserRole userRole)
     {
-        Status = UserStatus.Suspended;
+        _userRoles.Add(userRole);
     }
 
-    public void Activate()
+    public void ChangeStatus(
+        UserStatus status)
     {
-        Status = UserStatus.Active;
-    }
-
-    public void Deactivate()
-    {
-        Status = UserStatus.Inactive;
+        Status = status;
     }
 }

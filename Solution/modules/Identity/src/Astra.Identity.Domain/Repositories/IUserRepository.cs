@@ -1,11 +1,12 @@
 using Astra.Identity.Domain.Entities;
+using Astra.Identity.Domain.ValueObjects;
 
 namespace Astra.Identity.Domain.Repositories;
 
 public interface IUserRepository
 {
     Task<User?> GetByIdAsync(
-        Guid id,
+        UserId id,
         CancellationToken cancellationToken = default);
 
     Task<User?> GetByEmailAsync(

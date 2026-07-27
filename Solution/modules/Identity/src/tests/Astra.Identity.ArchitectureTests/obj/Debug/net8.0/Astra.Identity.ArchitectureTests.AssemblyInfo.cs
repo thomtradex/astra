@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Astra.Identity.ArchitectureTests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b3de1eb7a7a6d027579d3d836513b948557657ac")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3163073502f64ce479abc242c88e25d2025792b4")]
 [assembly: System.Reflection.AssemblyProductAttribute("Astra.Identity.ArchitectureTests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Astra.Identity.ArchitectureTests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

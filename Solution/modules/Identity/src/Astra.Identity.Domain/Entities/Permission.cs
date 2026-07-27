@@ -3,21 +3,19 @@ using Astra.SharedKernel.Domain.Entities;
 
 namespace Astra.Identity.Domain.Entities;
 
-public sealed class Permission : AggregateRoot<Guid>
+public sealed class Permission : AggregateRoot<PermissionId>
 {
     private Permission()
     {
     }
 
     public Permission(
-        Guid id,
+        PermissionId id,
         PermissionName name,
         string description)
+        : base(id)
     {
-        Id = id;
-
         Name = name;
-
         Description = description;
     }
 

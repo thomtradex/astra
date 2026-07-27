@@ -1,0 +1,21 @@
+x{
+  "ConnectionStrings": {
+    "IdentityDatabase": "Host=localhost;Port=5432;Database=astra_identity;Username=postgres;Password="
+  },
+
+  "Jwt": {
+    "Issuer": "Astra",
+    "Audience": "Astra",
+    "SecretKey": "THIS_IS_A_SUPER_SECRET_KEY_WITH_AT_LEAST_32_CHARACTERS",
+    "ExpirationMinutes": 60
+  },
+
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+
+  "AllowedHosts": "*"
+}

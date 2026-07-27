@@ -1,5 +1,6 @@
 using Astra.Identity.Domain.Entities;
 using Astra.Identity.Domain.Repositories;
+using Astra.Identity.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Astra.Identity.Infrastructure.Persistence.Repositories;
@@ -15,7 +16,7 @@ public sealed class RoleRepository : IRoleRepository
     }
 
     public async Task<Role?> GetByIdAsync(
-        Guid id,
+        RoleId id,
         CancellationToken cancellationToken = default)
     {
         return await _context.Roles

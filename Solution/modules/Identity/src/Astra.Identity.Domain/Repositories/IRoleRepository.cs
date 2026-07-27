@@ -1,11 +1,12 @@
 using Astra.Identity.Domain.Entities;
+using Astra.Identity.Domain.ValueObjects;
 
 namespace Astra.Identity.Domain.Repositories;
 
 public interface IRoleRepository
 {
     Task<Role?> GetByIdAsync(
-        Guid id,
+        RoleId id,
         CancellationToken cancellationToken = default);
 
     Task<Role?> GetByNameAsync(

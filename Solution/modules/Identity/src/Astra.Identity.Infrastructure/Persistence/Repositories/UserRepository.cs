@@ -1,5 +1,6 @@
 using Astra.Identity.Domain.Entities;
 using Astra.Identity.Domain.Repositories;
+using Astra.Identity.Domain.ValueObjects;
 using Astra.Identity.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,8 @@ public sealed class UserRepository : IUserRepository
 {
     private readonly IdentityDbContext _context;
 
-    public UserRepository(IdentityDbContext context)
+    public UserRepository(
+        IdentityDbContext context)
     {
         _context = context;
     }
@@ -18,25 +20,32 @@ public sealed class UserRepository : IUserRepository
         User user,
         CancellationToken cancellationToken = default)
     {
-        await _context.Users.AddAsync(user, cancellationToken);
+        await _context.Users.AddAsync(
+            user,
+            cancellationToken);
+
+        await _context.SaveChangesAsync(
+            cancellationToken);
     }
 
     public async Task<User?> GetByIdAsync(
-        Guid id,
+        UserId id,
         CancellationToken cancellationToken = default)
     {
-        return await _context.Users.FirstOrDefaultAsync(
-            x => x.Id == id,
-            cancellationToken);
+        return await _context.Users
+            .FirstOrDefaultAsync(
+                x => x.Id == id,
+                cancellationToken);
     }
 
     public async Task<User?> GetByEmailAsync(
         string email,
         CancellationToken cancellationToken = default)
     {
-        return await _context.Users.FirstOrDefaultAsync(
-            x => x.Email.Value == email,
-            cancellationToken);
+        return await _context.Users
+            .FirstOrDefaultAsync(
+                x => x.Email.Value == email,
+                cancellationToken);
     }
 
     public Task UpdateAsync(
@@ -44,6 +53,7 @@ public sealed class UserRepository : IUserRepository
         CancellationToken cancellationToken = default)
     {
         _context.Users.Update(user);
+
         return Task.CompletedTask;
     }
 
@@ -52,6 +62,7 @@ public sealed class UserRepository : IUserRepository
         CancellationToken cancellationToken = default)
     {
         _context.Users.Remove(user);
+
         return Task.CompletedTask;
     }
 }

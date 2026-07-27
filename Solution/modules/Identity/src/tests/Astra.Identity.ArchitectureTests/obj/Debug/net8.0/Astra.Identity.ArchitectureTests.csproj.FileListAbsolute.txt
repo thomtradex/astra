@@ -11,7 +11,6 @@
 /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/tests/Astra.Identity.ArchitectureTests/bin/Debug/net8.0/FluentValidation.DependencyInjectionExtensions.dll
 /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/tests/Astra.Identity.ArchitectureTests/bin/Debug/net8.0/MediatR.dll
 /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/tests/Astra.Identity.ArchitectureTests/bin/Debug/net8.0/MediatR.Contracts.dll
-/Users/lelialopes/Projects/astra/Solution/modules/Identity/src/tests/Astra.Identity.ArchitectureTests/bin/Debug/net8.0/MediatR.Extensions.Microsoft.DependencyInjection.dll
 /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/tests/Astra.Identity.ArchitectureTests/bin/Debug/net8.0/Microsoft.Bcl.Cryptography.dll
 /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/tests/Astra.Identity.ArchitectureTests/bin/Debug/net8.0/Microsoft.VisualStudio.CodeCoverage.Shim.dll
 /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/tests/Astra.Identity.ArchitectureTests/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.dll

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "/EK2mOcPaBQ=",
+  "dgSpecHash": "cpuQ4PxlKHI=",
   "success": true,
   "projectFilePath": "/Users/lelialopes/Projects/astra/Solution/modules/Identity/src/tests/Astra.Identity.ArchitectureTests/Astra.Identity.ArchitectureTests.csproj",
   "expectedPackageFiles": [
@@ -10,7 +10,6 @@
     "/Users/lelialopes/.nuget/packages/fluentvalidation.dependencyinjectionextensions/12.1.1/fluentvalidation.dependencyinjectionextensions.12.1.1.nupkg.sha512",
     "/Users/lelialopes/.nuget/packages/mediatr/14.2.0/mediatr.14.2.0.nupkg.sha512",
     "/Users/lelialopes/.nuget/packages/mediatr.contracts/2.0.1/mediatr.contracts.2.0.1.nupkg.sha512",
-    "/Users/lelialopes/.nuget/packages/mediatr.extensions.microsoft.dependencyinjection/11.1.0/mediatr.extensions.microsoft.dependencyinjection.11.1.0.nupkg.sha512",
     "/Users/lelialopes/.nuget/packages/microsoft.bcl.cryptography/10.0.2/microsoft.bcl.cryptography.10.0.2.nupkg.sha512",
     "/Users/lelialopes/.nuget/packages/microsoft.codecoverage/17.8.0/microsoft.codecoverage.17.8.0.nupkg.sha512",
     "/Users/lelialopes/.nuget/packages/microsoft.entityframeworkcore/8.0.11/microsoft.entityframeworkcore.8.0.11.nupkg.sha512",
@@ -126,16 +125,5 @@
     "/Users/lelialopes/.nuget/packages/xunit.extensibility.execution/2.5.3/xunit.extensibility.execution.2.5.3.nupkg.sha512",
     "/Users/lelialopes/.nuget/packages/xunit.runner.visualstudio/2.5.3/xunit.runner.visualstudio.2.5.3.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1608",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Detected package version outside of dependency constraint: MediatR.Extensions.Microsoft.DependencyInjection 11.1.0 requires MediatR (>= 11.0.0 && < 12.0.0) but version MediatR 14.2.0 was resolved.",
-      "libraryId": "MediatR",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  "logs": []
 }
