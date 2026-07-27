@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="../buildMultiTargeting/Astra.Marketplace.Api.props" />
-</Project>

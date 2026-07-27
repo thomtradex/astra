@@ -20,4 +20,7 @@ public interface IBrainRepository
     Task DeleteAsync(
         Brain brain,
         CancellationToken cancellationToken = default);
+
+    Task SaveChangesAsync(
+        CancellationToken cancellationToken = default);
 }

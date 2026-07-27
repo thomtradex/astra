@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="../build/Astra.Agents.Api.props" />
-</Project>

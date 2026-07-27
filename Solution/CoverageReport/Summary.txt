@@ -1,0 +1,181 @@
+Summary
+  Generated on: 7/27/2026 - 9:14:03 PM
+  Coverage date: 7/27/2026 - 9:10:01 PM - 7/27/2026 - 9:10:06 PM
+  Parser: MultiReport (4x Cobertura)
+  Assemblies: 7
+  Classes: 147
+  Files: 148
+  Line coverage: 0%
+  Covered lines: 0
+  Uncovered lines: 1976
+  Coverable lines: 1976
+  Total lines: 3863
+  Branch coverage: 0% (0 of 90)
+  Covered branches: 0
+  Total branches: 90
+  Method coverage: 0% (0 of 474)
+  Full method coverage: 0% (0 of 474)
+  Covered methods: 0
+  Fully covered methods: 0
+  Total methods: 474
+
+Astra.Identity.Application                                                                       0%
+  Astra.Identity.Application.Authentication.Login.LoginCommand                                   0%
+  Astra.Identity.Application.Authentication.Login.LoginCommandHandler                            0%
+  Astra.Identity.Application.Authentication.Login.LoginCommandValidator                          0%
+  Astra.Identity.Application.Authentication.Login.LoginResponse                                  0%
+  Astra.Identity.Application.Authentication.Logout.LogoutCommand                                 0%
+  Astra.Identity.Application.Authentication.Logout.LogoutCommandHandler                          0%
+  Astra.Identity.Application.Authentication.Refresh.RefreshCommand                               0%
+  Astra.Identity.Application.Authentication.Refresh.RefreshCommandValidator                      0%
+  Astra.Identity.Application.Authentication.Refresh.RefreshResponse                              0%
+  Astra.Identity.Application.Authentication.Refresh.RefreshTokenCommand                          0%
+  Astra.Identity.Application.Authentication.Refresh.RefreshTokenCommandHandler                   0%
+  Astra.Identity.Application.Behaviors.ValidationBehavior<T1, T2>                                0%
+  Astra.Identity.Application.Commands.RegisterUserCommand                                        0%
+  Astra.Identity.Application.DependencyInjection.ApplicationRegistration                         0%
+  Astra.Identity.Application.DTOs.UserDto                                                        0%
+  Astra.Identity.Application.Handlers.RegisterUserCommandHandler                                 0%
+
+Astra.Identity.Domain                                                                            0%
+  Astra.Identity.Domain.Authorization.PermissionCatalogReader                                    0%
+  Astra.Identity.Domain.Entities.Permission                                                      0%
+  Astra.Identity.Domain.Entities.RefreshToken                                                    0%
+  Astra.Identity.Domain.Entities.Role                                                            0%
+  Astra.Identity.Domain.Entities.RolePermission                                                  0%
+  Astra.Identity.Domain.Entities.User                                                            0%
+  Astra.Identity.Domain.Entities.UserRole                                                        0%
+  Astra.Identity.Domain.Exceptions.DuplicateEmailException                                       0%
+  Astra.Identity.Domain.Exceptions.InvalidCredentialsException                                   0%
+  Astra.Identity.Domain.Exceptions.UserNotFoundException                                         0%
+  Astra.Identity.Domain.Factories.UserFactory                                                    0%
+  Astra.Identity.Domain.ValueObjects.Email                                                       0%
+  Astra.Identity.Domain.ValueObjects.FullName                                                    0%
+  Astra.Identity.Domain.ValueObjects.PasswordHash                                                0%
+  Astra.Identity.Domain.ValueObjects.PermissionId                                                0%
+  Astra.Identity.Domain.ValueObjects.PermissionName                                              0%
+  Astra.Identity.Domain.ValueObjects.RefreshTokenId                                              0%
+  Astra.Identity.Domain.ValueObjects.RoleId                                                      0%
+  Astra.Identity.Domain.ValueObjects.RoleName                                                    0%
+  Astra.Identity.Domain.ValueObjects.RolePermissionId                                            0%
+  Astra.Identity.Domain.ValueObjects.UserId                                                      0%
+  Astra.Identity.Domain.ValueObjects.UserRoleId                                                  0%
+
+Astra.Identity.Infrastructure                                                                    0%
+  Astra.Identity.Infrastructure.DependencyInjection.InfrastructureRegistration                   0%
+  Astra.Identity.Infrastructure.Options.JwtOptions                                               0%
+  Astra.Identity.Infrastructure.Persistence.Configurations.PermissionConfiguration               0%
+  Astra.Identity.Infrastructure.Persistence.Configurations.RefreshTokenConfiguration             0%
+  Astra.Identity.Infrastructure.Persistence.Configurations.RoleConfiguration                     0%
+  Astra.Identity.Infrastructure.Persistence.Configurations.RolePermissionConfiguration           0%
+  Astra.Identity.Infrastructure.Persistence.Configurations.UserConfiguration                     0%
+  Astra.Identity.Infrastructure.Persistence.Configurations.UserRoleConfiguration                 0%
+  Astra.Identity.Infrastructure.Persistence.IdentityDbContext                                    0%
+  Astra.Identity.Infrastructure.Persistence.IdentityDbContextFactory                             0%
+  Astra.Identity.Infrastructure.Persistence.Migrations.IdentityDbContextModelSnapshot            0%
+  Astra.Identity.Infrastructure.Persistence.Migrations.InitialIdentity                           0%
+  Astra.Identity.Infrastructure.Persistence.Repositories.RefreshTokenRepository                  0%
+  Astra.Identity.Infrastructure.Persistence.Repositories.RoleRepository                          0%
+  Astra.Identity.Infrastructure.Persistence.Repositories.UserRepository                          0%
+  Astra.Identity.Infrastructure.Security.JwtTokenProvider                                        0%
+  Astra.Identity.Infrastructure.Security.PasswordHasher                                          0%
+
+Astra.Organization.Domain                                                                        0%
+  Astra.Organization.Domain.Entities.Membership                                                  0%
+  Astra.Organization.Domain.Entities.Organization                                                0%
+  Astra.Organization.Domain.Entities.Workspace                                                   0%
+  Astra.Organization.Domain.ValueObjects.MembershipId                                            0%
+  Astra.Organization.Domain.ValueObjects.OrganizationId                                          0%
+  Astra.Organization.Domain.ValueObjects.WorkspaceId                                             0%
+
+Astra.SharedKernel.Application                                                                   0%
+  Astra.SharedKernel.Application.Behaviors.ExceptionBehavior<T1, T2>                             0%
+  Astra.SharedKernel.Application.Behaviors.LoggingBehavior<T1, T2>                               0%
+  Astra.SharedKernel.Application.Behaviors.PerformanceBehavior<T1, T2>                           0%
+  Astra.SharedKernel.Application.Behaviors.TransactionBehavior<T1, T2>                           0%
+  Astra.SharedKernel.Application.Behaviors.ValidationBehavior<T1, T2>                            0%
+  Astra.SharedKernel.Application.DependencyInjection.DependencyInjection                         0%
+  Astra.SharedKernel.Application.Interfaces.EmailMessage                                         0%
+  Astra.SharedKernel.Application.Interfaces.FileReference                                        0%
+
+Astra.SharedKernel.Domain                                                                        0%
+  Astra.SharedKernel.Domain.Auditing.AuditInfo                                                   0%
+  Astra.SharedKernel.Domain.Authorization.Permission                                             0%
+  Astra.SharedKernel.Domain.Authorization.Role                                                   0%
+  Astra.SharedKernel.Domain.Caching.CacheEntry<T>                                                0%
+  Astra.SharedKernel.Domain.Clock.SystemTime                                                     0%
+  Astra.SharedKernel.Domain.Concurrency.ConcurrencyToken                                         0%
+  Astra.SharedKernel.Domain.Configuration.ConfigurationKey                                       0%
+  Astra.SharedKernel.Domain.Configuration.ConfigurationSection                                   0%
+  Astra.SharedKernel.Domain.CurrentUser.CurrentUserInfo                                          0%
+  Astra.SharedKernel.Domain.Entities.AggregateRoot<T>                                            0%
+  Astra.SharedKernel.Domain.Entities.AuditableEntity<T>                                          0%
+  Astra.SharedKernel.Domain.Entities.Entity<T>                                                   0%
+  Astra.SharedKernel.Domain.Enumeration.Enumeration                                              0%
+  Astra.SharedKernel.Domain.Events.DomainEvent                                                   0%
+  Astra.SharedKernel.Domain.Exceptions.BusinessRuleValidationException                           0%
+  Astra.SharedKernel.Domain.Exceptions.DomainException                                           0%
+  Astra.SharedKernel.Domain.ExecutionContext.ExecutionContextInfo                                0%
+  Astra.SharedKernel.Domain.FeatureFlags.FeatureFlag                                             0%
+  Astra.SharedKernel.Domain.Filtering.FilterDefinition                                           0%
+  Astra.SharedKernel.Domain.Filtering.FilterRequest                                              0%
+  Astra.SharedKernel.Domain.Filtering.FilterRule                                                 0%
+  Astra.SharedKernel.Domain.Guard                                                                0%
+  Astra.SharedKernel.Domain.Identifiers.StronglyTypedId                                          0%
+  Astra.SharedKernel.Domain.Inbox.InboxMessage                                                   0%
+  Astra.SharedKernel.Domain.Localization.LocalizedString                                         0%
+  Astra.SharedKernel.Domain.Localization.SupportedCulture                                        0%
+  Astra.SharedKernel.Domain.MultiTenancy.TenantInfo                                              0%
+  Astra.SharedKernel.Domain.Ordering.SortDefinition                                              0%
+  Astra.SharedKernel.Domain.Outbox.OutboxMessage                                                 0%
+  Astra.SharedKernel.Domain.Pagination.PagedQuery                                                0%
+  Astra.SharedKernel.Domain.Pagination.PagedResult<T>                                            0%
+  Astra.SharedKernel.Domain.Pagination.PageRequest                                               0%
+  Astra.SharedKernel.Domain.Results.Error                                                        0%
+  Astra.SharedKernel.Domain.Results.Result                                                       0%
+  Astra.SharedKernel.Domain.Results.Result<T>                                                    0%
+  Astra.SharedKernel.Domain.Search.SearchField                                                   0%
+  Astra.SharedKernel.Domain.Search.SearchQuery                                                   0%
+  Astra.SharedKernel.Domain.Search.SearchRequest                                                 0%
+  Astra.SharedKernel.Domain.Search.SearchResult<T>                                               0%
+  Astra.SharedKernel.Domain.Settings.Setting                                                     0%
+  Astra.SharedKernel.Domain.SoftDelete.SoftDeleteInfo                                            0%
+  Astra.SharedKernel.Domain.Sorting.SortRequest                                                  0%
+  Astra.SharedKernel.Domain.Specifications.AndSpecification<T>                                   0%
+  Astra.SharedKernel.Domain.Specifications.NotSpecification<T>                                   0%
+  Astra.SharedKernel.Domain.Specifications.OrSpecification<T>                                    0%
+  Astra.SharedKernel.Domain.Specifications.SpecificationExtensions                               0%
+  Astra.SharedKernel.Domain.StronglyTypedIds.StronglyTypedId                                     0%
+  Astra.SharedKernel.Domain.Validation.ValidationError                                           0%
+  Astra.SharedKernel.Domain.Validation.ValidationFailure                                         0%
+  Astra.SharedKernel.Domain.Validation.ValidationResult                                          0%
+  Astra.SharedKernel.Domain.ValueObjects.EntityId                                                0%
+  Astra.SharedKernel.Domain.ValueObjects.ValueObject                                             0%
+
+Astra.SharedKernel.Infrastructure                                                                0%
+  Astra.SharedKernel.Infrastructure.BackgroundJobs.InMemoryBackgroundJobScheduler                0%
+  Astra.SharedKernel.Infrastructure.Cache.MemoryCacheService                                     0%
+  Astra.SharedKernel.Infrastructure.Clock.SystemClock                                            0%
+  Astra.SharedKernel.Infrastructure.DependencyInjection.DependencyInjection                      0%
+  Astra.SharedKernel.Infrastructure.Email.EmailSender                                            0%
+  Astra.SharedKernel.Infrastructure.EventBus.Dispatching.EventDispatcher                         0%
+  Astra.SharedKernel.Infrastructure.EventBus.EventBusOptions                                     0%
+  Astra.SharedKernel.Infrastructure.EventBus.InMemoryEventBus                                    0%
+  Astra.SharedKernel.Infrastructure.Events.DomainEventDispatcher                                 0%
+  Astra.SharedKernel.Infrastructure.Ids.GuidGenerator                                            0%
+  Astra.SharedKernel.Infrastructure.Mediator.Mediator                                            0%
+  Astra.SharedKernel.Infrastructure.Mediator.Pipeline.PipelineContext                            0%
+  Astra.SharedKernel.Infrastructure.Mediator.Pipeline.PipelineExecutor                           0%
+  Astra.SharedKernel.Infrastructure.Outbox.JsonOutboxSerializer                                  0%
+  Astra.SharedKernel.Infrastructure.Outbox.OutboxMessage                                         0%
+  Astra.SharedKernel.Infrastructure.Outbox.Processors.OutboxProcessor                            0%
+  Astra.SharedKernel.Infrastructure.Persistence.AstraDbContext                                   0%
+  Astra.SharedKernel.Infrastructure.Persistence.BaseEntityConfiguration<T1, T2>                  0%
+  Astra.SharedKernel.Infrastructure.Persistence.Configurations.ModelBuilderExtensions            0%
+  Astra.SharedKernel.Infrastructure.Persistence.Converters.DateTimeUtcConverter                  0%
+  Astra.SharedKernel.Infrastructure.Persistence.Interceptors.AuditableEntityInterceptor          0%
+  Astra.SharedKernel.Infrastructure.Persistence.Interceptors.PublishDomainEventsInterceptor      0%
+  Astra.SharedKernel.Infrastructure.Repositories.Repository<T1, T2>                              0%
+  Astra.SharedKernel.Infrastructure.Serialization.JsonSerializerOptionsProvider                  0%
+  Astra.SharedKernel.Infrastructure.Storage.LocalFileStorage                                     0%
+  Astra.SharedKernel.Infrastructure.UnitOfWork.UnitOfWork                                        0%

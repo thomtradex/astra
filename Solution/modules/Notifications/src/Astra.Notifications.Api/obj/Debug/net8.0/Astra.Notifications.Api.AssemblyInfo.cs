@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Astra.Notifications.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b3de1eb7a7a6d027579d3d836513b948557657ac")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0ac87749d81dadb5e5c6172d46e9c511a2d43443")]
 [assembly: System.Reflection.AssemblyProductAttribute("Astra.Notifications.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Astra.Notifications.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

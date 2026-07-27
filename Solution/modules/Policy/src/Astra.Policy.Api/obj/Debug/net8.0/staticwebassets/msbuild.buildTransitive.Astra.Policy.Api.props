@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="../buildMultiTargeting/Astra.Policy.Api.props" />
-</Project>

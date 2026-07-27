@@ -20,4 +20,7 @@ public interface IGoalRepository
     Task DeleteAsync(
         Goal goal,
         CancellationToken cancellationToken = default);
+
+    Task SaveChangesAsync(
+        CancellationToken cancellationToken = default);
 }

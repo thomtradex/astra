@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="../build/Astra.Notifications.Api.props" />
-</Project>

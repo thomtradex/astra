@@ -20,4 +20,7 @@ public interface IReasoningSessionRepository
     Task DeleteAsync(
         ReasoningSession session,
         CancellationToken cancellationToken = default);
+
+    Task SaveChangesAsync(
+        CancellationToken cancellationToken = default);
 }

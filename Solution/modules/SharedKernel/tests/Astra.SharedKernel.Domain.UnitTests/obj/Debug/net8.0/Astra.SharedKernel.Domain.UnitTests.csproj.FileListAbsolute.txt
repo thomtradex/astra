@@ -1,7 +1,7 @@
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/.msCoverageSourceRootsMapping_Astra.SharedKernel.Domain.UnitTests
 /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/CoverletSourceRootsMapping_Astra.SharedKernel.Domain.UnitTests
-/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/xunit.runner.visualstudio.dotnetcore.testadapter.dll
-/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/xunit.runner.reporters.netcoreapp10.dll
-/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/xunit.runner.utility.netcoreapp10.dll
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/xunit.abstractions.dll
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/xunit.runner.visualstudio.testadapter.dll
 /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/Astra.SharedKernel.Domain.UnitTests.deps.json
 /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/Astra.SharedKernel.Domain.UnitTests.runtimeconfig.json
 /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/Astra.SharedKernel.Domain.UnitTests.dll
@@ -16,9 +16,11 @@
 /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/Microsoft.TestPlatform.Utilities.dll
 /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/Microsoft.VisualStudio.TestPlatform.Common.dll
 /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/testhost.dll
-/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/Newtonsoft.Json.dll
-/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/NuGet.Frameworks.dll
-/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/xunit.abstractions.dll
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/Mono.Cecil.Mdb.dll
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/Mono.Cecil.Pdb.dll
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/Mono.Cecil.Rocks.dll
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/Mono.Cecil.dll
+/Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/NetArchTest.Rules.dll
 /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/xunit.assert.dll
 /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/xunit.core.dll
 /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/xunit.execution.dotnet.dll

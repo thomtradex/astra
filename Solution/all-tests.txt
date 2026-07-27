@@ -1,0 +1,36 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Astra.Identity.IntegrationTests -> /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/tests/Astra.Identity.IntegrationTests/bin/Debug/net8.0/Astra.Identity.IntegrationTests.dll
+Test run for /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/tests/Astra.Identity.IntegrationTests/bin/Debug/net8.0/Astra.Identity.IntegrationTests.dll (.NETCoreApp,Version=v8.0)
+  Astra.Identity.UnitTests -> /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/tests/Astra.Identity.UnitTests/bin/Debug/net8.0/Astra.Identity.UnitTests.dll
+Test run for /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/tests/Astra.Identity.UnitTests/bin/Debug/net8.0/Astra.Identity.UnitTests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (arm64)
+
+VSTest version 17.11.1 (arm64)
+
+The following Tests are available:
+The following Tests are available:
+  Astra.SharedKernel.Domain -> /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Domain/bin/Debug/net8.0/Astra.SharedKernel.Domain.dll
+  Astra.SharedKernel.Application -> /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Application/bin/Debug/net8.0/Astra.SharedKernel.Application.dll
+  Astra.Organization.Domain -> /Users/lelialopes/Projects/astra/Solution/modules/Organization/src/Astra.Organization.Domain/bin/Debug/net8.0/Astra.Organization.Domain.dll
+    Astra.Identity.IntegrationTests.UnitTest1.Test1
+  Astra.Identity.Domain -> /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/Astra.Identity.Domain/bin/Debug/net8.0/Astra.Identity.Domain.dll
+    Astra.Identity.UnitTests.UnitTest1.Test1
+  Astra.Identity.Application -> /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/Astra.Identity.Application/bin/Debug/net8.0/Astra.Identity.Application.dll
+  Astra.SharedKernel.Domain.UnitTests -> /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/Astra.SharedKernel.Domain.UnitTests.dll
+  Astra.SharedKernel.Infrastructure -> /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/src/Astra.SharedKernel.Infrastructure/bin/Debug/net8.0/Astra.SharedKernel.Infrastructure.dll
+Test run for /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/Astra.SharedKernel.Domain.UnitTests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (arm64)
+
+The following Tests are available:
+No test is available in /Users/lelialopes/Projects/astra/Solution/modules/SharedKernel/tests/Astra.SharedKernel.Domain.UnitTests/bin/Debug/net8.0/Astra.SharedKernel.Domain.UnitTests.dll. Make sure that test discoverer & executors are registered and platform & framework version settings are appropriate and try again.
+  Astra.Identity.Infrastructure -> /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/Astra.Identity.Infrastructure/bin/Debug/net8.0/Astra.Identity.Infrastructure.dll
+  Astra.Identity.ArchitectureTests -> /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/tests/Astra.Identity.ArchitectureTests/bin/Debug/net8.0/Astra.Identity.ArchitectureTests.dll
+Test run for /Users/lelialopes/Projects/astra/Solution/modules/Identity/src/tests/Astra.Identity.ArchitectureTests/bin/Debug/net8.0/Astra.Identity.ArchitectureTests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (arm64)
+
+The following Tests are available:
+    Astra.Identity.ArchitectureTests.Naming.RepositoryNamingTests.Repositories_Should_Be_Interfaces
+    Astra.Identity.ArchitectureTests.Naming.ValueObjectNamingTests.ValueObjects_Should_End_With_Id_Or_Be_Named_Correctly
+    Astra.Identity.ArchitectureTests.Layering.Application_Should_Not_Depend_On_Infrastructure.Application_Should_Not_Have_Dependency_On_Infrastructure
+    Astra.Identity.ArchitectureTests.Layering.Domain_Should_Not_Depend_On_Application.Domain_Should_Not_Have_Dependency_On_Application

@@ -1,9 +1,15 @@
+using MediatR;
+
 namespace Astra.SharedKernel.Application.Commands;
 
 public interface ICommandHandler<in TCommand>
+    : IRequestHandler<TCommand>
     where TCommand : ICommand
 {
-    Task Handle(
-        TCommand command,
-        CancellationToken cancellationToken = default);
+}
+
+public interface ICommandHandler<in TCommand, TResponse>
+    : IRequestHandler<TCommand, TResponse>
+    where TCommand : ICommand<TResponse>
+{
 }

@@ -20,4 +20,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Astra.Identity.Domain\Astra.Identity.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

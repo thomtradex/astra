@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="../build/Astra.Memory.Api.props" />
-</Project>

@@ -20,4 +20,7 @@ public interface ICapabilityRepository
     Task DeleteAsync(
         Capability capability,
         CancellationToken cancellationToken = default);
+
+    Task SaveChangesAsync(
+        CancellationToken cancellationToken = default);
 }

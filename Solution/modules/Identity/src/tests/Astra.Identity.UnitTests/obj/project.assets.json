@@ -1708,6 +1708,43 @@
         "build": {
           "build/net6.0/xunit.runner.visualstudio.props": {}
         }
+      },
+      "Astra.Identity.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "Astra.Organization.Domain": "1.0.0",
+          "Astra.SharedKernel.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Astra.Identity.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Astra.Identity.Domain.dll": {}
+        }
+      },
+      "Astra.Organization.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "Astra.SharedKernel.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Astra.Organization.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Astra.Organization.Domain.dll": {}
+        }
+      },
+      "Astra.SharedKernel.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/Astra.SharedKernel.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Astra.SharedKernel.Domain.dll": {}
+        }
       }
     }
   },
@@ -5497,10 +5534,26 @@
         "xunit.runner.visualstudio.2.5.3.nupkg.sha512",
         "xunit.runner.visualstudio.nuspec"
       ]
+    },
+    "Astra.Identity.Domain/1.0.0": {
+      "type": "project",
+      "path": "../../Astra.Identity.Domain/Astra.Identity.Domain.csproj",
+      "msbuildProject": "../../Astra.Identity.Domain/Astra.Identity.Domain.csproj"
+    },
+    "Astra.Organization.Domain/1.0.0": {
+      "type": "project",
+      "path": "../../../../Organization/src/Astra.Organization.Domain/Astra.Organization.Domain.csproj",
+      "msbuildProject": "../../../../Organization/src/Astra.Organization.Domain/Astra.Organization.Domain.csproj"
+    },
+    "Astra.SharedKernel.Domain/1.0.0": {
+      "type": "project",
+      "path": "../../../../SharedKernel/src/Astra.SharedKernel.Domain/Astra.SharedKernel.Domain.csproj",
+      "msbuildProject": "../../../../SharedKernel/src/Astra.SharedKernel.Domain/Astra.SharedKernel.Domain.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "Astra.Identity.Domain >= 1.0.0",
       "Microsoft.NET.Test.Sdk >= 17.8.0",
       "coverlet.collector >= 6.0.0",
       "xunit >= 2.5.3",
@@ -5531,7 +5584,11 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "/Users/lelialopes/Projects/astra/Solution/modules/Identity/src/Astra.Identity.Domain/Astra.Identity.Domain.csproj": {
+              "projectPath": "/Users/lelialopes/Projects/astra/Solution/modules/Identity/src/Astra.Identity.Domain/Astra.Identity.Domain.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
