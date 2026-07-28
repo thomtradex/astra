@@ -1,4 +1,5 @@
 using Astra.Identity.Domain.Entities;
+using Astra.Identity.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -14,12 +15,21 @@ public sealed class RefreshTokenConfiguration
 
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.Id)
+            .HasConversion(
+                id => id.Value,
+                value => new RefreshTokenId(value))
+            .ValueGeneratedNever();
+
+        builder.Property(x => x.UserId)
+            .HasConversion(
+                id => id.Value,
+                value => new UserId(value))
+            .IsRequired();
+
         builder.Property(x => x.Token)
             .IsRequired()
             .HasMaxLength(512);
-
-        builder.Property(x => x.UserId)
-            .IsRequired();
 
         builder.Property(x => x.ExpiresAtUtc)
             .IsRequired();

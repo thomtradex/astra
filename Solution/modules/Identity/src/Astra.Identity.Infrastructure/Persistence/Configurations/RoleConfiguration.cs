@@ -1,4 +1,5 @@
 using Astra.Identity.Domain.Entities;
+using Astra.Identity.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,7 +13,11 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.Id);
+        builder.Property(x => x.Id)
+            .HasConversion(
+                id => id.Value,
+                value => new RoleId(value))
+            .ValueGeneratedNever();
 
         builder.OwnsOne(
             x => x.Name,
