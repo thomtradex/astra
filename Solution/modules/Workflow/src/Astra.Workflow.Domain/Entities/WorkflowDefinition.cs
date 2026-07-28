@@ -19,6 +19,8 @@ public sealed class WorkflowDefinition
 
     private WorkflowDefinition()
     {
+        Name = null!;
+        Description = null!;
     }
 
     public WorkflowDefinition(

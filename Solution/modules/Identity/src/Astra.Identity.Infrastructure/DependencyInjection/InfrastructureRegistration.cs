@@ -28,7 +28,9 @@ public static class InfrastructureRegistration
         services.AddScoped<IUserRepository, UserRepository>();
 
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        
+
+        services.AddScoped<IMembershipRepository, MembershipRepository>();
+
         services.AddSingleton<
             IPasswordHasher,
             PasswordHasher>();

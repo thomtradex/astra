@@ -19,6 +19,8 @@ public sealed class Agent
 
     private Agent()
     {
+        Name = null!;
+        Description = null!;
     }
 
     public Agent(

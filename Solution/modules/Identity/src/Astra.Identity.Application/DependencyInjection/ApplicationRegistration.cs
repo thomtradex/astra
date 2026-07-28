@@ -1,3 +1,5 @@
+using Astra.Identity.Application.Authorization.Interfaces;
+using Astra.Identity.Application.Authorization.Services;
 using Astra.Identity.Application.Behaviors;
 using FluentValidation;
 using MediatR;
@@ -22,6 +24,10 @@ public static class ApplicationRegistration
         services.AddTransient(
             typeof(IPipelineBehavior<,>),
             typeof(ValidationBehavior<,>));
+
+        services.AddSingleton<PolicyEvaluator>();
+
+        services.AddScoped<IAuthorizationService, AuthorizationService>();
 
         return services;
     }

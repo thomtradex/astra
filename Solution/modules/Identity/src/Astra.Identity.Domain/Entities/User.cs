@@ -7,8 +7,7 @@ namespace Astra.Identity.Domain.Entities;
 public sealed class User : AggregateRoot<UserId>
 {
     private readonly List<RefreshToken> _refreshTokens = [];
-
-    private readonly List<UserRole> _userRoles = [];
+    private readonly List<Membership> _memberships = [];
 
     private User()
     {
@@ -38,9 +37,8 @@ public sealed class User : AggregateRoot<UserId>
     public IReadOnlyCollection<RefreshToken> RefreshTokens
         => _refreshTokens;
 
-    public IReadOnlyCollection<UserRole> UserRoles
-        => _userRoles;
-
+    public IReadOnlyCollection<Membership> Memberships
+    => _memberships.AsReadOnly();
     public void UpdateProfile(
         string name,
         Email email)
@@ -61,15 +59,16 @@ public sealed class User : AggregateRoot<UserId>
         _refreshTokens.Add(refreshToken);
     }
 
-    public void AddRole(
-        UserRole userRole)
-    {
-        _userRoles.Add(userRole);
-    }
-
     public void ChangeStatus(
-        UserStatus status)
+       UserStatus status)
     {
         Status = status;
     }
+
+    public void AddMembership(
+        Membership membership)
+    {
+        _memberships.Add(membership);
+    }
+
 }

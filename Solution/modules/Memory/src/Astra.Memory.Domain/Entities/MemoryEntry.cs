@@ -18,6 +18,8 @@ public sealed class MemoryEntry
 
     private MemoryEntry()
     {
+        Key = null!;
+        Value = null!;
     }
 
     public MemoryEntry(

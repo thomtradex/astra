@@ -18,6 +18,8 @@ public sealed class PlanStep
 
     private PlanStep()
     {
+        Title = null!;
+        Description = null!;
     }
 
     public PlanStep(

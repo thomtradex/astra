@@ -15,11 +15,11 @@ public static class DependencyInjection
         services.AddMemoryCache();
 
         services.AddSingleton<IEmailSender, EmailSender>();
-        
+
         services.AddSingleton<IFileStorage, LocalFileStorage>();
-        
+
         services.AddSingleton<ICacheService, MemoryCacheService>();
-       
+
         services.AddScoped<IMediator, Astra.SharedKernel.Infrastructure.Mediator.Mediator>();
 
         services.AddScoped<IDomainEventDispatcher, Astra.SharedKernel.Infrastructure.Events.DomainEventDispatcher>();

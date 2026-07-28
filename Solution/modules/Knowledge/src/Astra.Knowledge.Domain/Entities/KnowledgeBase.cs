@@ -17,6 +17,8 @@ public sealed class KnowledgeBase
 
     private KnowledgeBase()
     {
+        Name = null!;
+        Description = null!;
     }
 
     public KnowledgeBase(
@@ -33,14 +35,12 @@ public sealed class KnowledgeBase
         CreatedAtUtc = createdAtUtc;
     }
 
-    public void Rename(
-        string name)
+    public void Rename(string name)
     {
         Name = name;
     }
 
-    public void ChangeDescription(
-        string description)
+    public void ChangeDescription(string description)
     {
         Description = description;
     }

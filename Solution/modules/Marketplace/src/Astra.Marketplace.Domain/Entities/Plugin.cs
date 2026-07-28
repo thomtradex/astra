@@ -21,6 +21,9 @@ public sealed class Plugin
 
     private Plugin()
     {
+        Name = null!;
+        Version = null!;
+        Description = null!;
     }
 
     public Plugin(

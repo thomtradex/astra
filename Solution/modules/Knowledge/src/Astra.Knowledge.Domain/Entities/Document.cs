@@ -20,6 +20,9 @@ public sealed class Document
 
     private Document()
     {
+        Title = null!;
+        FileName = null!;
+        ContentType = null!;
     }
 
     public Document(
@@ -40,8 +43,7 @@ public sealed class Document
         UploadedAtUtc = uploadedAtUtc;
     }
 
-    public void Rename(
-        string title)
+    public void Rename(string title)
     {
         Title = title;
     }

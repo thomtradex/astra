@@ -16,6 +16,8 @@ public sealed class Workspace
 
     private Workspace()
     {
+        Name = null!;
+        Slug = null!;
     }
 
     public Workspace(

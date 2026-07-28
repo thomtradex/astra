@@ -16,6 +16,7 @@ public sealed class DocumentChunk
 
     private DocumentChunk()
     {
+        Content = null!;
     }
 
     public DocumentChunk(
@@ -32,8 +33,7 @@ public sealed class DocumentChunk
         CreatedAtUtc = createdAtUtc;
     }
 
-    public void UpdateContent(
-        string content)
+    public void UpdateContent(string content)
     {
         Content = content;
     }

@@ -13,6 +13,7 @@ public sealed class IdentityDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<Membership> Memberships => Set<Membership>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<Role> Roles => Set<Role>();
 

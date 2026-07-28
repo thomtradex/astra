@@ -17,6 +17,8 @@ public sealed class MemoryCollection
 
     private MemoryCollection()
     {
+        Name = null!;
+        Description = null!;
     }
 
     public MemoryCollection(

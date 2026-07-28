@@ -17,6 +17,8 @@ public sealed class Plan
 
     private Plan()
     {
+        Name = null!;
+        Goal = null!;
     }
 
     public Plan(

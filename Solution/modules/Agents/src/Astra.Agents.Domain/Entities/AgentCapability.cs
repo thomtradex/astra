@@ -14,6 +14,8 @@ public sealed class AgentCapability
 
     private AgentCapability()
     {
+        Name = null!;
+        Description = null!;
     }
 
     public AgentCapability(
