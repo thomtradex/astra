@@ -12,10 +12,15 @@ public sealed class Membership
 
     public string Role { get; private set; }
 
-    public DateTime JoinedAtUtc { get; private set; }
+    public DateTime CreatedAtUtc { get; private set; }
 
     private Membership()
     {
+        Id = default;
+        OrganizationId = default;
+        UserId = Guid.Empty;
+        Role = string.Empty;
+        CreatedAtUtc = default;
     }
 
     public Membership(
@@ -23,17 +28,16 @@ public sealed class Membership
         OrganizationId organizationId,
         Guid userId,
         string role,
-        DateTime joinedAtUtc)
+        DateTime createdAtUtc)
     {
         Id = id;
         OrganizationId = organizationId;
         UserId = userId;
         Role = role;
-        JoinedAtUtc = joinedAtUtc;
+        CreatedAtUtc = createdAtUtc;
     }
 
-    public void ChangeRole(
-        string role)
+    public void ChangeRole(string role)
     {
         Role = role;
     }

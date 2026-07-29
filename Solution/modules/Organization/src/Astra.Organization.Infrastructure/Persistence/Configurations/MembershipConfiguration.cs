@@ -37,7 +37,7 @@ public sealed class MembershipConfiguration
             .HasMaxLength(100)
             .IsRequired();
 
-        builder.Property(x => x.JoinedAtUtc)
+        builder.Property(x => x.CreatedAtUtc)
             .IsRequired();
 
         builder.HasIndex(x => new
