@@ -6,8 +6,6 @@
     "moduleResolution": "Node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
     "incremental": true,
     "removeComments": true
   }

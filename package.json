@@ -31,8 +31,13 @@
   "devDependencies": {
     "@astra/eslint-config": "workspace:*",
     "@astra/typescript-config": "workspace:*",
+    "@eslint/js": "^10.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.18.1",
+    "@typescript-eslint/parser": "^8.18.1",
+    "globals": "^17.8.0",
     "prettier": "^3.4.2",
     "turbo": "^2.3.3",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.65.0"
   }
 }

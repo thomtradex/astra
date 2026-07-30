@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AuditAction } from '@astra/database';
-import { buildPaginatedResult, normalizePagination } from '@astra/shared';
+import {
+  buildPaginatedResult,
+  normalizePagination,
+  type PaginatedResult,
+} from '@astra/shared';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditLogInput, AuditLogQuery } from './interfaces/audit-log.interface';
@@ -29,12 +33,24 @@ export class AuditService {
         },
       });
     } catch (error) {
-      this.logger.error('Failed to write audit log', error instanceof Error ? error.stack : error);
+      this.logger.error(
+        'Failed to write audit log',
+        error instanceof Error ? error.stack : error,
+      );
     }
   }
 
-  async findByOrganization(query: AuditLogQuery) {
-    const { page, limit, skip } = normalizePagination(query.page, query.limit);
+  async findByOrganization(
+    query: AuditLogQuery,
+  ): Promise<
+    PaginatedResult<
+      Awaited<ReturnType<AuditService['findAuditRecords']>>[number]
+    >
+  > {
+    const { page, limit, skip } = normalizePagination(
+      query.page,
+      query.limit,
+    );
 
     const where = {
       organizationId: query.organizationId,
@@ -61,7 +77,9 @@ export class AuditService {
   ) {
     return this.prisma.auditLog.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: {
+        createdAt: 'desc',
+      },
       skip,
       take,
       include: {
@@ -81,11 +99,14 @@ export class AuditService {
     switch (method.toUpperCase()) {
       case 'POST':
         return AuditAction.CREATE;
+
       case 'PUT':
       case 'PATCH':
         return AuditAction.UPDATE;
+
       case 'DELETE':
         return AuditAction.DELETE;
+
       case 'GET':
       default:
         return AuditAction.READ;

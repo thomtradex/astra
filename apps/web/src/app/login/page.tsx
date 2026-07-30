@@ -33,8 +33,14 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-md">
         <div className="mb-10 text-center">
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-astra-500">Astra</p>
-          <h1 className="mt-3 text-3xl font-light text-astra-950">Entrar na plataforma</h1>
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-astra-500">
+            Astra
+          </p>
+
+          <h1 className="mt-3 text-3xl font-light text-astra-950">
+            Entrar na plataforma
+          </h1>
+
           <p className="mt-2 text-sm text-astra-600">
             Fundação Phase 0.1 — autenticação segura
           </p>
@@ -54,39 +60,47 @@ export default function LoginPage() {
           )}
 
           <label className="block">
-            <span className="mb-2 block text-sm font-medium text-astra-700">Email</span>
+            <span className="mb-2 block text-sm font-medium text-astra-700">
+              Email
+            </span>
+
             <input
               type="email"
               autoComplete="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
               className="w-full rounded-lg border border-astra-200 px-4 py-3 text-astra-950 outline-none transition focus:border-astra-400 focus:ring-2 focus:ring-astra-100"
               placeholder="admin@astra.local"
             />
           </label>
 
           <label className="mt-5 block">
-            <span className="mb-2 block text-sm font-medium text-astra-700">Password</span>
+            <span className="mb-2 block text-sm font-medium text-astra-700">
+              Password
+            </span>
+
             <input
               type="password"
               autoComplete="current-password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
               className="w-full rounded-lg border border-astra-200 px-4 py-3 text-astra-950 outline-none transition focus:border-astra-400 focus:ring-2 focus:ring-astra-100"
             />
           </label>
 
           <label className="mt-5 block">
             <span className="mb-2 block text-sm font-medium text-astra-700">
-              Organização <span className="font-normal text-astra-500">(opcional)</span>
+              Organização{' '}
+              <span className="font-normal text-astra-500">(opcional)</span>
             </span>
+
             <input
               type="text"
               autoComplete="organization"
               value={organizationSlug}
-              onChange={(e) => setOrganizationSlug(e.target.value)}
+              onChange={(event) => setOrganizationSlug(event.target.value)}
               className="w-full rounded-lg border border-astra-200 px-4 py-3 text-astra-950 outline-none transition focus:border-astra-400 focus:ring-2 focus:ring-astra-100"
               placeholder="astra-demo"
             />

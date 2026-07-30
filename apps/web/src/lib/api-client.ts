@@ -22,12 +22,16 @@ export async function apiFetch<T>(
   const response = await fetch(`${getApiBaseUrl()}${path}`, {
     ...options,
     headers,
-    cache: 'no-store',
   });
 
   if (!response.ok) {
-    const errorBody = (await response.json().catch(() => null)) as { message?: string } | null;
-    throw new Error(errorBody?.message ?? `Request failed with status ${response.status}`);
+    const errorBody = (await response.json().catch(() => null)) as {
+      message?: string;
+    } | null;
+
+    throw new Error(
+      errorBody?.message ?? `Request failed with status ${response.status}`,
+    );
   }
 
   if (response.status === 204) {

@@ -15,14 +15,14 @@ export class HealthService {
   constructor(private readonly prisma: PrismaService) {}
 
   async check(): Promise<HealthCheckResult> {
-    let databaseStatus: 'up' | 'down' = 'down';
-
-    try {
-      await this.prisma.$queryRaw`SELECT 1`;
-      databaseStatus = 'up';
-    } catch {
-      databaseStatus = 'down';
-    }
+    const databaseStatus: 'up' | 'down' = await (async () => {
+      try {
+        await this.prisma.$queryRaw`SELECT 1`;
+        return 'up';
+      } catch {
+        return 'down';
+      }
+    })();
 
     return {
       status: databaseStatus === 'up' ? 'ok' : 'degraded',

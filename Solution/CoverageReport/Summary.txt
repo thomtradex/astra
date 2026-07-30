@@ -1,23 +1,23 @@
 Summary
-  Generated on: 7/27/2026 - 9:14:03 PM
-  Coverage date: 7/27/2026 - 9:10:01 PM - 7/27/2026 - 9:10:06 PM
-  Parser: MultiReport (4x Cobertura)
+  Generated on: 7/30/2026 - 9:36:00 AM
+  Coverage date: 7/28/2026 - 7:34:16 PM - 7/29/2026 - 9:00:45 PM
+  Parser: MultiReport (8x Cobertura)
   Assemblies: 7
-  Classes: 147
-  Files: 148
-  Line coverage: 0%
-  Covered lines: 0
-  Uncovered lines: 1976
-  Coverable lines: 1976
-  Total lines: 3863
-  Branch coverage: 0% (0 of 90)
-  Covered branches: 0
-  Total branches: 90
-  Method coverage: 0% (0 of 474)
-  Full method coverage: 0% (0 of 474)
-  Covered methods: 0
-  Fully covered methods: 0
-  Total methods: 474
+  Classes: 155
+  Files: 156
+  Line coverage: 6%
+  Covered lines: 129
+  Uncovered lines: 2008
+  Coverable lines: 2137
+  Total lines: 4125
+  Branch coverage: 5.4% (5 of 92)
+  Covered branches: 5
+  Total branches: 92
+  Method coverage: 10.4% (52 of 500)
+  Full method coverage: 9.6% (48 of 500)
+  Covered methods: 52
+  Fully covered methods: 48
+  Total methods: 500
 
 Astra.Identity.Application                                                                       0%
   Astra.Identity.Application.Authentication.Login.LoginCommand                                   0%
@@ -31,39 +31,46 @@ Astra.Identity.Application                                                      
   Astra.Identity.Application.Authentication.Refresh.RefreshResponse                              0%
   Astra.Identity.Application.Authentication.Refresh.RefreshTokenCommand                          0%
   Astra.Identity.Application.Authentication.Refresh.RefreshTokenCommandHandler                   0%
+  Astra.Identity.Application.Authorization.Policies.PolicyPermissionMap                          0%
+  Astra.Identity.Application.Authorization.Requirements.AuthorizationRequest                     0%
+  Astra.Identity.Application.Authorization.Services.AuthorizationService                         0%
+  Astra.Identity.Application.Authorization.Services.PolicyEvaluator                              0%
   Astra.Identity.Application.Behaviors.ValidationBehavior<T1, T2>                                0%
   Astra.Identity.Application.Commands.RegisterUserCommand                                        0%
   Astra.Identity.Application.DependencyInjection.ApplicationRegistration                         0%
   Astra.Identity.Application.DTOs.UserDto                                                        0%
   Astra.Identity.Application.Handlers.RegisterUserCommandHandler                                 0%
 
-Astra.Identity.Domain                                                                            0%
+Astra.Identity.Domain                                                                           45%
   Astra.Identity.Domain.Authorization.PermissionCatalogReader                                    0%
-  Astra.Identity.Domain.Entities.Permission                                                      0%
-  Astra.Identity.Domain.Entities.RefreshToken                                                    0%
+  Astra.Identity.Domain.Entities.Membership                                                   83.3%
+  Astra.Identity.Domain.Entities.Permission                                                   82.3%
+  Astra.Identity.Domain.Entities.RefreshToken                                                 47.3%
   Astra.Identity.Domain.Entities.Role                                                            0%
   Astra.Identity.Domain.Entities.RolePermission                                                  0%
-  Astra.Identity.Domain.Entities.User                                                            0%
+  Astra.Identity.Domain.Entities.User                                                         91.1%
   Astra.Identity.Domain.Entities.UserRole                                                        0%
   Astra.Identity.Domain.Exceptions.DuplicateEmailException                                       0%
   Astra.Identity.Domain.Exceptions.InvalidCredentialsException                                   0%
   Astra.Identity.Domain.Exceptions.UserNotFoundException                                         0%
   Astra.Identity.Domain.Factories.UserFactory                                                    0%
-  Astra.Identity.Domain.ValueObjects.Email                                                       0%
-  Astra.Identity.Domain.ValueObjects.FullName                                                    0%
-  Astra.Identity.Domain.ValueObjects.PasswordHash                                                0%
-  Astra.Identity.Domain.ValueObjects.PermissionId                                                0%
-  Astra.Identity.Domain.ValueObjects.PermissionName                                              0%
-  Astra.Identity.Domain.ValueObjects.RefreshTokenId                                              0%
-  Astra.Identity.Domain.ValueObjects.RoleId                                                      0%
-  Astra.Identity.Domain.ValueObjects.RoleName                                                    0%
+  Astra.Identity.Domain.ValueObjects.Email                                                      47%
+  Astra.Identity.Domain.ValueObjects.FullName                                                 88.8%
+  Astra.Identity.Domain.ValueObjects.MembershipId                                             33.3%
+  Astra.Identity.Domain.ValueObjects.PasswordHash                                             64.2%
+  Astra.Identity.Domain.ValueObjects.PermissionId                                             33.3%
+  Astra.Identity.Domain.ValueObjects.PermissionName                                           41.1%
+  Astra.Identity.Domain.ValueObjects.RefreshTokenId                                           33.3%
+  Astra.Identity.Domain.ValueObjects.RoleId                                                   33.3%
+  Astra.Identity.Domain.ValueObjects.RoleName                                                 41.1%
   Astra.Identity.Domain.ValueObjects.RolePermissionId                                            0%
-  Astra.Identity.Domain.ValueObjects.UserId                                                      0%
+  Astra.Identity.Domain.ValueObjects.UserId                                                   33.3%
   Astra.Identity.Domain.ValueObjects.UserRoleId                                                  0%
 
 Astra.Identity.Infrastructure                                                                    0%
   Astra.Identity.Infrastructure.DependencyInjection.InfrastructureRegistration                   0%
   Astra.Identity.Infrastructure.Options.JwtOptions                                               0%
+  Astra.Identity.Infrastructure.Persistence.Configurations.MembershipConfiguration               0%
   Astra.Identity.Infrastructure.Persistence.Configurations.PermissionConfiguration               0%
   Astra.Identity.Infrastructure.Persistence.Configurations.RefreshTokenConfiguration             0%
   Astra.Identity.Infrastructure.Persistence.Configurations.RoleConfiguration                     0%
@@ -74,18 +81,19 @@ Astra.Identity.Infrastructure                                                   
   Astra.Identity.Infrastructure.Persistence.IdentityDbContextFactory                             0%
   Astra.Identity.Infrastructure.Persistence.Migrations.IdentityDbContextModelSnapshot            0%
   Astra.Identity.Infrastructure.Persistence.Migrations.InitialIdentity                           0%
+  Astra.Identity.Infrastructure.Persistence.Repositories.MembershipRepository                    0%
   Astra.Identity.Infrastructure.Persistence.Repositories.RefreshTokenRepository                  0%
   Astra.Identity.Infrastructure.Persistence.Repositories.RoleRepository                          0%
   Astra.Identity.Infrastructure.Persistence.Repositories.UserRepository                          0%
   Astra.Identity.Infrastructure.Security.JwtTokenProvider                                        0%
   Astra.Identity.Infrastructure.Security.PasswordHasher                                          0%
 
-Astra.Organization.Domain                                                                        0%
+Astra.Organization.Domain                                                                        1%
   Astra.Organization.Domain.Entities.Membership                                                  0%
   Astra.Organization.Domain.Entities.Organization                                                0%
   Astra.Organization.Domain.Entities.Workspace                                                   0%
   Astra.Organization.Domain.ValueObjects.MembershipId                                            0%
-  Astra.Organization.Domain.ValueObjects.OrganizationId                                          0%
+  Astra.Organization.Domain.ValueObjects.OrganizationId                                         20%
   Astra.Organization.Domain.ValueObjects.WorkspaceId                                             0%
 
 Astra.SharedKernel.Application                                                                   0%
@@ -98,7 +106,7 @@ Astra.SharedKernel.Application                                                  
   Astra.SharedKernel.Application.Interfaces.EmailMessage                                         0%
   Astra.SharedKernel.Application.Interfaces.FileReference                                        0%
 
-Astra.SharedKernel.Domain                                                                        0%
+Astra.SharedKernel.Domain                                                                        4%
   Astra.SharedKernel.Domain.Auditing.AuditInfo                                                   0%
   Astra.SharedKernel.Domain.Authorization.Permission                                             0%
   Astra.SharedKernel.Domain.Authorization.Role                                                   0%
@@ -108,9 +116,9 @@ Astra.SharedKernel.Domain                                                       
   Astra.SharedKernel.Domain.Configuration.ConfigurationKey                                       0%
   Astra.SharedKernel.Domain.Configuration.ConfigurationSection                                   0%
   Astra.SharedKernel.Domain.CurrentUser.CurrentUserInfo                                          0%
-  Astra.SharedKernel.Domain.Entities.AggregateRoot<T>                                            0%
+  Astra.SharedKernel.Domain.Entities.AggregateRoot<T>                                           50%
   Astra.SharedKernel.Domain.Entities.AuditableEntity<T>                                          0%
-  Astra.SharedKernel.Domain.Entities.Entity<T>                                                   0%
+  Astra.SharedKernel.Domain.Entities.Entity<T>                                                37.5%
   Astra.SharedKernel.Domain.Enumeration.Enumeration                                              0%
   Astra.SharedKernel.Domain.Events.DomainEvent                                                   0%
   Astra.SharedKernel.Domain.Exceptions.BusinessRuleValidationException                           0%
@@ -150,7 +158,7 @@ Astra.SharedKernel.Domain                                                       
   Astra.SharedKernel.Domain.Validation.ValidationFailure                                         0%
   Astra.SharedKernel.Domain.Validation.ValidationResult                                          0%
   Astra.SharedKernel.Domain.ValueObjects.EntityId                                                0%
-  Astra.SharedKernel.Domain.ValueObjects.ValueObject                                             0%
+  Astra.SharedKernel.Domain.ValueObjects.ValueObject                                          46.1%
 
 Astra.SharedKernel.Infrastructure                                                                0%
   Astra.SharedKernel.Infrastructure.BackgroundJobs.InMemoryBackgroundJobScheduler                0%
