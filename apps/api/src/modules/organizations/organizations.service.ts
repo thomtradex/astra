@@ -1,5 +1,9 @@
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Organization } from '@astra/database';
-import { Injectable } from '@nestjs/common';
+
 import { PrismaService } from '../../prisma/prisma.service';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
@@ -10,7 +14,7 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto';
 export class OrganizationsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(query: PaginationQueryDto) {
+  async findAll(query: PaginationQueryDto): Promise<Organization[]> {
     const skip = (query.page - 1) * query.limit;
 
     return this.prisma.organization.findMany({
@@ -34,17 +38,33 @@ export class OrganizationsService {
     });
   }
 
-  update(
-  id: string,
-  dto: UpdateOrganizationDto,
-): Promise<Organization> {
+  async update(
+    id: string,
+    dto: UpdateOrganizationDto,
+  ): Promise<Organization> {
+    const organization = await this.prisma.organization.findUnique({
+      where: { id },
+    });
+
+    if (!organization) {
+      throw new NotFoundException('Organization not found');
+    }
+
     return this.prisma.organization.update({
       where: { id },
       data: dto,
     });
   }
 
-  remove(id: string): Promise<Organization> {
+  async remove(id: string): Promise<Organization> {
+    const organization = await this.prisma.organization.findUnique({
+      where: { id },
+    });
+
+    if (!organization) {
+      throw new NotFoundException('Organization not found');
+    }
+
     return this.prisma.organization.delete({
       where: { id },
     });

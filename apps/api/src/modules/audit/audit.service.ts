@@ -17,6 +17,17 @@ export class AuditService {
 
   async log(input: AuditLogInput): Promise<void> {
     try {
+      const organization = await this.prisma.organization.findUnique({
+        where: { id: input.organizationId },
+      });
+
+      if (!organization) {
+        this.logger.warn(
+          `Skipping audit log. Organization not found: ${input.organizationId}`,
+        );
+        return;
+      }
+
       await this.prisma.auditLog.create({
         data: {
           organizationId: input.organizationId,

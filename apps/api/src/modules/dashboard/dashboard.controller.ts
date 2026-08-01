@@ -6,6 +6,8 @@ import {
   Authenticated,
   RequirePermissions,
 } from '../../common/decorators/metadata.decorators';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { DashboardService } from './dashboard.service';
 
 @ApiTags('Dashboard')
@@ -22,7 +24,7 @@ export class DashboardController {
   @ApiOperation({
     summary: 'Dashboard summary',
   })
-  getSummary() {
-    return this.dashboardService.getSummary();
+  getSummary(@CurrentUser() user: AuthenticatedUser) {
+    return this.dashboardService.getSummary(user.organizationId);
   }
 }

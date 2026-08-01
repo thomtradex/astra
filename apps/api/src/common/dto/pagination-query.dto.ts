@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsInt, IsOptional, Min } from 'class-validator';
+import { IsInt, IsOptional, Max, Min } from 'class-validator';
 
 export class PaginationQueryDto {
   @IsOptional()
@@ -12,5 +12,6 @@ export class PaginationQueryDto {
   @Transform(({ value }) => Number(value))
   @IsInt()
   @Min(1)
+  @Max(100)
   limit = 20;
 }

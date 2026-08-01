@@ -57,7 +57,11 @@ describe('Auth (integration)', () => {
     const refreshed = await request(app.getHttpServer())
       .post(apiPath('/auth/refresh'))
       .send({ refreshToken: initial.refreshToken })
-      .expect(200);
+      .then((res) => {
+        console.log('REFRESH RESPONSE:', res.status, res.body);
+        expect(res.status).toBe(200);
+        return res;
+      });
 
     expect(refreshed.body.accessToken).toBeDefined();
     expect(refreshed.body.refreshToken).not.toBe(initial.refreshToken);
@@ -71,7 +75,7 @@ describe('Auth (integration)', () => {
   it('requires organization slug when email exists in multiple organizations', async () => {
     const role = await prisma.role.findFirstOrThrow({ where: { name: 'ADMIN' } });
     const passwordHash = await bcrypt.hash(TEST_PASSWORD, 10);
-    const sharedEmail = 'duplicated@test';
+    const sharedEmail = 'duplicated@test.com';
 
     await prisma.user.create({
       data: {

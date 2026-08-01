@@ -33,7 +33,14 @@ export class AuthService {
     const email = dto.email.toLowerCase();
     const user = await this.resolveUserForLogin(email, dto.organizationSlug);
 
-    if (!user || !user.isActive || !user.organization.isActive) {
+    console.log('LOGIN DEBUG USER:', user);
+
+    if (!user || !user.isActive || !user.organization.is_active) {
+      console.log('LOGIN DEBUG FAILED:', {
+        exists: !!user,
+        isActive: user?.isActive,
+        orgActive: user?.organization?.isActive,
+      });
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -84,6 +91,8 @@ export class AuthService {
   async refresh(refreshToken: string, context: RequestContext): Promise<AuthTokens> {
     const tokenHash = this.hashToken(refreshToken);
 
+    console.log('REFRESH DEBUG HASH:', tokenHash);
+
     const storedToken = await this.prisma.refreshToken.findUnique({
       where: { tokenHash },
       include: {
@@ -106,12 +115,22 @@ export class AuthService {
       },
     });
 
+    console.log('REFRESH DEBUG STORED:', {
+      exists: !!storedToken,
+      revokedAt: storedToken?.revokedAt,
+      expiresAt: storedToken?.expiresAt,
+      now: new Date(),
+      userActive: storedToken?.user?.isActive,
+      orgActive: storedToken?.user?.organization?.is_active,
+      orgActiveCamel: storedToken?.user?.organization?.isActive,
+    });
+
     if (
       !storedToken ||
       storedToken.revokedAt ||
       storedToken.expiresAt < new Date() ||
       !storedToken.user.isActive ||
-      !storedToken.user.organization.isActive
+      !storedToken.user.organization.is_active
     ) {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -216,7 +235,7 @@ export class AuthService {
       },
     });
 
-    if (!user || !user.isActive || !user.organization.isActive) {
+    if (!user || !user.isActive || !user.organization.is_active) {
       return null;
     }
 
@@ -245,6 +264,8 @@ export class AuthService {
 
     const refreshToken = randomBytes(64).toString('hex');
     const refreshExpiresMs = this.parseDurationToMs(refreshExpiresIn);
+
+    console.log('CREATING REFRESH TOKEN HASH:', this.hashToken(refreshToken));
 
     await this.prisma.refreshToken.create({
       data: {

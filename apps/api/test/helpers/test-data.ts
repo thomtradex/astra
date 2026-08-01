@@ -96,8 +96,11 @@ export async function resetDatabase(prisma: PrismaService): Promise<void> {
   await prisma.auditLog.deleteMany();
   await prisma.refreshToken.deleteMany();
   await prisma.userRole.deleteMany();
+  await prisma.rolePermission.deleteMany();
   await prisma.user.deleteMany();
   await prisma.organization.deleteMany();
+  await prisma.role.deleteMany();
+  await prisma.permission.deleteMany();
 }
 
 export async function seedIntegrationTestData(prisma: PrismaService): Promise<TestTenantContext> {

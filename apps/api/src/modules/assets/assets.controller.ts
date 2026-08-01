@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 
 import { Prisma } from '@astra/database';
@@ -14,6 +15,7 @@ import {
   Authenticated,
   RequirePermissions,
 } from '../../common/decorators/metadata.decorators';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
@@ -34,8 +36,9 @@ export class AssetsController {
   @RequirePermissions('org:read')
   findAll(
     @CurrentUser() user: AuthenticatedUser,
+    @Query() pagination: PaginationQueryDto,
   ): Promise<AssetModel[]> {
-    return this.assetsService.findAll(user.organizationId);
+    return this.assetsService.findAll(user.organizationId, pagination);
   }
 
   @Get(':id')
@@ -43,6 +46,7 @@ export class AssetsController {
   findOne(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
+    @Query() pagination: PaginationQueryDto,
   ): Promise<AssetModel | null> {
     return this.assetsService.findOne(id, user.organizationId);
   }
@@ -52,6 +56,7 @@ export class AssetsController {
   create(
     @Body() dto: CreateAssetDto,
     @CurrentUser() user: AuthenticatedUser,
+    @Query() pagination: PaginationQueryDto,
   ): Promise<AssetModel> {
     return this.assetsService.create(dto, user.organizationId);
   }
@@ -62,6 +67,7 @@ export class AssetsController {
     @Param('id') id: string,
     @Body() dto: UpdateAssetDto,
     @CurrentUser() user: AuthenticatedUser,
+    @Query() pagination: PaginationQueryDto,
   ): Promise<AssetModel> {
     return this.assetsService.update(id, dto, user.organizationId);
   }
@@ -71,6 +77,7 @@ export class AssetsController {
   remove(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
+    @Query() pagination: PaginationQueryDto,
   ): Promise<AssetModel> {
     return this.assetsService.remove(id, user.organizationId);
   }
