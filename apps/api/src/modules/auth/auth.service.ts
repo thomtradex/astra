@@ -108,15 +108,7 @@ export class AuthService {
       },
     });
 
-      exists: !!storedToken,
-      revokedAt: storedToken?.revokedAt,
-      expiresAt: storedToken?.expiresAt,
-      now: new Date(),
-      userActive: storedToken?.user?.isActive,
-      orgActive: storedToken?.user?.organization?.is_active,
-      orgActiveCamel: storedToken?.user?.organization?.isActive,
-    });
-
+      
     if (
       !storedToken ||
       storedToken.revokedAt ||
