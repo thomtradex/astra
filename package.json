@@ -32,6 +32,7 @@
     "@astra/eslint-config": "workspace:*",
     "@astra/typescript-config": "workspace:*",
     "@eslint/js": "^10.0.1",
+    "@types/swagger-ui-express": "^4.1.8",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
     "@typescript-eslint/parser": "^8.18.1",
     "globals": "^17.8.0",

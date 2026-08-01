@@ -1,6 +1,22 @@
-/** @type {import('eslint').Linter.Config[]} */
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: ["dist/**", "node_modules/**"],
+  },
+
+  js.configs.recommended,
+
+  ...tseslint.configs.recommended,
+
+  {
+    files: ["src/**/*.ts"],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        project: "./tsconfig.json",
+      },
+    },
   },
 ];

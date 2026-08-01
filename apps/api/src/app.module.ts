@@ -4,29 +4,43 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AppConfigModule } from './config/config.module';
 import { PrismaModule } from './prisma/prisma.module';
+
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { HealthModule } from './modules/health/health.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
+
 import { AuditInterceptor } from './modules/audit/interceptors/audit.interceptor';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from './modules/rbac/guards/permissions.guard';
+import { OrganizationsModule } from './modules/organizations/organizations.module';
+import { SitesModule } from './modules/sites/sites.module';
+import { AssetsModule } from './modules/assets/assets.module';
 
 @Module({
   imports: [
     AppConfigModule,
+
     ThrottlerModule.forRoot([
       {
         ttl: 60_000,
         limit: 100,
       },
     ]),
+
     PrismaModule,
+
     AuthModule,
     UsersModule,
     AuditModule,
     HealthModule,
+    DashboardModule,
+    OrganizationsModule,
+    SitesModule,
+    AssetsModule,
   ],
+
   providers: [
     {
       provide: APP_GUARD,

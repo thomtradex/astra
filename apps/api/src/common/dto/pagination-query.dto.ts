@@ -1,21 +1,16 @@
-import { Type } from 'class-transformer';
-import { IsInt, IsOptional, Max, Min } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { PAGINATION_DEFAULTS } from '@astra/shared';
+import { Transform } from 'class-transformer';
+import { IsInt, IsOptional, Min } from 'class-validator';
 
 export class PaginationQueryDto {
-  @ApiPropertyOptional({ default: PAGINATION_DEFAULTS.PAGE, minimum: 1 })
   @IsOptional()
-  @Type(() => Number)
+  @Transform(({ value }) => Number(value))
   @IsInt()
   @Min(1)
-  page?: number = PAGINATION_DEFAULTS.PAGE;
+  page = 1;
 
-  @ApiPropertyOptional({ default: PAGINATION_DEFAULTS.LIMIT, minimum: 1, maximum: PAGINATION_DEFAULTS.MAX_LIMIT })
   @IsOptional()
-  @Type(() => Number)
+  @Transform(({ value }) => Number(value))
   @IsInt()
   @Min(1)
-  @Max(PAGINATION_DEFAULTS.MAX_LIMIT)
-  limit?: number = PAGINATION_DEFAULTS.LIMIT;
+  limit = 20;
 }

@@ -15,15 +15,15 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Authenticate with email and password' })
-  login(@Body() dto: LoginDto, @Req() req: Request): Promise<AuthTokens> {
-    return this.authService.login(dto, {
-      ipAddress: req.ip,
-      userAgent: req.headers['user-agent'],
-    });
-  }
+@Post('login')
+@HttpCode(HttpStatus.OK)
+@ApiOperation({ summary: 'Authenticate with email and password' })
+login(@Body() dto: LoginDto, @Req() req: Request): Promise<AuthTokens> {
+  return this.authService.login(dto, {
+    ipAddress: req.ip,
+    userAgent: req.headers['user-agent'],
+  });
+}
 
   @Public()
   @Post('refresh')
