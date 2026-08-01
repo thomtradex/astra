@@ -33,10 +33,8 @@ export class AuthService {
     const email = dto.email.toLowerCase();
     const user = await this.resolveUserForLogin(email, dto.organizationSlug);
 
-    console.log('LOGIN DEBUG USER:', user);
 
     if (!user || !user.isActive || !user.organization.is_active) {
-      console.log('LOGIN DEBUG FAILED:', {
         exists: !!user,
         isActive: user?.isActive,
         orgActive: user?.organization?.isActive,
@@ -91,7 +89,6 @@ export class AuthService {
   async refresh(refreshToken: string, context: RequestContext): Promise<AuthTokens> {
     const tokenHash = this.hashToken(refreshToken);
 
-    console.log('REFRESH DEBUG HASH:', tokenHash);
 
     const storedToken = await this.prisma.refreshToken.findUnique({
       where: { tokenHash },
@@ -115,7 +112,6 @@ export class AuthService {
       },
     });
 
-    console.log('REFRESH DEBUG STORED:', {
       exists: !!storedToken,
       revokedAt: storedToken?.revokedAt,
       expiresAt: storedToken?.expiresAt,
@@ -265,7 +261,6 @@ export class AuthService {
     const refreshToken = randomBytes(64).toString('hex');
     const refreshExpiresMs = this.parseDurationToMs(refreshExpiresIn);
 
-    console.log('CREATING REFRESH TOKEN HASH:', this.hashToken(refreshToken));
 
     await this.prisma.refreshToken.create({
       data: {
