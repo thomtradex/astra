@@ -1,3 +1,5 @@
+import { PERMISSIONS } from '@astra/shared';
+
 import {
   Body,
   Controller,
@@ -27,7 +29,7 @@ export class OrganizationsController {
   ) {}
 
   @Get()
-  @RequirePermissions('org:read')
+  @RequirePermissions(PERMISSIONS.ORG_READ)
   findAll(
     @Query() query: PaginationQueryDto,
   ) {
@@ -35,19 +37,19 @@ export class OrganizationsController {
   }
 
   @Get(':id')
-  @RequirePermissions('org:read')
+  @RequirePermissions(PERMISSIONS.ORG_READ)
   findOne(@Param('id') id: string) {
     return this.organizationsService.findOne(id);
   }
 
   @Post()
-  @RequirePermissions('org:write')
+  @RequirePermissions(PERMISSIONS.ORG_WRITE)
   create(@Body() dto: CreateOrganizationDto) {
     return this.organizationsService.create(dto);
   }
 
   @Patch(':id')
-  @RequirePermissions('org:write')
+  @RequirePermissions(PERMISSIONS.ORG_WRITE)
   update(
     @Param('id') id: string,
     @Body() dto: UpdateOrganizationDto,
@@ -56,7 +58,7 @@ export class OrganizationsController {
   }
 
   @Delete(':id')
-  @RequirePermissions('org:write')
+  @RequirePermissions(PERMISSIONS.ORG_WRITE)
   remove(@Param('id') id: string) {
     return this.organizationsService.remove(id);
   }

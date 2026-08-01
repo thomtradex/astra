@@ -5,10 +5,14 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, from } from 'rxjs';
+import { catchError, mergeMap, map } from 'rxjs/operators';
 import { Request, Response } from 'express';
 
-import { IS_PUBLIC_KEY, SKIP_AUDIT_KEY } from '../../../common/decorators/metadata.decorators';
+import {
+  IS_PUBLIC_KEY,
+  SKIP_AUDIT_KEY,
+} from '../../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
 import { AuditService } from '../audit.service';
 
@@ -19,11 +23,14 @@ export class AuditInterceptor implements NestInterceptor {
     private readonly reflector: Reflector,
   ) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
-    const skipAudit = this.reflector.getAllAndOverride<boolean>(SKIP_AUDIT_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Observable<unknown> {
+    const skipAudit = this.reflector.getAllAndOverride<boolean>(
+      SKIP_AUDIT_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     if (skipAudit) {
       return next.handle();
@@ -32,14 +39,14 @@ export class AuditInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest<
       Request & { user?: AuthenticatedUser }
     >();
+
     const response = context.switchToHttp().getResponse<Response>();
 
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const isPublic = this.reflector.getAllAndOverride<boolean>(
+      IS_PUBLIC_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
-    // Skip GET audit for public routes to reduce noise (auth endpoints log explicitly)
     if (isPublic && request.method === 'GET') {
       return next.handle();
     }
@@ -47,43 +54,46 @@ export class AuditInterceptor implements NestInterceptor {
     const resource = this.extractResource(request.path);
     const organizationId = request.user?.organizationId ?? 'system';
 
+    const createAudit = (statusCode: number, metadata?: object) =>
+      from(
+        this.auditService.log({
+          organizationId,
+          actorId: request.user?.id,
+          action: this.auditService.mapHttpMethodToAction(request.method),
+          resource,
+          method: request.method,
+          path: request.url,
+          ipAddress: request.ip,
+          userAgent: request.headers['user-agent'],
+          statusCode,
+          metadata,
+        }),
+      ).pipe(
+        catchError(() => from([])),
+      );
+
     return next.handle().pipe(
-      tap({
-        next: () => {
-          void this.auditService.log({
-            organizationId,
-            actorId: request.user?.id,
-            action: this.auditService.mapHttpMethodToAction(request.method),
-            resource,
-            method: request.method,
-            path: request.url,
-            ipAddress: request.ip,
-            userAgent: request.headers['user-agent'],
-            statusCode: response.statusCode,
-          });
-        },
-        error: (error: { status?: number; message?: string }) => {
-          void this.auditService.log({
-            organizationId,
-            actorId: request.user?.id,
-            action: this.auditService.mapHttpMethodToAction(request.method),
-            resource,
-            method: request.method,
-            path: request.url,
-            ipAddress: request.ip,
-            userAgent: request.headers['user-agent'],
-            statusCode: error.status ?? 500,
-            metadata: { error: error.message },
-          });
-        },
-      }),
+      mergeMap((result) =>
+        createAudit(response.statusCode).pipe(
+          map(() => result),
+        ),
+      ),
+      catchError((error: { status?: number; message?: string }) =>
+        createAudit(error.status ?? 500, {
+          error: error.message,
+        }).pipe(
+          mergeMap(() => {
+            throw error;
+          }),
+        ),
+      ),
     );
   }
 
   private extractResource(path: string): string {
     const segments = path.split('/').filter(Boolean);
-    // /api/v1/users -> users
     const resourceIndex = segments.findIndex((s) => s === 'v1') + 1;
+
     return segments[resourceIndex] ?? 'unknown';
   }
 }

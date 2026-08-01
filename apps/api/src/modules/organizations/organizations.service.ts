@@ -1,8 +1,9 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Organization } from '@astra/database';
+import { Organization, Prisma } from '@astra/database';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
@@ -26,16 +27,33 @@ export class OrganizationsService {
     });
   }
 
-  findOne(id: string): Promise<Organization | null> {
-    return this.prisma.organization.findUnique({
+  async findOne(id: string): Promise<Organization> {
+    const organization = await this.prisma.organization.findUnique({
       where: { id },
     });
+
+    if (!organization) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    return organization;
   }
 
-  create(dto: CreateOrganizationDto): Promise<Organization> {
-    return this.prisma.organization.create({
-      data: dto,
-    });
+  async create(dto: CreateOrganizationDto): Promise<Organization> {
+    try {
+      return await this.prisma.organization.create({
+        data: dto,
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('Organization slug already exists');
+      }
+
+      throw error;
+    }
   }
 
   async update(
@@ -65,8 +83,11 @@ export class OrganizationsService {
       throw new NotFoundException('Organization not found');
     }
 
-    return this.prisma.organization.delete({
+    return this.prisma.organization.update({
       where: { id },
+      data: {
+        is_active: false,
+      },
     });
   }
 }

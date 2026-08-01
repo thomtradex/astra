@@ -45,7 +45,15 @@ export class AuditService {
       });
     } catch (error) {
       this.logger.error(
-        'Failed to write audit log',
+        `Failed to write audit log: ${JSON.stringify({
+          organizationId: input.organizationId,
+          actorId: input.actorId,
+          action: input.action,
+          resource: input.resource,
+          resourceId: input.resourceId,
+          method: input.method,
+          path: input.path,
+        })}`,
         error instanceof Error ? error.stack : error,
       );
     }

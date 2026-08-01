@@ -58,7 +58,6 @@ describe('Auth (integration)', () => {
       .post(apiPath('/auth/refresh'))
       .send({ refreshToken: initial.refreshToken })
       .then((res) => {
-        console.log('REFRESH RESPONSE:', res.status, res.body);
         expect(res.status).toBe(200);
         return res;
       });
