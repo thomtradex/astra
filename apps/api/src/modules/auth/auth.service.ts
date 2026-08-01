@@ -35,10 +35,6 @@ export class AuthService {
 
 
     if (!user || !user.isActive || !user.organization.is_active) {
-        exists: !!user,
-        isActive: user?.isActive,
-        orgActive: user?.organization?.isActive,
-      });
       throw new UnauthorizedException('Invalid credentials');
     }
 
