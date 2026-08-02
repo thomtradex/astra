@@ -7,7 +7,11 @@ import {
   Building2,
   Shield,
   Settings,
+  ClipboardList,
 } from 'lucide-react';
+
+import { SessionUser } from '@/lib/auth';
+import { can } from '@/lib/permissions';
 
 const items = [
   {
@@ -19,16 +23,25 @@ const items = [
     label: 'Utilizadores',
     href: '/users',
     icon: Users,
+    permission: 'user:read',
   },
   {
     label: 'Organizações',
     href: '/organizations',
     icon: Building2,
+    permission: 'organization:read',
   },
   {
     label: 'Auditoria',
     href: '/audit',
     icon: Shield,
+    permission: 'audit:read',
+  },
+  {
+    label: 'Work Orders',
+    href: '/work-orders',
+    icon: ClipboardList,
+    permission: 'work_order:read',
   },
   {
     label: 'Definições',
@@ -37,7 +50,19 @@ const items = [
   },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  user: SessionUser;
+}
+
+export function Sidebar({ user }: SidebarProps) {
+  const visibleItems = items.filter((item) => {
+    if (!item.permission) {
+      return true;
+    }
+
+    return can(user, item.permission);
+  });
+
   return (
     <aside className="w-64 border-r border-astra-200 bg-white">
       <div className="border-b border-astra-200 p-6">
@@ -51,7 +76,7 @@ export function Sidebar() {
       </div>
 
       <nav className="space-y-2 p-4">
-        {items.map((item) => {
+        {visibleItems.map((item) => {
           const Icon = item.icon;
 
           return (
