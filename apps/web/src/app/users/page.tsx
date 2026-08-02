@@ -1,5 +1,6 @@
 import { getUsers } from '@/lib/users';
 import CreateUserForm from './create-user-form';
+import EditUserForm from './edit-user-form';
 
 export default async function UsersPage() {
   const users = await getUsers();
@@ -41,6 +42,13 @@ export default async function UsersPage() {
                 <p className="text-xs">
                   {user.roles.join(', ')}
                 </p>
+
+                <EditUserForm
+                  id={user.id}
+                  firstName={user.firstName}
+                  lastName={user.lastName}
+                  email={user.email}
+                />
               </div>
             ))}
           </div>
