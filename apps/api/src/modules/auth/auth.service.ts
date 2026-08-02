@@ -34,7 +34,7 @@ export class AuthService {
     const user = await this.resolveUserForLogin(email, dto.organizationSlug);
 
 
-    if (!user || !user.isActive || !user.organization.is_active) {
+    if (!user || !user.isActive || !user.organization.isActive) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -114,7 +114,7 @@ export class AuthService {
       storedToken.revokedAt ||
       storedToken.expiresAt < new Date() ||
       !storedToken.user.isActive ||
-      !storedToken.user.organization.is_active
+      !storedToken.user.organization.isActive
     ) {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -219,7 +219,7 @@ export class AuthService {
       },
     });
 
-    if (!user || !user.isActive || !user.organization.is_active) {
+    if (!user || !user.isActive || !user.organization.isActive) {
       return null;
     }
 

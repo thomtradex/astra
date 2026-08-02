@@ -18,6 +18,7 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
 import { SitesModule } from './modules/sites/sites.module';
 import { AssetsModule } from './modules/assets/assets.module';
 import { RbacModule } from './modules/rbac/rbac.module';
+import { WorkOrdersModule } from './modules/work-orders/work-orders.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { RbacModule } from './modules/rbac/rbac.module';
     SitesModule,
     AssetsModule,
     RbacModule,
+    WorkOrdersModule,
   ],
 
   providers: [

@@ -36,9 +36,9 @@ export class SitesController {
   @RequirePermissions('org:read')
   findAll(
     @CurrentUser() user: AuthenticatedUser,
-    @Query() pagination: PaginationQueryDto,
+    @Query() _pagination: PaginationQueryDto,
   ): Promise<SiteModel[]> {
-    return this.sitesService.findAll(user.organizationId, pagination);
+    return this.sitesService.findAll(user.organizationId);
   }
 
   @Get(':id')
@@ -46,7 +46,7 @@ export class SitesController {
   findOne(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
-    @Query() pagination: PaginationQueryDto,
+    @Query() _pagination: PaginationQueryDto,
   ): Promise<SiteModel | null> {
     return this.sitesService.findOne(id, user.organizationId);
   }
@@ -56,7 +56,7 @@ export class SitesController {
   create(
     @Body() dto: CreateSiteDto,
     @CurrentUser() user: AuthenticatedUser,
-    @Query() pagination: PaginationQueryDto,
+    @Query() _pagination: PaginationQueryDto,
   ): Promise<SiteModel> {
     return this.sitesService.create(dto, user.organizationId);
   }
@@ -67,7 +67,7 @@ export class SitesController {
     @Param('id') id: string,
     @Body() dto: UpdateSiteDto,
     @CurrentUser() user: AuthenticatedUser,
-    @Query() pagination: PaginationQueryDto,
+    @Query() _pagination: PaginationQueryDto,
   ): Promise<SiteModel> {
     return this.sitesService.update(id, dto, user.organizationId);
   }
@@ -77,7 +77,7 @@ export class SitesController {
   remove(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
-    @Query() pagination: PaginationQueryDto,
+    @Query() _pagination: PaginationQueryDto,
   ): Promise<SiteModel> {
     return this.sitesService.remove(id, user.organizationId);
   }

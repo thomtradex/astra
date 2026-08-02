@@ -36,9 +36,9 @@ export class AssetsController {
   @RequirePermissions('org:read')
   findAll(
     @CurrentUser() user: AuthenticatedUser,
-    @Query() pagination: PaginationQueryDto,
+    @Query() _pagination: PaginationQueryDto,
   ): Promise<AssetModel[]> {
-    return this.assetsService.findAll(user.organizationId, pagination);
+    return this.assetsService.findAll(user.organizationId);
   }
 
   @Get(':id')
@@ -46,7 +46,7 @@ export class AssetsController {
   findOne(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
-    @Query() pagination: PaginationQueryDto,
+    @Query() _pagination: PaginationQueryDto,
   ): Promise<AssetModel | null> {
     return this.assetsService.findOne(id, user.organizationId);
   }
@@ -56,7 +56,7 @@ export class AssetsController {
   create(
     @Body() dto: CreateAssetDto,
     @CurrentUser() user: AuthenticatedUser,
-    @Query() pagination: PaginationQueryDto,
+    @Query() _pagination: PaginationQueryDto,
   ): Promise<AssetModel> {
     return this.assetsService.create(dto, user.organizationId);
   }
@@ -67,7 +67,7 @@ export class AssetsController {
     @Param('id') id: string,
     @Body() dto: UpdateAssetDto,
     @CurrentUser() user: AuthenticatedUser,
-    @Query() pagination: PaginationQueryDto,
+    @Query() _pagination: PaginationQueryDto,
   ): Promise<AssetModel> {
     return this.assetsService.update(id, dto, user.organizationId);
   }
@@ -77,7 +77,7 @@ export class AssetsController {
   remove(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
-    @Query() pagination: PaginationQueryDto,
+    @Query() _pagination: PaginationQueryDto,
   ): Promise<AssetModel> {
     return this.assetsService.remove(id, user.organizationId);
   }

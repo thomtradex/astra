@@ -28,6 +28,20 @@ export interface ListUsersQuery {
   limit?: number;
 }
 
+interface CreateUserInput {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}
+
+interface UpdateUserInput {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  password?: string;
+}
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -118,7 +132,7 @@ export class UsersService {
   }
 
   async create(
-    dto: any,
+    dto: CreateUserInput,
     organizationId: string,
   ): Promise<User> {
     try {
@@ -146,7 +160,7 @@ export class UsersService {
   async update(
     id: string,
     organizationId: string,
-    dto: any,
+    dto: UpdateUserInput,
   ): Promise<User> {
     const user = await this.prisma.user.findFirst({
       where: {

@@ -86,7 +86,7 @@ export class OrganizationsService {
     return this.prisma.organization.update({
       where: { id },
       data: {
-        is_active: false,
+        isActive: false,
       },
     });
   }

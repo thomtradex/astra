@@ -69,24 +69,41 @@ export class AuditInterceptor implements NestInterceptor {
           metadata,
         }),
       ).pipe(
-        catchError(() => from([])),
+        catchError(() => from([] as unknown[])),
       );
 
     return next.handle().pipe(
-      mergeMap((result) =>
+      mergeMap((result: unknown) =>
         createAudit(response.statusCode).pipe(
           map(() => result),
         ),
       ),
-      catchError((error: { status?: number; message?: string }) =>
-        createAudit(error.status ?? 500, {
-          error: error.message,
+      catchError((error: unknown) => {
+        const normalizedError =
+          error instanceof Error
+            ? error
+            : new Error(
+                typeof error === 'string'
+                  ? error
+                  : 'Unknown error',
+              );
+
+        const statusCode =
+          typeof error === 'object' &&
+          error !== null &&
+          'status' in error &&
+          typeof error.status === 'number'
+            ? error.status
+            : 500;
+
+        return createAudit(statusCode, {
+          error: normalizedError.message,
         }).pipe(
           mergeMap(() => {
-            throw error;
+            throw normalizedError;
           }),
-        ),
-      ),
+        );
+      }),
     );
   }
 
