@@ -115,3 +115,43 @@ export async function disableUser(
     token,
   );
 }
+
+
+export async function assignUserRole(
+  userId: string,
+  roleId: string,
+) {
+  const token = await getToken();
+
+  if (!token) {
+    throw new Error('Missing access token');
+  }
+
+  return apiFetch(
+    `/users/${userId}/roles/${roleId}`,
+    {
+      method: 'POST',
+    },
+    token,
+  );
+}
+
+
+export async function removeUserRole(
+  userId: string,
+  roleId: string,
+) {
+  const token = await getToken();
+
+  if (!token) {
+    throw new Error('Missing access token');
+  }
+
+  return apiFetch(
+    `/users/${userId}/roles/${roleId}`,
+    {
+      method: 'DELETE',
+    },
+    token,
+  );
+}
