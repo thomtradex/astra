@@ -1,5 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { buildPaginatedResult, normalizePagination, PaginatedResult } from '@astra/shared';
+import { Prisma, User } from '@astra/database';
+import * as bcrypt from 'bcryptjs';
 
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -68,4 +74,120 @@ export class UsersService {
 
     return buildPaginatedResult(items, total, page, limit);
   }
+
+  async findOne(
+    id: string,
+    organizationId: string,
+  ): Promise<UserListItem> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id,
+        organizationId,
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        isActive: true,
+        lastLoginAt: true,
+        createdAt: true,
+        roles: {
+          select: {
+            role: {
+              select: { name: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return {
+      ...user,
+      roles: user.roles.map((role) => role.role.name),
+    };
+  }
+
+  async create(
+    dto: any,
+    organizationId: string,
+  ): Promise<User> {
+    try {
+      return await this.prisma.user.create({
+        data: {
+          firstName: dto.firstName,
+          lastName: dto.lastName,
+          email: dto.email.toLowerCase(),
+          passwordHash: await bcrypt.hash(dto.password, 10),
+          organizationId,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('User email already exists');
+      }
+
+      throw error;
+    }
+  }
+
+  async update(
+    id: string,
+    organizationId: string,
+    dto: any,
+  ): Promise<User> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id,
+        organizationId,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        ...(dto.firstName && { firstName: dto.firstName }),
+        ...(dto.lastName && { lastName: dto.lastName }),
+        ...(dto.email && { email: dto.email.toLowerCase() }),
+        ...(dto.password && {
+          passwordHash: await bcrypt.hash(dto.password, 10),
+        }),
+      },
+    });
+  }
+
+  async remove(
+    id: string,
+    organizationId: string,
+  ): Promise<User> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id,
+        organizationId,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        isActive: false,
+      },
+    });
+  }
+
 }

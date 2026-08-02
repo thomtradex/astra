@@ -1,16 +1,31 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PERMISSIONS } from '@astra/shared';
 
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
-import { RequirePermissions } from '../../common/decorators/metadata.decorators';
+import {
+  Authenticated,
+  RequirePermissions,
+} from '../../common/decorators/metadata.decorators';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()
 @Controller('users')
+@Authenticated()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -24,4 +39,55 @@ export class UsersController {
       limit: pagination.limit,
     });
   }
+
+  @Get(':id')
+  @RequirePermissions(PERMISSIONS.USER_READ)
+  findOne(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.usersService.findOne(
+      id,
+      user.organizationId,
+    );
+  }
+
+  @Post()
+  @RequirePermissions(PERMISSIONS.USER_WRITE)
+  create(
+    @Body() dto: CreateUserDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.usersService.create(
+      dto,
+      user.organizationId,
+    );
+  }
+
+  @Patch(':id')
+  @RequirePermissions(PERMISSIONS.USER_WRITE)
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.usersService.update(
+      id,
+      user.organizationId,
+      dto,
+    );
+  }
+
+  @Delete(':id')
+  @RequirePermissions(PERMISSIONS.USER_DELETE)
+  remove(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.usersService.remove(
+      id,
+      user.organizationId,
+    );
+  }
+
 }
