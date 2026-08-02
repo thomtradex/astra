@@ -190,4 +190,95 @@ export class UsersService {
     });
   }
 
+
+  async listRoles(
+    id: string,
+    organizationId: string,
+  ) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id,
+        organizationId,
+      },
+      include: {
+        roles: {
+          include: {
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user.roles.map((item) => item.role);
+  }
+
+  async assignRole(
+    id: string,
+    organizationId: string,
+    roleId: string,
+  ) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id,
+        organizationId,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const role = await this.prisma.role.findUnique({
+      where: { id: roleId },
+    });
+
+    if (!role) {
+      throw new NotFoundException('Role not found');
+    }
+
+    return this.prisma.userRole.create({
+      data: {
+        userId: id,
+        roleId,
+      },
+    });
+  }
+
+  async removeRole(
+    id: string,
+    organizationId: string,
+    roleId: string,
+  ) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id,
+        organizationId,
+      },
+      include: {
+        roles: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.roles.length <= 1) {
+      throw new ConflictException('User must keep at least one role');
+    }
+
+    return this.prisma.userRole.delete({
+      where: {
+        userId_roleId: {
+          userId: id,
+          roleId,
+        },
+      },
+    });
+  }
+
 }

@@ -90,4 +90,45 @@ export class UsersController {
     );
   }
 
+
+  @Get(':id/roles')
+  @RequirePermissions(PERMISSIONS.ROLE_READ)
+  listRoles(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.usersService.listRoles(
+      id,
+      user.organizationId,
+    );
+  }
+
+  @Post(':id/roles/:roleId')
+  @RequirePermissions(PERMISSIONS.ROLE_WRITE)
+  assignRole(
+    @Param('id') id: string,
+    @Param('roleId') roleId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.usersService.assignRole(
+      id,
+      user.organizationId,
+      roleId,
+    );
+  }
+
+  @Delete(':id/roles/:roleId')
+  @RequirePermissions(PERMISSIONS.ROLE_WRITE)
+  removeRole(
+    @Param('id') id: string,
+    @Param('roleId') roleId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.usersService.removeRole(
+      id,
+      user.organizationId,
+      roleId,
+    );
+  }
+
 }
