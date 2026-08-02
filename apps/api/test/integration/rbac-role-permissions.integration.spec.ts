@@ -67,8 +67,15 @@ describe('RBAC role permissions (integration)', () => {
       },
     });
 
-    await prisma.rolePermission.create({
-      data: {
+    await prisma.rolePermission.upsert({
+      where: {
+        roleId_permissionId: {
+          roleId: role.id,
+          permissionId: permission.id,
+        },
+      },
+      update: {},
+      create: {
         roleId: role.id,
         permissionId: permission.id,
       },
