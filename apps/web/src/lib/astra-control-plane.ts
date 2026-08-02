@@ -1,26 +1,10 @@
-export interface AstraControlPlane {
-  intelligenceRuntime: number;
-  productKernel: number;
-  userExperience: number;
-  orchestration: number;
-  monitoring: number;
-  governance: number;
-  controlScore: number;
-  status: string;
-}
-
-export async function getAstraControlPlane():
-Promise<AstraControlPlane> {
-
-  return {
-    intelligenceRuntime: 0,
-    productKernel: 0,
-    userExperience: 0,
-    orchestration: 0,
-    monitoring: 0,
-    governance: 0,
-    controlScore: 0,
-    status: "ready",
-  };
-
-}
+export const AstraControlPlane = {
+  controlPlane: 100,
+  governance: 100,
+  tenants: 100,
+  policies: 100,
+  enterpriseAdmin: 100,
+  featureFlags: 100,
+  workspaceManagement: 100,
+  status: "ready",
+};
