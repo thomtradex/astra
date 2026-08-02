@@ -14,4 +14,9 @@ export class AuditQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsEnum(AuditAction)
   action?: AuditAction;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  resourceId?: string;
 }

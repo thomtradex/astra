@@ -27,6 +27,7 @@ export class AuditController {
       limit: query.limit,
       resource: query.resource,
       action: query.action,
+      resourceId: query.resourceId,
     });
   }
 }

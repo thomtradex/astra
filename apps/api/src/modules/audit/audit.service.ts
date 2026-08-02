@@ -75,6 +75,7 @@ export class AuditService {
       organizationId: query.organizationId,
       ...(query.resource ? { resource: query.resource } : {}),
       ...(query.action ? { action: query.action } : {}),
+      ...(query.resourceId ? { resourceId: query.resourceId } : {}),
     };
 
     const [items, total] = await Promise.all([
@@ -90,6 +91,7 @@ export class AuditService {
       organizationId: string;
       resource?: string;
       action?: AuditAction;
+      resourceId?: string;
     },
     skip: number,
     take: number,

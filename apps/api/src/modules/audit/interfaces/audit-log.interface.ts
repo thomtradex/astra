@@ -20,4 +20,5 @@ export interface AuditLogQuery {
   limit?: number;
   resource?: string;
   action?: AuditAction;
+  resourceId?: string;
 }
