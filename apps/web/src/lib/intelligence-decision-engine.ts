@@ -1,15 +1,10 @@
 export interface IntelligenceDecisionEngine {
-
   decisions: number;
-
+  evaluations: number;
   confidence: number;
-
-  automated: number;
-
+  recommendations: number;
   status: string;
-
 }
-
 
 export async function getDecisionEngine():
 Promise<IntelligenceDecisionEngine> {
@@ -18,9 +13,11 @@ Promise<IntelligenceDecisionEngine> {
 
     decisions: 0,
 
+    evaluations: 0,
+
     confidence: 0,
 
-    automated: 0,
+    recommendations: 0,
 
     status: "ready",
 

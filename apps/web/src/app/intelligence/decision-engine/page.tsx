@@ -5,61 +5,65 @@ export default async function DecisionEnginePage() {
   const engine = await getDecisionEngine();
 
   return (
-    <main className="p-8 space-y-8">
 
-      <h1 className="text-4xl font-bold">
-        Autonomous Decision Engine
-      </h1>
+    <main className="p-8 space-y-6">
+
+      <section>
+
+        <h1 className="text-3xl font-bold">
+          Astra Decision Engine
+        </h1>
+
+        <p className="mt-2 text-muted-foreground">
+          Intelligence decision evaluation and recommendation layer.
+        </p>
+
+      </section>
 
 
-      <section className="grid gap-6 md:grid-cols-4">
+      <section className="rounded-lg border p-6">
 
-        <div className="rounded-lg border p-6">
-          <p className="text-sm text-muted-foreground">
-            Decisions
+        <h2 className="text-xl font-semibold">
+          Decision Engine Metrics
+        </h2>
+
+        <div className="mt-4 space-y-2">
+
+          <p>
+            Decisions: {engine.decisions}
           </p>
 
-          <p className="mt-2 text-3xl font-bold">
-            {engine.decisions}
+          <p>
+            Evaluations: {engine.evaluations}
           </p>
+
+          <p>
+            Confidence: {engine.confidence}
+          </p>
+
+          <p>
+            Recommendations: {engine.recommendations}
+          </p>
+
         </div>
 
-
-        <div className="rounded-lg border p-6">
-          <p className="text-sm text-muted-foreground">
-            Confidence
-          </p>
-
-          <p className="mt-2 text-3xl font-bold">
-            {engine.confidence}%
-          </p>
-        </div>
+      </section>
 
 
-        <div className="rounded-lg border p-6">
-          <p className="text-sm text-muted-foreground">
-            Automated
-          </p>
+      <section className="rounded-lg border p-6">
 
-          <p className="mt-2 text-3xl font-bold">
-            {engine.automated}
-          </p>
-        </div>
+        <h2 className="text-xl font-semibold">
+          Decision Status
+        </h2>
 
-
-        <div className="rounded-lg border p-6">
-          <p className="text-sm text-muted-foreground">
-            Status
-          </p>
-
-          <p className="mt-2 text-3xl font-bold">
-            {engine.status}
-          </p>
-        </div>
-
+        <p className="mt-2">
+          {engine.status}
+        </p>
 
       </section>
 
     </main>
+
   );
+
 }
