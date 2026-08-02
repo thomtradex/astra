@@ -1,11 +1,9 @@
 export const AstraDataIntelligence = {
-  dataPipeline: 100,
-  analytics: 100,
-  customerIntelligence: 100,
-  predictions: 100,
-  anomalyDetection: 100,
-  recommendations: 100,
-  learningLoops: 100,
-  intelligenceScore: 100,
+  dataPlatform: 0,
+  analytics: 0,
+  insights: 0,
+  predictiveModels: 0,
+  dataQuality: 0,
+  intelligenceScore: 0,
   status: "ready",
 };
