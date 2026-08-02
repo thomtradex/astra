@@ -16,6 +16,8 @@ export default async function UsersPage() {
         </p>
       </header>
 
+      <CreateUserForm />
+
       <section className="rounded-xl border border-border bg-card p-6">
         {!users?.items.length ? (
           <p className="text-sm text-muted-foreground">
