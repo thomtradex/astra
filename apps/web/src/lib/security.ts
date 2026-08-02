@@ -41,3 +41,32 @@ Promise<SecurityResponse | null> {
     token,
   );
 }
+
+
+export interface SessionItem {
+  id: string;
+  userEmail: string;
+  ipAddress: string;
+  createdAt: string;
+}
+
+export interface SessionsResponse {
+  items: SessionItem[];
+  total: number;
+}
+
+
+export async function getSessions():
+Promise<SessionsResponse | null> {
+  const token = await getToken();
+
+  if (!token) {
+    return null;
+  }
+
+  return apiFetch<SessionsResponse>(
+    '/security/sessions',
+    {},
+    token,
+  );
+}
