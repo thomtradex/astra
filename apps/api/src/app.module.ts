@@ -17,6 +17,7 @@ import { PermissionsGuard } from './modules/rbac/guards/permissions.guard';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
 import { SitesModule } from './modules/sites/sites.module';
 import { AssetsModule } from './modules/assets/assets.module';
+import { RbacModule } from './modules/rbac/rbac.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AssetsModule } from './modules/assets/assets.module';
     OrganizationsModule,
     SitesModule,
     AssetsModule,
+    RbacModule,
   ],
 
   providers: [
