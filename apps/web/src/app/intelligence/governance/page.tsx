@@ -1,27 +1,32 @@
 import { getIntelligenceGovernance } from "@/lib/intelligence-governance";
 
-export default async function IntelligenceGovernancePage() {
+export default async function GovernancePage() {
+
   const governance = await getIntelligenceGovernance();
 
   return (
-    <main className="p-8">
 
-      <h1 className="text-3xl font-bold">
-        Intelligence Governance Center
-      </h1>
+    <main className="p-8 space-y-8">
 
-      <p className="mt-3 text-muted-foreground">
-        Central intelligence control and governance operations.
-      </p>
+      <section>
+
+        <h1 className="text-3xl font-bold">
+          Intelligence Governance
+        </h1>
+
+        <p className="mt-2 text-muted-foreground">
+          Governance, safety and control layer for autonomous intelligence.
+        </p>
+
+      </section>
 
 
-      <section className="mt-8 grid gap-6 md:grid-cols-4">
+      <section className="grid gap-6 md:grid-cols-4">
 
         <div className="rounded-lg border p-6">
           <p className="text-sm text-muted-foreground">
             Policies
           </p>
-
           <p className="mt-2 text-3xl font-bold">
             {governance.policies}
           </p>
@@ -30,38 +35,50 @@ export default async function IntelligenceGovernancePage() {
 
         <div className="rounded-lg border p-6">
           <p className="text-sm text-muted-foreground">
-            Controls
+            Approvals
           </p>
-
           <p className="mt-2 text-3xl font-bold">
-            {governance.controls}
+            {governance.approvals}
           </p>
         </div>
 
 
         <div className="rounded-lg border p-6">
           <p className="text-sm text-muted-foreground">
-            Reviews
+            Audits
           </p>
-
           <p className="mt-2 text-3xl font-bold">
-            {governance.reviews}
+            {governance.audits}
           </p>
         </div>
 
 
         <div className="rounded-lg border p-6">
           <p className="text-sm text-muted-foreground">
-            Governance Status
+            Violations
           </p>
-
           <p className="mt-2 text-3xl font-bold">
-            {governance.status}
+            {governance.violations}
           </p>
         </div>
 
       </section>
 
+
+      <section className="rounded-lg border p-6">
+
+        <h2 className="text-xl font-semibold">
+          Governance Status
+        </h2>
+
+        <p className="mt-2">
+          {governance.status}
+        </p>
+
+      </section>
+
     </main>
+
   );
+
 }
