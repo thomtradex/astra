@@ -70,3 +70,32 @@ Promise<SessionsResponse | null> {
     token,
   );
 }
+
+
+export interface SecurityAlert {
+  id: string;
+  title: string;
+  severity: string;
+  createdAt: string;
+}
+
+export interface SecurityAlertsResponse {
+  items: SecurityAlert[];
+  total: number;
+}
+
+
+export async function getSecurityAlerts():
+Promise<SecurityAlertsResponse | null> {
+  const token = await getToken();
+
+  if (!token) {
+    return null;
+  }
+
+  return apiFetch<SecurityAlertsResponse>(
+    '/security/alerts',
+    {},
+    token,
+  );
+}
