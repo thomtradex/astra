@@ -8,6 +8,8 @@ import { Prisma, User } from '@astra/database';
 import * as bcrypt from 'bcryptjs';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import { AuditService } from '../audit/audit.service';
+import { AuditAction } from '@astra/database';
 
 export interface UserListItem {
   id: string;
@@ -28,7 +30,10 @@ export interface ListUsersQuery {
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async listByOrganization(query: ListUsersQuery): Promise<PaginatedResult<UserListItem>> {
     const { page, limit, skip } = normalizePagination(query.page, query.limit);
