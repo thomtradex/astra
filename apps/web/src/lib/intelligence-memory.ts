@@ -1,27 +1,20 @@
 export interface IntelligenceMemory {
-  decisions: number;
-  events: number;
+  memories: number;
+  contexts: number;
   patterns: number;
-  knowledge: number;
+  recalls: number;
   status: string;
 }
-
 
 export async function getIntelligenceMemory():
 Promise<IntelligenceMemory> {
 
   return {
-
-    decisions: 0,
-
-    events: 0,
-
+    memories: 0,
+    contexts: 0,
     patterns: 0,
-
-    knowledge: 0,
-
+    recalls: 0,
     status: "ready",
-
   };
 
 }
