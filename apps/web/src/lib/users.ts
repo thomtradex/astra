@@ -59,6 +59,24 @@ export async function getUsers(): Promise<UsersResponse | null> {
   );
 }
 
+
+
+export async function getUser(
+  id: string,
+): Promise<UserListItem | null> {
+  const token = await getToken();
+
+  if (!token) {
+    return null;
+  }
+
+  return apiFetch<UserListItem>(
+    `/users/${id}`,
+    {},
+    token,
+  );
+}
+
 export async function createUser(
   input: CreateUserInput,
 ) {
