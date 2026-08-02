@@ -3,12 +3,20 @@ import { redirect } from 'next/navigation';
 import { LogoutButton } from '@/components/logout-button';
 import { getSession } from '@/lib/auth';
 
-export default async function SessionPage() {
+export default async function SessionPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect?: string }>;
+}) {
   const session = await getSession();
 
   if (!session) {
     redirect('/login');
   }
+
+  const params = await searchParams;
+
+  redirect(params.redirect ?? '/dashboard');
 
   return (
     <main className="flex min-h-screen items-center justify-center px-6">

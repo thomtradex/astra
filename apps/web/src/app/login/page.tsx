@@ -20,7 +20,15 @@ export default function LoginPage() {
 
     try {
       await login(email, password, organizationSlug || undefined);
-      router.push('/session');
+
+      const redirect =
+        new URLSearchParams(window.location.search).get('redirect') ??
+        '/dashboard';
+
+      router.push(
+        `/session?redirect=${encodeURIComponent(redirect)}`
+      );
+
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Authentication failed');
