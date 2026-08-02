@@ -2,6 +2,7 @@ import { getUsers } from '@/lib/users';
 import CreateUserForm from './create-user-form';
 import EditUserForm from './edit-user-form';
 import DisableUserButton from './disable-user-button';
+import UserRoles from './user-roles';
 
 export default async function UsersPage() {
   const users = await getUsers();
@@ -53,6 +54,11 @@ export default async function UsersPage() {
 
                 <DisableUserButton
                   id={user.id}
+                />
+
+                <UserRoles
+                  userId={user.id}
+                  roles={user.roles}
                 />
               </div>
             ))}
