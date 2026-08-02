@@ -1,4 +1,5 @@
 import { getUsers } from '@/lib/users';
+import CreateUserForm from './create-user-form';
 
 export default async function UsersPage() {
   const users = await getUsers();
