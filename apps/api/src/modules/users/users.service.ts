@@ -245,12 +245,25 @@ export class UsersService {
       throw new NotFoundException('Role not found');
     }
 
-    return this.prisma.userRole.create({
+    const relation = await this.prisma.userRole.create({
       data: {
         userId: id,
         roleId,
       },
     });
+
+    await this.auditService.log({
+      organizationId,
+      actorId: id,
+      action: AuditAction.ROLE_ASSIGN,
+      resource: 'users',
+      resourceId: id,
+      metadata: {
+        roleId,
+      },
+    });
+
+    return relation;
   }
 
   async removeRole(
@@ -276,7 +289,7 @@ export class UsersService {
       throw new ConflictException('User must keep at least one role');
     }
 
-    return this.prisma.userRole.delete({
+    const relation = await this.prisma.userRole.delete({
       where: {
         userId_roleId: {
           userId: id,
@@ -284,6 +297,19 @@ export class UsersService {
         },
       },
     });
+
+    await this.auditService.log({
+      organizationId,
+      actorId: id,
+      action: AuditAction.ROLE_REMOVE,
+      resource: 'users',
+      resourceId: id,
+      metadata: {
+        roleId,
+      },
+    });
+
+    return relation;
   }
 
 }

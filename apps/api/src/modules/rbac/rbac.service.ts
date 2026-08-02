@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import { AuditService } from '../audit/audit.service';
+import { AuditAction } from '@astra/database';
 
 @Injectable()
 export class RbacService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
   ) {}
 
   async listRoles() {
@@ -55,19 +58,31 @@ export class RbacService {
       throw new Error('Permission not found');
     }
 
-    return this.prisma.rolePermission.create({
+    const relation = await this.prisma.rolePermission.create({
       data: {
         roleId,
         permissionId,
       },
     });
+
+    await this.auditService.log({
+      organizationId: 'system',
+      action: AuditAction.PERMISSION_ASSIGN,
+      resource: 'rbac',
+      resourceId: roleId,
+      metadata: {
+        permissionId,
+      },
+    });
+
+    return relation;
   }
 
   async removePermission(
     roleId: string,
     permissionId: string,
   ) {
-    return this.prisma.rolePermission.delete({
+    const relation = await this.prisma.rolePermission.delete({
       where: {
         roleId_permissionId: {
           roleId,
@@ -75,6 +90,18 @@ export class RbacService {
         },
       },
     });
+
+    await this.auditService.log({
+      organizationId: 'system',
+      action: AuditAction.PERMISSION_REMOVE,
+      resource: 'rbac',
+      resourceId: roleId,
+      metadata: {
+        permissionId,
+      },
+    });
+
+    return relation;
   }
 
 }
