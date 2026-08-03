@@ -1,5 +1,5 @@
 export const AstraPromptEngine = {
-  managedPrompts: 0,
-  optimizationScore: 100,
+  processedPrompts: 0,
+  promptHealth: 100,
   status: "ready",
 };
