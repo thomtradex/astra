@@ -1,5 +1,5 @@
 export const AstraAgentMemory = {
-  activeSessions: 0,
+  memoryContexts: 0,
   memoryHealth: 100,
   status: "ready",
 };
