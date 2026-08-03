@@ -1,5 +1,5 @@
 export const AstraLoadBalancer = {
-  balancingScore: 0,
-  activeWorkers: 0,
+  balancedRequests: 0,
+  balancerHealth: 100,
   status: "ready",
 };
