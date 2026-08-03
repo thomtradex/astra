@@ -1,6 +1,5 @@
 export const AstraWorkflowEngine = {
-  workflowCoverage: 0,
-  automationLevel: 0,
-  executionScore: 0,
+  activeWorkflows: 0,
+  workflowHealth: 100,
   status: "ready",
 };
