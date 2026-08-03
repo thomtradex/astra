@@ -1,5 +1,5 @@
 export const AstraSecurityCenter = {
-  protectedServices: 0,
+  securityPolicies: 0,
   securityHealth: 100,
   status: "ready",
 };

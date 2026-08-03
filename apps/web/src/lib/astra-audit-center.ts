@@ -1,5 +1,5 @@
 export const AstraAuditCenter = {
-  auditEvents: 0,
+  auditLogs: 0,
   auditHealth: 100,
   status: "ready",
 };
