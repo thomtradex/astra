@@ -1,6 +1,5 @@
 export const AstraSecurityCenter = {
-  securityScore: 100,
-  activePolicies: 0,
-  threatLevel: 0,
+  protectedServices: 0,
+  securityHealth: 100,
   status: "ready",
 };
