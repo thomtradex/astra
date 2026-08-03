@@ -1,9 +1,10 @@
 export const AstraDataIntelligence = {
-  dataPlatform: 0,
-  analytics: 0,
-  insights: 0,
-  predictiveModels: 0,
+  dataPipelines: 0,
   dataQuality: 0,
-  intelligenceScore: 0,
+  reporting: 0,
+  businessInsights: 0,
+  decisionSupport: 0,
+  dataGovernance: 0,
+  dataScore: 0,
   status: "ready",
 };
