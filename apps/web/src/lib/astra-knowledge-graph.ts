@@ -1,6 +1,6 @@
 export const AstraKnowledgeGraph = {
-  entities: 0,
-  relationships: 0,
+  nodes: 0,
+  edges: 0,
   graphHealth: 100,
   status: "ready",
 };
