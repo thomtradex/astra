@@ -1,5 +1,5 @@
 export const AstraBusinessIntelligence = {
-  dashboards: 0,
-  insightScore: 0,
+  activeInsights: 0,
+  intelligenceScore: 100,
   status: "ready",
 };

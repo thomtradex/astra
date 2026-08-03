@@ -1,6 +1,5 @@
 export const AstraAnalyticsEngine = {
-  analyticsCoverage: 0,
-  processingHealth: 100,
-  analyticsScore: 0,
+  activeDashboards: 0,
+  analyticsHealth: 100,
   status: "ready",
 };
