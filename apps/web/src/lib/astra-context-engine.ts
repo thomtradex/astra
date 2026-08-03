@@ -1,7 +1,6 @@
 export const AstraContextEngine = {
   activeContexts: 0,
-  persistentMemory: 0,
-  realtimeContext: 0,
+  contextHealth: 100,
   contextScore: 0,
   status: "ready",
 };
