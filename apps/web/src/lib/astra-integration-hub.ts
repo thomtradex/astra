@@ -1,5 +1,5 @@
 export const AstraIntegrationHub = {
-  connectedIntegrations: 0,
+  integrations: 0,
   integrationHealth: 100,
   status: "ready",
 };
