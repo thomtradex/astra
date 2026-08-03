@@ -1,5 +1,5 @@
 export const AstraTelemetryEngine = {
-  telemetryStreams: 0,
+  collectedMetrics: 0,
   telemetryHealth: 100,
   status: "ready",
 };
