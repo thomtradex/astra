@@ -1,5 +1,5 @@
 export const AstraBackupEngine = {
-  backupsCompleted: 0,
-  recoveryHealth: 100,
+  completedBackups: 0,
+  backupHealth: 100,
   status: "ready",
 };

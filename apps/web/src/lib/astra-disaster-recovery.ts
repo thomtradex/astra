@@ -1,5 +1,5 @@
 export const AstraDisasterRecovery = {
-  recoveryScore: 0,
-  failoverReady: false,
+  recoveryPlans: 0,
+  readiness: 100,
   status: "ready",
 };
