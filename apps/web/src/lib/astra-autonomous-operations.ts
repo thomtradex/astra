@@ -1,26 +1,10 @@
-export interface AstraAutonomousOperations {
-  controlPlane: number;
-  intelligenceRuntime: number;
-  agents: number;
-  automations: number;
-  workflows: number;
-  observability: number;
-  autonomyScore: number;
-  status: string;
-}
-
-export async function getAstraAutonomousOperations():
-Promise<AstraAutonomousOperations> {
-
-  return {
-    controlPlane: 0,
-    intelligenceRuntime: 0,
-    agents: 0,
-    automations: 0,
-    workflows: 0,
-    observability: 0,
-    autonomyScore: 0,
-    status: "ready",
-  };
-
-}
+export const AstraAutonomousOperations = {
+  automation: 0,
+  selfHealing: 0,
+  intelligentMonitoring: 0,
+  autonomousDecisions: 0,
+  workflowOptimization: 0,
+  operationalAI: 0,
+  autonomyScore: 0,
+  status: "ready",
+};
