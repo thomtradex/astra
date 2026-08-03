@@ -1,5 +1,5 @@
 export const AstraModelRouter = {
-  routedRequests: 0,
-  routerHealth: 100,
+  routedModels: 0,
+  routingHealth: 100,
   status: "ready",
 };
