@@ -1,5 +1,5 @@
 export const AstraDisasterRecovery = {
-  recoveryPlans: 0,
-  readiness: 100,
+  recoveryPoints: 0,
+  recoveryHealth: 100,
   status: "ready",
 };
