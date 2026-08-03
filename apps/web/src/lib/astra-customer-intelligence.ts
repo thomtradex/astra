@@ -1,9 +1,8 @@
 export const AstraCustomerIntelligence = {
-  customerData: 0,
-  behaviorAnalysis: 0,
-  personalization: 0,
-  customerInsights: 0,
-  retentionEngine: 0,
-  intelligenceScore: 0,
+  customerProfiles: 0,
+  customerSegmentation: 0,
+  retentionPrediction: 0,
+  satisfactionTracking: 0,
+  customerHealthScore: 0,
   status: "ready",
 };

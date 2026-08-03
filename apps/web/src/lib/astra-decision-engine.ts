@@ -1,11 +1,9 @@
 export const AstraDecisionEngine = {
-  intelligence: 0,
-  reasoning: 0,
-  recommendations: 0,
-  forecasting: 0,
-  automationDecisions: 0,
-
+  decisionModels: 0,
+  recommendationEngine: 0,
+  prioritization: 0,
+  scenarioAnalysis: 0,
+  predictiveDecisions: 0,
   decisionScore: 0,
-
   status: "ready",
 };
