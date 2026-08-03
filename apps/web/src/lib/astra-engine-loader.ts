@@ -1,6 +1,7 @@
 export const AstraEngineLoader = {
   loadedEngines: 0,
-  initializationTime: 0,
-  engineHealth: 100,
+  loadingTime: 0,
+  dependencyGraph: 0,
+  loaderScore: 0,
   status: "ready",
 };
