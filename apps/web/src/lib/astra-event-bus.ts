@@ -1,6 +1,5 @@
 export const AstraEventBus = {
-  eventCoverage: 0,
-  routingHealth: 100,
-  eventScore: 0,
+  processedEvents: 0,
+  busHealth: 100,
   status: "ready",
 };
