@@ -1,6 +1,5 @@
 export const AstraPolicyEngine = {
-  activePolicies: 0,
-  enforcementLevel: 100,
-  complianceScore: 0,
+  evaluatedPolicies: 0,
+  policyHealth: 100,
   status: "ready",
 };
