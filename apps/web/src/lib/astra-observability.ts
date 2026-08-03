@@ -1,5 +1,5 @@
 export const AstraObservability = {
-  monitoredServices: 0,
-  observabilityScore: 100,
+  metricsCollected: 0,
+  observabilityHealth: 100,
   status: "ready",
 };
