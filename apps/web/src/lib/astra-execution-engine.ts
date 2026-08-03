@@ -1,7 +1,5 @@
 export const AstraExecutionEngine = {
-  executionAccuracy: 0,
-  executionLatency: 0,
-  taskExecution: 0,
-  executionScore: 0,
+  executedTasks: 0,
+  executionHealth: 100,
   status: "ready",
 };
