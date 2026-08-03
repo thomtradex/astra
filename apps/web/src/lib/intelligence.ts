@@ -34,21 +34,3 @@ Promise<ExecutiveMetrics> {
 }
 
 
-export interface ExecutiveMetrics {
-  users: number;
-  risks: number;
-  signals: number;
-  compliance: number;
-}
-
-
-export async function getExecutiveMetrics():
-Promise<ExecutiveMetrics> {
-
-  return {
-    users: 0,
-    risks: 0,
-    signals: 0,
-    compliance: 0,
-  };
-}

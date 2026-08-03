@@ -14,6 +14,8 @@ export default async function SessionPage({
     redirect('/login');
   }
 
+  const user = session;
+
   const params = await searchParams;
 
   redirect(params.redirect ?? '/dashboard');
@@ -31,16 +33,16 @@ export default async function SessionPage({
           <div>
             <dt className="text-astra-500">Utilizador</dt>
             <dd className="mt-1 font-medium text-astra-900">
-              {session.firstName} {session.lastName}
+              {user.firstName} {user.lastName}
             </dd>
           </div>
           <div>
             <dt className="text-astra-500">Email</dt>
-            <dd className="mt-1 font-medium text-astra-900">{session.email}</dd>
+            <dd className="mt-1 font-medium text-astra-900">{user.email}</dd>
           </div>
           <div>
             <dt className="text-astra-500">Roles</dt>
-            <dd className="mt-1 font-medium text-astra-900">{session.roles.join(', ')}</dd>
+            <dd className="mt-1 font-medium text-astra-900">{user.roles.join(', ')}</dd>
           </div>
         </dl>
 

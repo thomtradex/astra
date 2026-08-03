@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers';
 
 import { apiFetch } from './api-client';
 
@@ -34,15 +33,8 @@ export interface UpdateUserInput {
   password?: string;
 }
 
-const ACCESS_TOKEN_COOKIE = 'access_token';
-
 async function getToken(): Promise<string | null> {
-  const cookieStore = await cookies();
-
-  return (
-    cookieStore.get(ACCESS_TOKEN_COOKIE)?.value ??
-    null
-  );
+  return null;
 }
 
 export async function getUsers(): Promise<UsersResponse | null> {

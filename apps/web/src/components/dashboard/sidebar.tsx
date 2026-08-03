@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import type { Permission } from '@astra/shared';
+
 import {
   LayoutDashboard,
   Users,
@@ -13,7 +15,14 @@ import {
 import { SessionUser } from '@/lib/auth';
 import { can } from '@/lib/permissions';
 
-const items = [
+interface SidebarItem {
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  permission?: Permission;
+}
+
+const items: SidebarItem[] = [
   {
     label: 'Dashboard',
     href: '/dashboard',
@@ -29,7 +38,7 @@ const items = [
     label: 'Organizações',
     href: '/organizations',
     icon: Building2,
-    permission: 'organization:read',
+    permission: 'org:read',
   },
   {
     label: 'Auditoria',

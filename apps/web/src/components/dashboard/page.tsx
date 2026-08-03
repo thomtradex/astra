@@ -1,12 +1,18 @@
 import { DashboardLayout } from '@/components/dashboard/layout';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { getDashboardSummary } from '@/lib/dashboard';
+import { getSession } from '@/lib/auth';
 
 export default async function DashboardPage() {
   const summary = await getDashboardSummary();
+  const user = await getSession();
+
+  if (!user) {
+    return null;
+  }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout user={user}>
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Users"

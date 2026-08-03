@@ -6,6 +6,14 @@ export interface IntelligenceCore {
   autonomy: number;
   evolution: number;
   globalScore: number;
+
+  modules: number;
+  actions: number;
+  learning: number;
+  memories: number;
+  optimizations: number;
+  governance: number;
+
   status: string;
 }
 
@@ -20,7 +28,13 @@ Promise<IntelligenceCore> {
     autonomy: 0,
     evolution: 0,
     globalScore: 0,
-    status: "ready",
+      modules: 0,
+      actions: 0,
+      learning: 0,
+      memories: 0,
+      optimizations: 0,
+      governance: 0,
+      status: "ready",
   };
 
 }

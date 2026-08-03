@@ -58,7 +58,10 @@ export default async function UsersPage() {
 
                 <UserRoles
                   userId={user.id}
-                  roles={user.roles}
+                  roles={user.roles.map(r => ({
+                    id: r,
+                    name: r,
+                  }))}
                 />
               </div>
             ))}

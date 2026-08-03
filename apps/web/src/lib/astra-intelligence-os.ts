@@ -1,4 +1,4 @@
-interface AstraIntelligenceOS {
+interface _AstraIntelligenceOS {
   intelligenceCore:number;
   productKernel:number;
   automation:number;
