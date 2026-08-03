@@ -1,6 +1,5 @@
 export const AstraApiGateway = {
+  routedRequests: 0,
   gatewayHealth: 100,
-  activeConnections: 0,
-  gatewayScore: 0,
   status: "ready",
 };
