@@ -1,5 +1,5 @@
 export const AstraKnowledgeEngine = {
-  indexedKnowledge: 0,
-  retrievalScore: 0,
+  knowledgeItems: 0,
+  knowledgeHealth: 100,
   status: "ready",
 };
