@@ -1,5 +1,5 @@
 export const AstraAgentCoordinator = {
-  activeCoordinations: 0,
-  coordinatorHealth: 100,
+  activeAgents: 0,
+  coordinationHealth: 100,
   status: "ready",
 };
