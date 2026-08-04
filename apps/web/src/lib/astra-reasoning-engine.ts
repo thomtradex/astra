@@ -1,5 +1,5 @@
 export const AstraReasoningEngine = {
-  activeReasoners: 0,
-  reasoningAccuracy: 100,
+  reasoningChains: 0,
+  reasoningHealth: 100,
   status: "ready",
 };
