@@ -1,5 +1,5 @@
 export const AstraSituationAwareness = {
-  activeSituations: 0,
-  awarenessHealth: 100,
+  awarenessLevel: 100,
+  trackedSituations: 0,
   status: "ready",
 };
