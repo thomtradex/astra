@@ -1,6 +1,5 @@
 export const AstraOrchestrationEngine = {
+  activeWorkflows: 0,
   orchestrationHealth: 100,
-  activePipelines: 0,
-  orchestrationScore: 0,
   status: "ready",
 };

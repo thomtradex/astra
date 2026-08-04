@@ -1,5 +1,5 @@
 export const AstraResourceManager = {
-  managedResources: 0,
-  utilization: 100,
+  allocatedResources: 0,
+  resourceHealth: 100,
   status: "ready",
 };
