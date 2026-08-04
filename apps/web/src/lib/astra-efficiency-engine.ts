@@ -1,5 +1,5 @@
 export const AstraEfficiencyEngine = {
-  efficiencyOperations: 0,
-  efficiencyHealth: 100,
+  optimizedProcesses: 0,
+  efficiencyScore: 100,
   status: "ready",
 };
