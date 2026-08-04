@@ -1,5 +1,5 @@
 export const AstraOutcomePredictor = {
-  predictionsGenerated: 0,
-  predictionHealth: 100,
+  predictedOutcomes: 0,
+  predictorHealth: 100,
   status: "ready",
 };
