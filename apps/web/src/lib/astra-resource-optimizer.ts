@@ -1,8 +1,5 @@
 export const AstraResourceOptimizer = {
-  cpuOptimization: 0,
-  memoryOptimization: 0,
-  infrastructureEfficiency: 0,
-  workloadBalancing: 0,
-  optimizationScore: 0,
+  optimizedResources: 0,
+  optimizerHealth: 100,
   status: "ready",
 };
