@@ -1,7 +1,5 @@
 export const AstraRecommendationEngine = {
-  recommendationQuality: 0,
-  personalization: 0,
-  adaptiveSuggestions: 0,
-  recommendationScore: 0,
+  recommendationsGenerated: 0,
+  recommendationHealth: 100,
   status: "ready",
 };
