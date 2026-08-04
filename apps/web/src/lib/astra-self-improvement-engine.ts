@@ -1,5 +1,5 @@
 export const AstraSelfImprovementEngine = {
-  improvementCycles: 0,
+  activeImprovements: 0,
   improvementHealth: 100,
   status: "ready",
 };

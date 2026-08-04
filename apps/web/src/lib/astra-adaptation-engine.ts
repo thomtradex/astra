@@ -1,5 +1,5 @@
 export const AstraAdaptationEngine = {
-  adaptationModels: 0,
+  activeAdaptations: 0,
   adaptationHealth: 100,
   status: "ready",
 };
