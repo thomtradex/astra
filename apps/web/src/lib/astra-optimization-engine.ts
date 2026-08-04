@@ -1,7 +1,5 @@
 export const AstraOptimizationEngine = {
-  optimizationCycles: 0,
-  resourceOptimization: 0,
- performanceOptimization: 0,
-  optimizationScore: 0,
+  optimizationTasks: 0,
+  optimizationHealth: 100,
   status: "ready",
 };

@@ -1,7 +1,5 @@
 export const AstraLearningEngine = {
-  learningCycles: 0,
-  feedbackAssimilation: 0,
-  continuousImprovement: 0,
-  learningScore: 0,
+  activeLearningModels: 0,
+  learningHealth: 100,
   status: "ready",
 };
