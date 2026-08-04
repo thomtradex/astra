@@ -1,7 +1,5 @@
 export const AstraCollaborationEngine = {
-  collaborationScore: 0,
-  multiAgentCoordination: 0,
-  sharedKnowledge: 0,
-  collaborativeExecution: 0,
+  activeCollaborations: 0,
+  collaborationHealth: 100,
   status: "ready",
 };
