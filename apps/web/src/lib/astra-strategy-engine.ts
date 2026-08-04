@@ -1,5 +1,5 @@
 export const AstraStrategyEngine = {
-  activeStrategies: 0,
+  generatedStrategies: 0,
   strategyHealth: 100,
   status: "ready",
 };

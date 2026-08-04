@@ -1,5 +1,5 @@
 export const AstraDecisionEngine = {
-  activeDecisions: 0,
+  decisionsMade: 0,
   decisionHealth: 100,
   status: "ready",
 };
