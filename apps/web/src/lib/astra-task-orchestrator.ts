@@ -1,5 +1,5 @@
 export const AstraTaskOrchestrator = {
-  orchestratedTasks: 0,
+  activeTasks: 0,
   orchestrationHealth: 100,
   status: "ready",
 };
