@@ -2,7 +2,10 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PERMISSIONS } from '@astra/shared';
 
-import { RequirePermissions } from '../../common/decorators/metadata.decorators';
+import {
+  Authenticated,
+  RequirePermissions,
+} from '../../common/decorators/metadata.decorators';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { AuditQueryDto } from './dto/audit-query.dto';
@@ -11,6 +14,7 @@ import { AuditService } from './audit.service';
 @ApiTags('Audit')
 @ApiBearerAuth()
 @Controller('audit')
+@Authenticated()
 export class AuditController {
   constructor(private readonly auditService: AuditService) {}
 

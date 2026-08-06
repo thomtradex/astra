@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceEvolution {
   cycles: number;
   discoveries: number;
@@ -20,3 +21,6 @@ Promise<IntelligenceEvolution> {
   };
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;

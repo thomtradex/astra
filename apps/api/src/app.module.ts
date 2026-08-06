@@ -1,3 +1,5 @@
+import { MaintenanceModule } from './modules/maintenance/maintenance.module';
+
 import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -19,9 +21,11 @@ import { SitesModule } from './modules/sites/sites.module';
 import { AssetsModule } from './modules/assets/assets.module';
 import { RbacModule } from './modules/rbac/rbac.module';
 import { WorkOrdersModule } from './modules/work-orders/work-orders.module';
+import { CustomersModule } from './modules/customers/customers.module';
 
 @Module({
   imports: [
+    MaintenanceModule,
     AppConfigModule,
 
     ThrottlerModule.forRoot([
@@ -43,6 +47,7 @@ import { WorkOrdersModule } from './modules/work-orders/work-orders.module';
     AssetsModule,
     RbacModule,
     WorkOrdersModule,
+    CustomersModule,
   ],
 
   providers: [

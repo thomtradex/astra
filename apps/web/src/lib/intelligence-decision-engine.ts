@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceDecisionEngine {
   decisions: number;
   evaluations: number;
@@ -20,3 +21,6 @@ Promise<IntelligenceDecisionEngine> {
   };
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;

@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceTimeline {
   events: number;
   decisions: number;
@@ -13,3 +14,6 @@ Promise<IntelligenceTimeline> {
     status: "ready",
   };
 }
+
+
+export const runtime=AstraUnifiedRuntime;

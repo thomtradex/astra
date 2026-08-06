@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceDecisionContext {
   signals: number;
   risks: number;
@@ -16,3 +17,6 @@ Promise<IntelligenceDecisionContext> {
   };
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;

@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceActions {
   pending: number;
   executed: number;
@@ -13,3 +14,6 @@ Promise<IntelligenceActions> {
     status: "ready",
   };
 }
+
+
+export const runtime=AstraUnifiedRuntime;

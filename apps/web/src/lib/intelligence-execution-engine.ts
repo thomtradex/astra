@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceExecutionEngine {
 
   executions: number;
@@ -28,3 +29,6 @@ Promise<IntelligenceExecutionEngine> {
   };
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;

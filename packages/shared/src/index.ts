@@ -35,6 +35,10 @@ export const PERMISSIONS = {
   WORK_ORDER_READ: 'work_order:read',
   WORK_ORDER_WRITE: 'work_order:write',
   WORK_ORDER_DELETE: 'work_order:delete',
+
+  CUSTOMER_READ: 'customer:read',
+  CUSTOMER_WRITE: 'customer:write',
+  CUSTOMER_DELETE: 'customer:delete',
 } as const;
 
 
@@ -62,6 +66,9 @@ export const ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
 
     PERMISSIONS.WORK_ORDER_READ,
     PERMISSIONS.WORK_ORDER_WRITE,
+
+    PERMISSIONS.CUSTOMER_READ,
+    PERMISSIONS.CUSTOMER_WRITE,
   ],
 
   [SYSTEM_ROLES.VIEWER]: [
@@ -72,6 +79,8 @@ export const ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     PERMISSIONS.SITE_READ,
 
     PERMISSIONS.WORK_ORDER_READ,
+
+    PERMISSIONS.CUSTOMER_READ,
   ],
 };
 

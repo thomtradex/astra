@@ -1,4 +1,4 @@
-import { getRiskAssessments } from "@/lib/risk";
+import { getRiskAssessments } from "@/lib/risk.server";
 
 export default async function RiskMitigationsPage() {
   const assessments = await getRiskAssessments();

@@ -10,6 +10,9 @@ import {
   Shield,
   Settings,
   ClipboardList,
+  Wrench,
+  Package,
+  MapPinned,
 } from 'lucide-react';
 
 import { SessionUser } from '@/lib/auth';
@@ -49,8 +52,20 @@ const items: SidebarItem[] = [
   {
     label: 'Work Orders',
     href: '/work-orders',
-    icon: ClipboardList,
+    icon: Wrench,
     permission: 'work_order:read',
+  },
+  {
+    label: 'Assets',
+    href: '/assets',
+    icon: Package,
+    permission: 'asset:read',
+  },
+  {
+    label: 'Sites',
+    href: '/sites',
+    icon: MapPinned,
+    permission: 'site:read',
   },
   {
     label: 'Definições',

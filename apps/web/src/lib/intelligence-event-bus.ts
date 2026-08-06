@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceEventBus {
   events: number;
   publishers: number;
@@ -18,3 +19,6 @@ Promise<IntelligenceEventBus> {
   };
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;

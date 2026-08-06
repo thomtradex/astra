@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceControlPlane {
   systems: number;
   activeModules: number;
@@ -22,3 +23,6 @@ Promise<IntelligenceControlPlane> {
   };
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;

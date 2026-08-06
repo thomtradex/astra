@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 
-import { getUser } from '@/lib/users';
-import { getUserAudit } from '@/lib/audit';
+import { getUser } from '@/lib/users.server';
+import { getUserAudit } from '@/lib/audit.server';
 
 interface Props {
   params: Promise<{

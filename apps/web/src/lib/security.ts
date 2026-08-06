@@ -1,17 +1,11 @@
-import { cookies } from 'next/headers';
+
 
 import { apiFetch } from './api-client';
+import { getToken } from './auth';
 
-const ACCESS_TOKEN_COOKIE = 'access_token';
 
-async function getToken(): Promise<string | null> {
-  const cookieStore = await cookies();
 
-  return (
-    cookieStore.get(ACCESS_TOKEN_COOKIE)?.value ??
-    null
-  );
-}
+
 
 export interface SecurityEvent {
   id: string;

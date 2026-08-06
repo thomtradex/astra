@@ -1,4 +1,4 @@
-import { getUsers } from '@/lib/users';
+import { getUsers } from '@/lib/users.server';
 import CreateUserForm from './create-user-form';
 import EditUserForm from './edit-user-form';
 import DisableUserButton from './disable-user-button';

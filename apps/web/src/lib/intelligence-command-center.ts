@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceCommandCenter {
   signals: number;
   risks: number;
@@ -17,3 +18,6 @@ Promise<IntelligenceCommandCenter> {
     status: "ready",
   };
 }
+
+
+export const runtime=AstraUnifiedRuntime;

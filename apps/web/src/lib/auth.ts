@@ -53,6 +53,17 @@ export async function getSession(): Promise<SessionUser | null> {
   }
 }
 
+
+
+export async function getToken(): Promise<string | null> {
+  const cookieStore = await cookies();
+
+  return (
+    cookieStore.get(ACCESS_TOKEN_COOKIE)?.value ??
+    null
+  );
+}
+
 export function buildAuthCookieOptions(maxAgeSeconds: number) {
   return {
     httpOnly: true,

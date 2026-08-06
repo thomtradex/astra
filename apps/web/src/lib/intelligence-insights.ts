@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceInsights {
   priority: number;
   recommendations: number;
@@ -13,3 +14,6 @@ Promise<IntelligenceInsights> {
     status: "ready",
   };
 }
+
+
+export const runtime=AstraUnifiedRuntime;

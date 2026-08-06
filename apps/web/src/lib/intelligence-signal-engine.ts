@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceSignalEngine {
   signals: number;
   sources: number;
@@ -18,3 +19,6 @@ Promise<IntelligenceSignalEngine> {
   };
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;

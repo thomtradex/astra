@@ -29,6 +29,8 @@ model Organization {
   assets    Asset[]
   auditLogs AuditLog[]
   workOrders WorkOrder[]
+  customers  Customer[]
+  maintenancePlans MaintenancePlan[]
 
   @@map("organizations")
 }
@@ -74,6 +76,7 @@ model Asset {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   site         Site?        @relation(fields: [siteId], references: [id], onDelete: SetNull)
   workOrders   WorkOrder[]
+  maintenancePlans MaintenancePlan[]
 
   @@index([organizationId])
   @@index([siteId])
@@ -247,3 +250,49 @@ model WorkOrder {
   @@map("work_orders")
 }
 
+
+
+model Customer {
+  id String @id @default(cuid())
+
+  code String
+  name String
+
+  email String?
+  phone String?
+
+  organizationId String @map("organization_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+
+  @@map("customers")
+}
+
+
+model MaintenancePlan {
+  id             String   @id @default(cuid())
+  plan           String
+  assetId        String
+  frequency      String
+  nextDue        DateTime
+  status         String   @default("ACTIVE")
+
+  organizationId String   @map("organization_id")
+
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  asset        Asset        @relation(fields: [assetId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@index([assetId])
+  @@index([organizationId, nextDue])
+  @@map("maintenance_plans")
+}

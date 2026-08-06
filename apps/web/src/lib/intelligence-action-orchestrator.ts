@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceActionOrchestrator {
 
   actions: number;
@@ -29,3 +30,6 @@ Promise<IntelligenceActionOrchestrator> {
 
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;

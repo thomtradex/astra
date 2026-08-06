@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceSelfImprovement {
   improvements: number;
   optimizations: number;
@@ -20,3 +21,6 @@ Promise<IntelligenceSelfImprovement> {
   };
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;

@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface AnalyticsOverview {
   riskTrend: string;
   activeSignals: number;
@@ -14,3 +15,6 @@ Promise<AnalyticsOverview> {
     score: 0,
   };
 }
+
+
+export const runtime=AstraUnifiedRuntime;

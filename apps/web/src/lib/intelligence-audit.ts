@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceAudit {
   events: number;
   decisions: number;
@@ -15,3 +16,6 @@ Promise<IntelligenceAudit> {
     status: "ready",
   };
 }
+
+
+export const runtime=AstraUnifiedRuntime;

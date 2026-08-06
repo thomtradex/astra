@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceHub {
   modules: number;
   signals: number;
@@ -15,3 +16,6 @@ Promise<IntelligenceHub> {
   };
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;

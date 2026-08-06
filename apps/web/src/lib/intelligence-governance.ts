@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceGovernance {
   policies: number;
   approvals: number;
@@ -24,3 +25,6 @@ Promise<IntelligenceGovernance> {
   };
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;

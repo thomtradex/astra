@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceOrchestration {
   modules: number;
   workflows: number;
@@ -18,3 +19,6 @@ Promise<IntelligenceOrchestration> {
   };
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;

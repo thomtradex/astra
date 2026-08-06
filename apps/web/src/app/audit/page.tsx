@@ -1,4 +1,4 @@
-import { getAuditLogs } from '@/lib/audit';
+import { getAuditLogs } from '@/lib/audit.server';
 
 export default async function AuditPage() {
   const audit = await getAuditLogs({

@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceMemory {
   memories: number;
   contexts: number;
@@ -18,3 +19,6 @@ Promise<IntelligenceMemory> {
   };
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;

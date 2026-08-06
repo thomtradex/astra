@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceAdaptiveLearning {
   patterns: number;
   improvements: number;
@@ -25,3 +26,6 @@ Promise<IntelligenceAdaptiveLearning> {
   };
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;

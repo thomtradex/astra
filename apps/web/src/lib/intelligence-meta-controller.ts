@@ -1,3 +1,4 @@
+import { AstraUnifiedRuntime } from "./astra-unified-runtime";
 export interface IntelligenceMetaController {
   systems: number;
   signals: number;
@@ -18,3 +19,6 @@ Promise<IntelligenceMetaController> {
   };
 
 }
+
+
+export const runtime=AstraUnifiedRuntime;
