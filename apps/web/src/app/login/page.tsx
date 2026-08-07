@@ -60,7 +60,7 @@ export default function LoginPage() {
               autoComplete="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
               className="w-full rounded-lg border border-astra-200 px-4 py-3 text-astra-950 outline-none transition focus:border-astra-400 focus:ring-2 focus:ring-astra-100"
               placeholder="admin@astra.local"
             />
@@ -73,7 +73,7 @@ export default function LoginPage() {
               autoComplete="current-password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
               className="w-full rounded-lg border border-astra-200 px-4 py-3 text-astra-950 outline-none transition focus:border-astra-400 focus:ring-2 focus:ring-astra-100"
             />
           </label>
@@ -86,7 +86,7 @@ export default function LoginPage() {
               type="text"
               autoComplete="organization"
               value={organizationSlug}
-              onChange={(e) => setOrganizationSlug(e.target.value)}
+              onChange={(e) => setOrganizationSlug((e.target as HTMLInputElement).value)}
               className="w-full rounded-lg border border-astra-200 px-4 py-3 text-astra-950 outline-none transition focus:border-astra-400 focus:ring-2 focus:ring-astra-100"
               placeholder="astra-demo"
             />
