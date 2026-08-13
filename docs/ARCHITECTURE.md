@@ -17,14 +17,14 @@ The foundation is designed for:
 
 ## Monorepo Structure
 
-| Package | Purpose |
-|---------|---------|
-| `@astra/api` | NestJS REST API — auth, RBAC, audit, health |
-| `@astra/web` | Next.js 15 — authentication shell only |
-| `@astra/database` | Prisma ORM, PostgreSQL schema, migrations, seed |
-| `@astra/shared` | Shared types, permissions, API route constants |
-| `@astra/typescript-config` | Shared TypeScript configurations |
-| `@astra/eslint-config` | Shared ESLint rules |
+| Package                    | Purpose                                         |
+| -------------------------- | ----------------------------------------------- |
+| `@astra/api`               | NestJS REST API — auth, RBAC, audit, health     |
+| `@astra/web`               | Next.js 15 — authentication shell only          |
+| `@astra/database`          | Prisma ORM, PostgreSQL schema, migrations, seed |
+| `@astra/shared`            | Shared types, permissions, API route constants  |
+| `@astra/typescript-config` | Shared TypeScript configurations                |
+| `@astra/eslint-config`     | Shared ESLint rules                             |
 
 **Tooling:** pnpm workspaces + Turborepo
 
@@ -84,16 +84,16 @@ Future phases will add (not in 0.1):
 
 ### Core Entities
 
-| Entity | Description |
-|--------|-------------|
-| `Organization` | Multi-tenant boundary |
-| `User` | Identity within an organization |
-| `Role` | Named role (SUPER_ADMIN, ADMIN, OPERATOR, VIEWER) |
-| `Permission` | Granular capability (e.g. `user:read`) |
-| `UserRole` | User ↔ Role assignment |
-| `RolePermission` | Role ↔ Permission mapping |
-| `RefreshToken` | Hashed refresh tokens with revocation |
-| `AuditLog` | Immutable action trail |
+| Entity           | Description                                       |
+| ---------------- | ------------------------------------------------- |
+| `Organization`   | Multi-tenant boundary                             |
+| `User`           | Identity within an organization                   |
+| `Role`           | Named role (SUPER_ADMIN, ADMIN, OPERATOR, VIEWER) |
+| `Permission`     | Granular capability (e.g. `user:read`)            |
+| `UserRole`       | User ↔ Role assignment                            |
+| `RolePermission` | Role ↔ Permission mapping                         |
+| `RefreshToken`   | Hashed refresh tokens with revocation             |
+| `AuditLog`       | Immutable action trail                            |
 
 ### Design Decisions
 
@@ -127,10 +127,10 @@ Client                    API                     Database
 
 ### Token Strategy
 
-| Token | Lifetime | Storage |
-|-------|----------|---------|
+| Token        | Lifetime   | Storage                                      |
+| ------------ | ---------- | -------------------------------------------- |
 | Access (JWT) | 15 minutes | HttpOnly cookie (web) / Authorization header |
-| Refresh | 7 days | HttpOnly cookie, SHA-256 hashed in DB |
+| Refresh      | 7 days     | HttpOnly cookie, SHA-256 hashed in DB        |
 
 Refresh tokens are rotated on each use. Revocation is immediate via `revokedAt`.
 
@@ -140,12 +140,12 @@ Refresh tokens are rotated on each use. Revocation is immediate via `revokedAt`.
 
 ### System Roles
 
-| Role | Purpose |
-|------|---------|
+| Role          | Purpose                                  |
+| ------------- | ---------------------------------------- |
 | `SUPER_ADMIN` | Full platform access within organization |
-| `ADMIN` | User and org management, audit read |
-| `OPERATOR` | Read users, read audit, read org |
-| `VIEWER` | Read-only user and org access |
+| `ADMIN`       | User and org management, audit read      |
+| `OPERATOR`    | Read users, read audit, read org         |
+| `VIEWER`      | Read-only user and org access            |
 
 ### Permission Enforcement
 
@@ -161,15 +161,15 @@ Permissions are loaded from DB at login and embedded in JWT. Re-validated on eac
 
 Every significant action is logged:
 
-| Field | Description |
-|-------|-------------|
-| `organizationId` | Tenant scope |
-| `actorId` | User who performed action (nullable for system) |
-| `action` | CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT, REFRESH, ACCESS_DENIED |
-| `resource` | Target resource (users, auth, audit, rbac) |
-| `method`, `path` | HTTP context |
-| `ipAddress`, `userAgent` | Client context |
-| `metadata` | JSON additional context |
+| Field                    | Description                                                         |
+| ------------------------ | ------------------------------------------------------------------- |
+| `organizationId`         | Tenant scope                                                        |
+| `actorId`                | User who performed action (nullable for system)                     |
+| `action`                 | CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT, REFRESH, ACCESS_DENIED |
+| `resource`               | Target resource (users, auth, audit, rbac)                          |
+| `method`, `path`         | HTTP context                                                        |
+| `ipAddress`, `userAgent` | Client context                                                      |
+| `metadata`               | JSON additional context                                             |
 
 Audit failures never block business operations — logged to application logger as fallback.
 
@@ -183,10 +183,10 @@ All routes prefixed with `/api/v1/`. Versioning via URI path (NestJS `Versioning
 
 ## Next Phases (Roadmap)
 
-| Phase | Focus |
-|-------|-------|
+| Phase   | Focus                                 |
+| ------- | ------------------------------------- |
 | **0.2** | Domain model expansion, API hardening |
-| **0.3** | COO first screen (mock data) |
-| **0.4** | Comprehension Engine |
-| **0.5** | Decision + Execution (one E2E flow) |
-| **1.0** | Integrations + AI + Memory |
+| **0.3** | COO first screen (mock data)          |
+| **0.4** | Comprehension Engine                  |
+| **0.5** | Decision + Execution (one E2E flow)   |
+| **1.0** | Integrations + AI + Memory            |

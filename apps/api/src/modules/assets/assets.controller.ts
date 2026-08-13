@@ -1,39 +1,25 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
-
 import { Prisma } from '@astra/database';
+import { PERMISSIONS } from '@astra/shared';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 
-import {
-  Authenticated,
-  RequirePermissions,
-} from '../../common/decorators/metadata.decorators';
-import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Authenticated, RequirePermissions } from '../../common/decorators/metadata.decorators';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 import { AssetsService } from './assets.service';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
 
-type AssetModel = Prisma.AssetGetPayload<Record<string, never>>;
+type AssetModel = Prisma.assetsGetPayload<Record<string, never>>;
 
 @Controller('assets')
 @Authenticated()
 export class AssetsController {
-  constructor(
-    private readonly assetsService: AssetsService,
-  ) {}
+  constructor(private readonly assetsService: AssetsService) {}
 
   @Get()
-  @RequirePermissions('org:read')
+  @RequirePermissions(PERMISSIONS.ASSET_READ)
   findAll(
     @CurrentUser() user: AuthenticatedUser,
     @Query() _pagination: PaginationQueryDto,
@@ -42,7 +28,7 @@ export class AssetsController {
   }
 
   @Get(':id')
-  @RequirePermissions('org:read')
+  @RequirePermissions(PERMISSIONS.ASSET_READ)
   findOne(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
@@ -52,7 +38,7 @@ export class AssetsController {
   }
 
   @Post()
-  @RequirePermissions('org:write')
+  @RequirePermissions(PERMISSIONS.ASSET_WRITE)
   create(
     @Body() dto: CreateAssetDto,
     @CurrentUser() user: AuthenticatedUser,
@@ -62,7 +48,7 @@ export class AssetsController {
   }
 
   @Patch(':id')
-  @RequirePermissions('org:write')
+  @RequirePermissions(PERMISSIONS.ASSET_WRITE)
   update(
     @Param('id') id: string,
     @Body() dto: UpdateAssetDto,
@@ -73,7 +59,7 @@ export class AssetsController {
   }
 
   @Delete(':id')
-  @RequirePermissions('org:write')
+  @RequirePermissions(PERMISSIONS.ASSET_WRITE)
   remove(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,

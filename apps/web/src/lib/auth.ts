@@ -1,6 +1,5 @@
-import { cookies } from 'next/headers';
-
 import { AuthTokens, JwtAccessPayload } from '@astra/shared';
+import { cookies } from 'next/headers';
 
 import { apiFetch } from './api-client';
 

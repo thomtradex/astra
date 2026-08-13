@@ -103,6 +103,7 @@ The domain is divided into independent Bounded Contexts.
 ```
 
 ```
+
 Organization
 
 Identity
@@ -124,7 +125,8 @@ Marketplace
 Notifications
 
 Administration
-```
+
+````
 
 ```md
 
@@ -649,3 +651,4 @@ Everything else is replaceable.
 ---
 
 # End of Domain Architecture
+````

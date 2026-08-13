@@ -1,8 +1,4 @@
-import {
-  IsISO8601,
-  IsNotEmpty,
-  IsString,
-} from 'class-validator';
+import { IsISO8601, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateMaintenancePlanDto {
   @IsString()

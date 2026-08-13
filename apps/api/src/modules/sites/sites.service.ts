@@ -1,90 +1,76 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
+
 import { Prisma } from '@astra/database';
+import { Injectable, NotFoundException } from '@nestjs/common';
+
 import { PrismaService } from '../../prisma/prisma.service';
 
 import { CreateSiteDto } from './dto/create-site.dto';
 import { UpdateSiteDto } from './dto/update-site.dto';
 
-type SiteModel = Prisma.SiteGetPayload<Record<string, never>>;
+type SiteModel = Prisma.sitesGetPayload<Record<string, never>>;
 
 @Injectable()
 export class SitesService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  findAll(
-    organizationId: string,
-  ): Promise<SiteModel[]> {
-    return this.prisma.site.findMany({
+  findAll(organization_id: string): Promise<SiteModel[]> {
+    return this.prisma.sites.findMany({
       where: {
-        organizationId,
+        organization_id,
       },
       orderBy: {
-        createdAt: 'desc',
+        created_at: 'desc',
       },
     });
   }
 
-  findOne(
-    id: string,
-    organizationId: string,
-  ): Promise<SiteModel | null> {
-    return this.prisma.site.findUnique({
+  findOne(id: string, organization_id: string): Promise<SiteModel | null> {
+    return this.prisma.sites.findUnique({
       where: {
         id,
-        organizationId,
+        organization_id,
       },
     });
   }
 
-  create(
-    dto: CreateSiteDto,
-    organizationId: string,
-  ) : Promise<SiteModel> {
-    return this.prisma.site.create({
+  create(dto: CreateSiteDto, organization_id: string): Promise<SiteModel> {
+    return this.prisma.sites.create({
       data: {
-        ...dto,
-        organizationId,
+        id: randomUUID(),
+        name: dto.name,
+        code: dto.code,
+        organization_id,
+        updated_at: new Date(),
       },
     });
   }
 
-  async update(
-    id: string,
-    dto: UpdateSiteDto,
-    organizationId: string,
-  ) {
-    const site = await this.prisma.site.findUnique({
+  async update(id: string, dto: UpdateSiteDto, organization_id: string) {
+    const site = await this.prisma.sites.findUnique({
       where: { id },
     });
 
-    if (!site || site.organizationId !== organizationId) {
+    if (!site || site.organization_id !== organization_id) {
       throw new NotFoundException('Site not found');
     }
 
-    return this.prisma.site.update({
+    return this.prisma.sites.update({
       where: { id },
       data: dto,
     });
   }
 
-  async remove(
-    id: string,
-    organizationId: string,
-  ) {
-    const site = await this.prisma.site.findUnique({
+  async remove(id: string, organization_id: string) {
+    const site = await this.prisma.sites.findUnique({
       where: { id },
     });
 
-    if (!site || site.organizationId !== organizationId) {
+    if (!site || site.organization_id !== organization_id) {
       throw new NotFoundException('Site not found');
     }
 
-    return this.prisma.site.delete({
+    return this.prisma.sites.delete({
       where: { id },
     });
   }

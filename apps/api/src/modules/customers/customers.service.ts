@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
@@ -6,29 +8,34 @@ import { CreateCustomerDto } from './dto/create-customer.dto';
 
 @Injectable()
 export class CustomersService {
-  constructor(
-    private prisma: PrismaService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  findAll(organizationId: string): Promise<Awaited<ReturnType<PrismaService['customer']['findMany']>>> {
-    return this.prisma.customer.findMany({
+  findAll(
+    organization_id: string,
+  ): Promise<Awaited<ReturnType<PrismaService['customers']['findMany']>>> {
+    return this.prisma.customers.findMany({
       where: {
-        organizationId,
+        organization_id,
       },
       orderBy: {
-        createdAt: 'desc',
+        created_at: 'desc',
       },
     });
   }
 
   create(
     dto: CreateCustomerDto,
-    organizationId: string,
-  ): Promise<Awaited<ReturnType<PrismaService['customer']['create']>>> {
-    return this.prisma.customer.create({
+    organization_id: string,
+  ): Promise<Awaited<ReturnType<PrismaService['customers']['create']>>> {
+    return this.prisma.customers.create({
       data: {
-        ...dto,
-        organizationId,
+        id: randomUUID(),
+        code: dto.code,
+        name: dto.name,
+        email: dto.email,
+        phone: dto.phone,
+        organization_id,
+        updated_at: new Date(),
       },
     });
   }

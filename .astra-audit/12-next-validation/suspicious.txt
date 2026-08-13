@@ -1,0 +1,10 @@
+apps/web/src/lib/api-client.ts:30:    throw new Error(errorBody?.message ?? `Request failed with status ${response.status}`);
+apps/web/src/lib/jwt.ts:10:      return null;
+apps/web/src/lib/jwt.ts:17:    return null;
+apps/web/src/lib/auth.ts:28:    return null;
+apps/web/src/lib/auth.ts:51:    return null;
+apps/web/src/lib/auth-client.ts:16:    throw new Error(errorBody?.message ?? 'Invalid credentials');
+apps/api/test/integration/organizations.integration.spec.ts:59:          throw new Error(`Login falhou com HTTP ${response.status}`);
+apps/api/src/modules/auth/auth.service.ts:224:      return null;
+apps/api/src/modules/auth/auth.service.ts:303:      return null;
+packages/database/prisma/seed.ts:87:    throw new Error('SUPER_ADMIN role not found during seed');

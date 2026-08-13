@@ -1,13 +1,13 @@
+import { PERMISSIONS } from '@astra/shared';
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { PERMISSIONS } from '@astra/shared';
 
-import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
-import { RequirePermissions } from '../../common/decorators/metadata.decorators';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { RequirePermissions } from '../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { AuditQueryDto } from './dto/audit-query.dto';
+
 import { AuditService } from './audit.service';
+import { AuditQueryDto } from './dto/audit-query.dto';
 
 @ApiTags('Audit')
 @ApiBearerAuth()
@@ -18,7 +18,10 @@ export class AuditController {
   @Get()
   @RequirePermissions(PERMISSIONS.AUDIT_READ)
   @ApiOperation({ summary: 'List audit logs for the current organization' })
-  findAll(@CurrentUser() user: AuthenticatedUser, @Query() query: AuditQueryDto) {
+  async findAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: AuditQueryDto,
+  ): Promise<unknown> {
     return this.auditService.findByOrganization({
       organizationId: user.organizationId,
       page: query.page,

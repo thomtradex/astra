@@ -24,7 +24,9 @@ export function LogoutButton() {
   return (
     <button
       type="button"
-      onClick={handleLogout}
+      onClick={() => {
+        void handleLogout();
+      }}
       disabled={isLoading}
       className="rounded-lg border border-astra-200 px-4 py-2 text-sm font-medium text-astra-700 transition hover:bg-astra-50 disabled:opacity-60"
     >

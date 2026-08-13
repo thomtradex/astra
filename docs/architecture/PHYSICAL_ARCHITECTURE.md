@@ -71,11 +71,12 @@ Never by increasing coupling.
 ```
 
 ```
+
                            ASTRA PLATFORM
 
                                   │
 
- ┌─────────────────────────────────────────────────────┐
+┌─────────────────────────────────────────────────────┐
 
                     Frontend
 
@@ -103,8 +104,9 @@ Never by increasing coupling.
 
                    Operations
 
- └─────────────────────────────────────────────────────┘
-```
+└─────────────────────────────────────────────────────┘
+
+````
 
 ```md
 
@@ -454,7 +456,7 @@ Dependencies always move towards business.
 
 Never towards technology.
 
-```
+````
 
 ```
 Frontend
@@ -479,9 +481,7 @@ Operations
 ```
 
 ```md
-
 ---
-
 # Communication Rules
 
 Frontend communicates only with Platform Core.
@@ -497,7 +497,6 @@ Infrastructure implements contracts defined by business.
 Operations observes every component.
 
 No circular dependency is allowed.
-
 ---
 
 # Ownership Rules
@@ -607,3 +606,4 @@ Because architecture is the foundation upon which every future capability will b
 ---
 
 # End of Physical Architecture
+```

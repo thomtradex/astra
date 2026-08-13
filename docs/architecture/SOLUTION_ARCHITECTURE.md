@@ -65,6 +65,7 @@ Nothing more.
 ```
 
 ```
+
 Astra.sln
 
 │
@@ -82,7 +83,8 @@ Astra.sln
 ├── Tests
 
 └── Build
-```
+
+````
 
 ```md
 
@@ -268,7 +270,7 @@ Automation belongs here.
 
 Every module follows the same structure.
 
-```
+````
 
 ```
 Module
@@ -287,7 +289,6 @@ Tests
 ```
 
 ```md
-
 Consistency is mandatory.
 
 No module creates its own structure.
@@ -407,7 +408,6 @@ Presentation only.
 # Dependencies
 
 Dependencies always move inward.
-
 ```
 
 ```
@@ -427,7 +427,6 @@ Infrastructure
 ```
 
 ```md
-
 No layer may violate this rule.
 
 ---
@@ -557,3 +556,4 @@ The solution architecture exists to protect the future of Astra.
 ---
 
 # End of Solution Architecture
+```

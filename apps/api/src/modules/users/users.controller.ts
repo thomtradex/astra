@@ -1,11 +1,12 @@
+import { PERMISSIONS } from '@astra/shared';
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { PERMISSIONS } from '@astra/shared';
 
-import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
-import { RequirePermissions } from '../../common/decorators/metadata.decorators';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { RequirePermissions } from '../../common/decorators/metadata.decorators';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+
 import { UsersService } from './users.service';
 
 @ApiTags('Users')

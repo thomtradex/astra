@@ -1,0 +1,225 @@
+ASTRA — NEXT DEVELOPMENT DIAGNOSTIC
+Generated: Wed Aug 12 17:57:36 WEST 2026
+
+=== GIT ===
+main
+Dirty files: 153
+
+=== SOURCE ===
+apps/api/coverage/lcov-report/block-navigation.js
+apps/api/coverage/lcov-report/prettify.js
+apps/api/coverage/lcov-report/sorter.js
+apps/api/jest.config.js
+apps/api/src/app.module.ts
+apps/api/src/common/decorators/current-user.decorator.ts
+apps/api/src/common/decorators/metadata.decorators.ts
+apps/api/src/common/dto/pagination-query.dto.ts
+apps/api/src/common/filters/http-exception.filter.ts
+apps/api/src/config/config.module.ts
+apps/api/src/config/env.validation.ts
+apps/api/src/main.ts
+apps/api/src/modules/assets/assets.controller.ts
+apps/api/src/modules/assets/assets.module.ts
+apps/api/src/modules/assets/assets.service.ts
+apps/api/src/modules/assets/dto/create-asset.dto.ts
+apps/api/src/modules/assets/dto/update-asset.dto.ts
+apps/api/src/modules/audit/audit.controller.ts
+apps/api/src/modules/audit/audit.module.ts
+apps/api/src/modules/audit/audit.service.ts
+apps/api/src/modules/audit/dto/audit-query.dto.ts
+apps/api/src/modules/audit/interceptors/audit.interceptor.ts
+apps/api/src/modules/audit/interfaces/audit-log.interface.ts
+apps/api/src/modules/auth/auth.controller.ts
+apps/api/src/modules/auth/auth.module.ts
+apps/api/src/modules/auth/auth.service.ts
+apps/api/src/modules/auth/dto/auth.dto.ts
+apps/api/src/modules/auth/guards/jwt-auth.guard.ts
+apps/api/src/modules/auth/interfaces/authenticated-user.interface.ts
+apps/api/src/modules/auth/strategies/jwt.strategy.ts
+apps/api/src/modules/customers/customers.controller.ts
+apps/api/src/modules/customers/customers.module.ts
+apps/api/src/modules/customers/customers.service.ts
+apps/api/src/modules/customers/dto/create-customer.dto.ts
+apps/api/src/modules/customers/dto/query-customers.dto.ts
+apps/api/src/modules/customers/dto/update-customer.dto.ts
+apps/api/src/modules/health/health.controller.spec.ts
+apps/api/src/modules/health/health.controller.ts
+apps/api/src/modules/health/health.module.ts
+apps/api/src/modules/health/health.service.ts
+apps/api/src/modules/maintenance/dto/create-maintenance-plan.dto.ts
+apps/api/src/modules/maintenance/maintenance.controller.ts
+apps/api/src/modules/maintenance/maintenance.module.ts
+apps/api/src/modules/maintenance/maintenance.service.ts
+apps/api/src/modules/organizations/dto/create-organization.dto.ts
+apps/api/src/modules/organizations/dto/query-organizations.dto.ts
+apps/api/src/modules/organizations/dto/update-organization.dto.ts
+apps/api/src/modules/organizations/organizations.controller.ts
+apps/api/src/modules/organizations/organizations.module.ts
+apps/api/src/modules/organizations/organizations.service.ts
+apps/api/src/modules/rbac/guards/permissions.guard.ts
+apps/api/src/modules/sites/dto/create-site.dto.ts
+apps/api/src/modules/sites/dto/update-site.dto.ts
+apps/api/src/modules/sites/sites.controller.ts
+apps/api/src/modules/sites/sites.module.ts
+apps/api/src/modules/sites/sites.service.ts
+apps/api/src/modules/users/users.controller.ts
+apps/api/src/modules/users/users.module.ts
+apps/api/src/modules/users/users.service.ts
+apps/api/src/modules/work-orders/dto/create-work-order.dto.ts
+apps/api/src/modules/work-orders/dto/update-work-order.dto.ts
+apps/api/src/modules/work-orders/work-orders.controller.ts
+apps/api/src/modules/work-orders/work-orders.module.ts
+apps/api/src/modules/work-orders/work-orders.service.ts
+apps/api/src/prisma/prisma.module.ts
+apps/api/src/prisma/prisma.service.ts
+apps/api/test/helpers/http-client.ts
+apps/api/test/helpers/http-types.ts
+apps/api/test/helpers/test-app.ts
+apps/api/test/helpers/test-data.ts
+apps/api/test/integration/auth.integration.spec.ts
+apps/api/test/integration/organizations.integration.spec.ts
+apps/api/test/integration/rbac.integration.spec.ts
+apps/api/test/integration/resource-crud-isolation-remaining.integration.spec.ts
+apps/api/test/integration/resource-crud-isolation.integration.spec.ts
+apps/api/test/integration/resources.integration.spec.ts
+apps/api/test/integration/tenant-isolation.integration.spec.ts
+apps/api/test/setup-env.ts
+apps/web/next-env.d.ts
+apps/web/next.config.ts
+apps/web/src/app/api/auth/login/route.ts
+apps/web/src/app/api/auth/logout/route.ts
+apps/web/src/app/api/auth/refresh/route.ts
+apps/web/src/app/layout.tsx
+apps/web/src/app/login/page.tsx
+apps/web/src/app/page.tsx
+apps/web/src/app/session/page.tsx
+apps/web/src/components/logout-button.tsx
+apps/web/src/lib/api-client.ts
+apps/web/src/lib/auth-client.ts
+apps/web/src/lib/auth.ts
+apps/web/src/lib/jwt.ts
+apps/web/src/middleware.ts
+apps/web/tailwind.config.ts
+packages/database/prisma/seed.ts
+packages/database/prisma/seeds/demo-executive.ts
+packages/database/prisma/seeds/demo-procurement.ts
+packages/database/prisma/seeds/demo-purchases.ts
+packages/database/prisma/seeds/demo-suppliers.ts
+packages/database/prisma/seeds/goods-receipts.ts
+packages/database/prisma/seeds/procurement.ts
+packages/database/prisma/seeds/purchases.ts
+packages/database/prisma/seeds/suppliers.ts
+packages/database/src/index.ts
+packages/eslint-config/base.js
+packages/eslint-config/nestjs.js
+packages/eslint-config/nextjs.js
+packages/shared/src/index.ts
+packages/shared/src/pagination.ts
+
+=== API MODULES ===
+apps/api/src/modules/assets
+apps/api/src/modules/audit
+apps/api/src/modules/auth
+apps/api/src/modules/customers
+apps/api/src/modules/health
+apps/api/src/modules/maintenance
+apps/api/src/modules/organizations
+apps/api/src/modules/rbac
+apps/api/src/modules/sites
+apps/api/src/modules/users
+apps/api/src/modules/work-orders
+
+=== WEB ===
+apps/web/src/app/api/auth/login/route.ts
+apps/web/src/app/api/auth/logout/route.ts
+apps/web/src/app/api/auth/refresh/route.ts
+apps/web/src/app/globals.css
+apps/web/src/app/layout.tsx
+apps/web/src/app/login/page.tsx
+apps/web/src/app/page.tsx
+apps/web/src/app/session/page.tsx
+apps/web/src/components/logout-button.tsx
+apps/web/src/lib/api-client.ts
+apps/web/src/lib/auth-client.ts
+apps/web/src/lib/auth.ts
+apps/web/src/lib/jwt.ts
+apps/web/src/middleware.ts
+
+=== DATABASE MODELS ===
+model Organization {
+model User {
+model Role {
+model Permission {
+model UserRole {
+model RolePermission {
+model RefreshToken {
+model AuditLog {
+model assets {
+model customers {
+model maintenance_plans {
+model sites {
+model work_orders {
+enum AuditAction {
+
+=== TODO/FIXME/IMPLEMENT BY FILE ===
+   9 apps/api/trace.log
+   3 apps/api/test/integration/resource-crud-isolation.integration.spec.ts
+   2 apps/web/src/app/login/page.tsx
+   1 apps/api/tsconfig.tsbuildinfo
+   1 apps/api/tsconfig.build.tsbuildinfo
+   1 apps/api/test/integration/tenant-isolation.integration.spec.ts
+   1 apps/api/src/prisma/prisma.service.ts
+   1 apps/api/src/modules/rbac/guards/permissions.guard.ts
+   1 apps/api/src/modules/audit/interceptors/audit.interceptor.ts
+   1 apps/api/src/common/filters/http-exception.filter.ts
+   1 apps/api/coverage/lcov-report/src/prisma/prisma.service.ts.html
+   1 apps/api/coverage/lcov-report/src/modules/rbac/guards/permissions.guard.ts.html
+   1 apps/api/coverage/lcov-report/src/modules/audit/interceptors/audit.interceptor.ts.html
+   1 apps/api/coverage/lcov-report/src/common/filters/http-exception.filter.ts.html
+   1 apps/api/coverage/lcov-report/prettify.js
+
+=== EMPTY / SUSPICIOUS FUNCTIONS ===
+apps/api/src/prisma/prisma.service.ts:5:export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+apps/api/src/common/filters/http-exception.filter.ts:12:export class HttpExceptionFilter implements ExceptionFilter {
+apps/api/src/modules/rbac/guards/permissions.guard.ts:15:export class PermissionsGuard implements CanActivate {
+apps/api/src/modules/auth/auth.service.ts:224:      return null;
+apps/api/src/modules/auth/auth.service.ts:303:      return null;
+apps/api/src/modules/audit/interceptors/audit.interceptor.ts:11:export class AuditInterceptor implements NestInterceptor {
+apps/web/src/lib/jwt.ts:10:      return null;
+apps/web/src/lib/jwt.ts:17:    return null;
+apps/web/src/lib/auth.ts:28:    return null;
+apps/web/src/lib/auth.ts:51:    return null;
+
+=== API CONTROLLERS ===
+apps/api/src/modules/assets/assets.controller.ts
+apps/api/src/modules/audit/audit.controller.ts
+apps/api/src/modules/auth/auth.controller.ts
+apps/api/src/modules/customers/customers.controller.ts
+apps/api/src/modules/health/health.controller.ts
+apps/api/src/modules/maintenance/maintenance.controller.ts
+apps/api/src/modules/organizations/organizations.controller.ts
+apps/api/src/modules/sites/sites.controller.ts
+apps/api/src/modules/users/users.controller.ts
+apps/api/src/modules/work-orders/work-orders.controller.ts
+
+=== API SERVICES ===
+apps/api/src/modules/assets/assets.service.ts
+apps/api/src/modules/audit/audit.service.ts
+apps/api/src/modules/auth/auth.service.ts
+apps/api/src/modules/customers/customers.service.ts
+apps/api/src/modules/health/health.service.ts
+apps/api/src/modules/maintenance/maintenance.service.ts
+apps/api/src/modules/organizations/organizations.service.ts
+apps/api/src/modules/sites/sites.service.ts
+apps/api/src/modules/users/users.service.ts
+apps/api/src/modules/work-orders/work-orders.service.ts
+
+=== TEST FILES ===
+apps/api/src/modules/health/health.controller.spec.ts
+apps/api/test/integration/auth.integration.spec.ts
+apps/api/test/integration/organizations.integration.spec.ts
+apps/api/test/integration/rbac.integration.spec.ts
+apps/api/test/integration/resource-crud-isolation-remaining.integration.spec.ts
+apps/api/test/integration/resource-crud-isolation.integration.spec.ts
+apps/api/test/integration/resources.integration.spec.ts
+apps/api/test/integration/tenant-isolation.integration.spec.ts

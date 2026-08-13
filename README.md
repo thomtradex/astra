@@ -73,19 +73,19 @@ pnpm db:seed
 pnpm dev
 ```
 
-| Service | URL |
-|---------|-----|
-| Frontend | http://localhost:3000 |
-| API | http://localhost:3001/api/v1 |
-| Swagger | http://localhost:3001/api/docs |
-| Health | http://localhost:3001/api/v1/health |
+| Service  | URL                                 |
+| -------- | ----------------------------------- |
+| Frontend | http://localhost:3000               |
+| API      | http://localhost:3001/api/v1        |
+| Swagger  | http://localhost:3001/api/docs      |
+| Health   | http://localhost:3001/api/v1/health |
 
 ### Default credentials (development only)
 
-| Field | Value |
-|-------|-------|
-| Email | `admin@astra.local` |
-| Password | `AstraDev2026!` |
+| Field    | Value               |
+| -------- | ------------------- |
+| Email    | `admin@astra.local` |
+| Password | `AstraDev2026!`     |
 
 **Change immediately in any non-local environment.**
 
@@ -93,16 +93,16 @@ pnpm dev
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start all apps in development |
-| `pnpm build` | Build all packages and apps |
-| `pnpm lint` | Lint entire monorepo |
-| `pnpm typecheck` | TypeScript validation |
-| `pnpm test` | Run tests |
-| `pnpm db:migrate` | Create/apply migrations (dev) |
-| `pnpm db:seed` | Seed roles, permissions, admin user |
-| `pnpm docker:up` | Start PostgreSQL container |
+| Command           | Description                         |
+| ----------------- | ----------------------------------- |
+| `pnpm dev`        | Start all apps in development       |
+| `pnpm build`      | Build all packages and apps         |
+| `pnpm lint`       | Lint entire monorepo                |
+| `pnpm typecheck`  | TypeScript validation               |
+| `pnpm test`       | Run tests                           |
+| `pnpm db:migrate` | Create/apply migrations (dev)       |
+| `pnpm db:seed`    | Seed roles, permissions, admin user |
+| `pnpm docker:up`  | Start PostgreSQL container          |
 
 ---
 

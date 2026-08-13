@@ -1,29 +1,22 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 
 import { Prisma } from '@astra/database';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 
 import { CreateMaintenancePlanDto } from './dto/create-maintenance-plan.dto';
 
-type MaintenancePlanModel =
-  Prisma.MaintenancePlanGetPayload<Record<string, never>>;
+type MaintenancePlanModel = Prisma.maintenance_plansGetPayload<Record<string, never>>;
 
 @Injectable()
 export class MaintenanceService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  findAll(
-    organizationId: string,
-  ): Promise<MaintenancePlanModel[]> {
-    return this.prisma.maintenancePlan.findMany({
+  findAll(organization_id: string): Promise<MaintenancePlanModel[]> {
+    return this.prisma.maintenance_plans.findMany({
       where: {
-        organizationId,
+        organization_id,
       },
       orderBy: {
         nextDue: 'asc',
@@ -31,14 +24,11 @@ export class MaintenanceService {
     });
   }
 
-  async findOne(
-    id: string,
-    organizationId: string,
-  ): Promise<MaintenancePlanModel> {
-    const plan = await this.prisma.maintenancePlan.findFirst({
+  async findOne(id: string, organization_id: string): Promise<MaintenancePlanModel> {
+    const plan = await this.prisma.maintenance_plans.findFirst({
       where: {
         id,
-        organizationId,
+        organization_id,
       },
     });
 
@@ -51,12 +41,12 @@ export class MaintenanceService {
 
   async create(
     dto: CreateMaintenancePlanDto,
-    organizationId: string,
+    organization_id: string,
   ): Promise<MaintenancePlanModel> {
-    const asset = await this.prisma.asset.findFirst({
+    const asset = await this.prisma.assets.findFirst({
       where: {
         id: dto.assetId,
-        organizationId,
+        organization_id,
       },
     });
 
@@ -64,13 +54,15 @@ export class MaintenanceService {
       throw new NotFoundException('Asset not found');
     }
 
-    return this.prisma.maintenancePlan.create({
+    return this.prisma.maintenance_plans.create({
       data: {
+        id: randomUUID(),
         plan: dto.plan,
         assetId: dto.assetId,
         frequency: dto.frequency,
         nextDue: new Date(dto.nextDue),
-        organizationId,
+        organization_id,
+        updated_at: new Date(),
       },
     });
   }

@@ -1,8 +1,9 @@
 import { INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
 import { Controller, Get } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 
 import { AppModule } from '../../src/app.module';
+import { PrismaService } from '../../src/prisma/prisma.service';
 
 @Controller('test-harness')
 class TestHarnessController {
@@ -12,26 +13,41 @@ class TestHarnessController {
   }
 }
 
-export async function createTestApp(): Promise<INestApplication> {
+export interface TestAppContext {
+  app: INestApplication;
+  prisma: PrismaService;
+}
+
+export async function createTestApp(): Promise<TestAppContext> {
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [AppModule],
     controllers: [TestHarnessController],
   }).compile();
 
   const app = moduleFixture.createNestApplication();
+
   app.setGlobalPrefix('api');
-  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
-      transformOptions: { enableImplicitConversion: true },
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
 
   await app.init();
-  return app;
+
+  const prisma = app.get(PrismaService);
+
+  return { app, prisma };
 }
 
 export function apiPath(path: string): string {

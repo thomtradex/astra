@@ -1,0 +1,7 @@
+./.env
+./.env.example
+./apps/api/.env.example
+./apps/web/.env.example
+./apps/web/.env.local
+./packages/database/.env
+./packages/database/.env.example

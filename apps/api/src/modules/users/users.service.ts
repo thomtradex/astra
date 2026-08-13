@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
 import { buildPaginatedResult, normalizePagination, PaginatedResult } from '@astra/shared';
+import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 

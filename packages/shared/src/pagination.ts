@@ -14,7 +14,10 @@ export const PAGINATION_DEFAULTS = {
   MAX_LIMIT: 100,
 } as const;
 
-export function normalizePagination(page?: number, limit?: number): { page: number; limit: number; skip: number } {
+export function normalizePagination(
+  page?: number,
+  limit?: number,
+): { page: number; limit: number; skip: number } {
   const normalizedPage = Math.max(page ?? PAGINATION_DEFAULTS.PAGE, 1);
   const normalizedLimit = Math.min(
     Math.max(limit ?? PAGINATION_DEFAULTS.LIMIT, 1),

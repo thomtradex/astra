@@ -1,7 +1,8 @@
 import { INestApplication } from '@nestjs/common';
-import request from 'supertest';
 
 import { PrismaService } from '../../src/prisma/prisma.service';
+import { apiRequest } from '../helpers/http-client';
+import { bodyOf, PaginatedResponse } from '../helpers/http-types';
 import { apiPath, createTestApp } from '../helpers/test-app';
 import { login, seedIntegrationTestData } from '../helpers/test-data';
 
@@ -12,12 +13,13 @@ describe('Tenant isolation (integration)', () => {
   let orgBetaId: string;
 
   beforeAll(async () => {
-    app = await createTestApp();
-    prisma = app.get(PrismaService);
+    const context = await createTestApp();
+    app = context.app;
+    prisma = context.prisma;
 
-    const context = await seedIntegrationTestData(prisma);
-    orgAlphaId = context.organizationId;
-    orgBetaId = context.otherOrganizationId;
+    const seedContext = await seedIntegrationTestData(prisma);
+    orgAlphaId = seedContext.organizationId;
+    orgBetaId = seedContext.otherOrganizationId;
   });
 
   afterAll(async () => {
@@ -28,30 +30,42 @@ describe('Tenant isolation (integration)', () => {
     const alphaAdmin = await login(app, 'admin@alpha.test');
     const betaAdmin = await login(app, 'admin@beta.test');
 
-    const alphaResponse = await request(app.getHttpServer())
+    const alphaResponse = await apiRequest(app)
       .get(apiPath('/users'))
       .set('Authorization', `Bearer ${alphaAdmin.accessToken}`)
       .expect(200);
 
-    const betaResponse = await request(app.getHttpServer())
+    const betaResponse = await apiRequest(app)
       .get(apiPath('/users'))
       .set('Authorization', `Bearer ${betaAdmin.accessToken}`)
       .expect(200);
 
-    expect(alphaResponse.body.items.every((user: { email: string }) => user.email.endsWith('@alpha.test'))).toBe(true);
-    expect(betaResponse.body.items.every((user: { email: string }) => user.email.endsWith('@beta.test'))).toBe(true);
-    expect(alphaResponse.body.items.some((user: { email: string }) => user.email.endsWith('@beta.test'))).toBe(false);
+    expect(
+      bodyOf<PaginatedResponse<{ email: string }>>(alphaResponse).items.every((user) =>
+        user.email.endsWith('@alpha.test'),
+      ),
+    ).toBe(true);
+    expect(
+      bodyOf<PaginatedResponse<{ email: string }>>(betaResponse).items.every((user) =>
+        user.email.endsWith('@beta.test'),
+      ),
+    ).toBe(true);
+    expect(
+      bodyOf<PaginatedResponse<{ email: string }>>(alphaResponse).items.some((user) =>
+        user.email.endsWith('@beta.test'),
+      ),
+    ).toBe(false);
   });
 
   it('scopes audit logs to the authenticated organization', async () => {
     const alphaAdmin = await login(app, 'admin@alpha.test');
 
-    await request(app.getHttpServer())
+    await apiRequest(app)
       .get(apiPath('/users'))
       .set('Authorization', `Bearer ${alphaAdmin.accessToken}`)
       .expect(200);
 
-    const auditResponse = await request(app.getHttpServer())
+    const auditResponse = await apiRequest(app)
       .get(apiPath('/audit'))
       .set('Authorization', `Bearer ${alphaAdmin.accessToken}`)
       .expect(200);
@@ -64,8 +78,14 @@ describe('Tenant isolation (integration)', () => {
     });
 
     expect(alphaAuditLogs.length).toBeGreaterThan(0);
-    expect(auditResponse.body.items.every((log: { organizationId: string }) => log.organizationId === orgAlphaId)).toBe(true);
-    expect(betaAuditLogs.every((log) => log.organizationId === orgBetaId)).toBe(true);
+    expect(
+      bodyOf<PaginatedResponse<{ organizationId: string }>>(auditResponse).items.every(
+        (log) => log.organizationId === orgAlphaId,
+      ),
+    ).toBe(true);
+    expect(
+      betaAuditLogs.every((log: { organizationId: string }) => log.organizationId === orgBetaId),
+    ).toBe(true);
   });
 
   it('allows the same email in different organizations', async () => {

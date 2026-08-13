@@ -1,89 +1,58 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-} from '@nestjs/common';
-
 import { Prisma } from '@astra/database';
+import { PERMISSIONS } from '@astra/shared';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 
-import {
-  Authenticated,
-  RequirePermissions,
-} from '../../common/decorators/metadata.decorators';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Authenticated, RequirePermissions } from '../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
-import { WorkOrdersService } from './work-orders.service';
 import { CreateWorkOrderDto } from './dto/create-work-order.dto';
+import { WorkOrdersService } from './work-orders.service';
 
-type WorkOrderModel = Prisma.WorkOrderGetPayload<Record<string, never>>;
+type WorkOrderModel = Prisma.work_ordersGetPayload<Record<string, never>>;
 
 @Controller('work-orders')
 @Authenticated()
 export class WorkOrdersController {
-  constructor(
-    private readonly service: WorkOrdersService,
-  ) {}
+  constructor(private readonly service: WorkOrdersService) {}
 
   @Get()
-  @RequirePermissions('work_order:read')
-  findAll(
-    @CurrentUser() user: AuthenticatedUser,
-  ) {
+  @RequirePermissions(PERMISSIONS.WORK_ORDER_READ)
+  findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.service.findAll(user.organizationId);
   }
 
   @Post()
-  @RequirePermissions('work_order:write')
+  @RequirePermissions(PERMISSIONS.WORK_ORDER_WRITE)
   create(
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: CreateWorkOrderDto,
   ): Promise<WorkOrderModel> {
-    return this.service.create(
-      user.organizationId,
-      dto,
-    );
+    return this.service.create(user.organizationId, dto);
   }
 
   @Get(':id')
-  @RequirePermissions('work_order:read')
+  @RequirePermissions(PERMISSIONS.WORK_ORDER_READ)
   findOne(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<WorkOrderModel | null> {
-    return this.service.findOne(
-      id,
-      user.organizationId,
-    );
+    return this.service.findOne(id, user.organizationId);
   }
 
   @Patch(':id')
-  @RequirePermissions('work_order:write')
+  @RequirePermissions(PERMISSIONS.WORK_ORDER_WRITE)
   update(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
-    @Body() body: Prisma.WorkOrderUpdateInput,
+    @Body() body: Prisma.work_ordersUpdateInput,
   ) {
-    return this.service.update(
-      id,
-      user.organizationId,
-      body,
-    );
+    return this.service.update(id, user.organizationId, body);
   }
 
   @Delete(':id')
-  @RequirePermissions('work_order:delete')
-  remove(
-    @Param('id') id: string,
-    @CurrentUser() user: AuthenticatedUser,
-  ) {
-    return this.service.remove(
-      id,
-      user.organizationId,
-    );
+  @RequirePermissions(PERMISSIONS.WORK_ORDER_DELETE)
+  remove(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.service.remove(id, user.organizationId);
   }
 }

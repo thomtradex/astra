@@ -1,39 +1,25 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
-
 import { Prisma } from '@astra/database';
+import { PERMISSIONS } from '@astra/shared';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 
-import {
-  Authenticated,
-  RequirePermissions,
-} from '../../common/decorators/metadata.decorators';
-import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Authenticated, RequirePermissions } from '../../common/decorators/metadata.decorators';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
-import { SitesService } from './sites.service';
 import { CreateSiteDto } from './dto/create-site.dto';
 import { UpdateSiteDto } from './dto/update-site.dto';
+import { SitesService } from './sites.service';
 
-type SiteModel = Prisma.SiteGetPayload<Record<string, never>>;
+type SiteModel = Prisma.sitesGetPayload<Record<string, never>>;
 
 @Controller('sites')
 @Authenticated()
 export class SitesController {
-  constructor(
-    private readonly sitesService: SitesService,
-  ) {}
+  constructor(private readonly sitesService: SitesService) {}
 
   @Get()
-  @RequirePermissions('org:read')
+  @RequirePermissions(PERMISSIONS.SITE_READ)
   findAll(
     @CurrentUser() user: AuthenticatedUser,
     @Query() _pagination: PaginationQueryDto,
@@ -42,7 +28,7 @@ export class SitesController {
   }
 
   @Get(':id')
-  @RequirePermissions('org:read')
+  @RequirePermissions(PERMISSIONS.SITE_READ)
   findOne(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
@@ -52,7 +38,7 @@ export class SitesController {
   }
 
   @Post()
-  @RequirePermissions('org:write')
+  @RequirePermissions(PERMISSIONS.SITE_WRITE)
   create(
     @Body() dto: CreateSiteDto,
     @CurrentUser() user: AuthenticatedUser,
@@ -62,7 +48,7 @@ export class SitesController {
   }
 
   @Patch(':id')
-  @RequirePermissions('org:write')
+  @RequirePermissions(PERMISSIONS.SITE_WRITE)
   update(
     @Param('id') id: string,
     @Body() dto: UpdateSiteDto,
@@ -73,7 +59,7 @@ export class SitesController {
   }
 
   @Delete(':id')
-  @RequirePermissions('org:write')
+  @RequirePermissions(PERMISSIONS.SITE_WRITE)
   remove(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,

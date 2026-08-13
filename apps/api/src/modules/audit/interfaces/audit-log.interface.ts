@@ -21,3 +21,25 @@ export interface AuditLogQuery {
   resource?: string;
   action?: AuditAction;
 }
+
+export interface AuditLogRecord {
+  id: string;
+  organizationId: string;
+  actorId: string | null;
+  action: AuditAction;
+  resource: string;
+  resourceId: string | null;
+  method: string | null;
+  path: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  statusCode: number | null;
+  metadata: Prisma.JsonValue | null;
+  createdAt: Date;
+  actor: {
+    id: string;
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+  } | null;
+}

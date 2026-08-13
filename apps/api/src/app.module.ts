@@ -3,14 +3,20 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AppConfigModule } from './config/config.module';
-import { PrismaModule } from './prisma/prisma.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { UsersModule } from './modules/users/users.module';
+import { AssetsModule } from './modules/assets/assets.module';
 import { AuditModule } from './modules/audit/audit.module';
-import { HealthModule } from './modules/health/health.module';
 import { AuditInterceptor } from './modules/audit/interceptors/audit.interceptor';
+import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { CustomersModule } from './modules/customers/customers.module';
+import { HealthModule } from './modules/health/health.module';
+import { MaintenanceModule } from './modules/maintenance/maintenance.module';
+import { OrganizationsModule } from './modules/organizations/organizations.module';
 import { PermissionsGuard } from './modules/rbac/guards/permissions.guard';
+import { SitesModule } from './modules/sites/sites.module';
+import { UsersModule } from './modules/users/users.module';
+import { WorkOrdersModule } from './modules/work-orders/work-orders.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -26,6 +32,12 @@ import { PermissionsGuard } from './modules/rbac/guards/permissions.guard';
     UsersModule,
     AuditModule,
     HealthModule,
+    OrganizationsModule,
+    CustomersModule,
+    SitesModule,
+    AssetsModule,
+    WorkOrdersModule,
+    MaintenanceModule,
   ],
   providers: [
     {

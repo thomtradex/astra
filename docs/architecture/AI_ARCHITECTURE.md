@@ -85,6 +85,7 @@ The AI Platform is composed of specialized engines.
 ```
 
 ```
+
 AI Platform
 
 │
@@ -110,7 +111,8 @@ AI Platform
 ├── Evaluation Engine
 
 └── Governance Engine
-```
+
+````
 
 ```md
 
@@ -438,7 +440,7 @@ Governance protects trust.
 
 Every request follows the same lifecycle.
 
-```
+````
 
 ```
 Request
@@ -481,7 +483,6 @@ Learning
 ```
 
 ```md
-
 No stage should be skipped.
 
 ---
@@ -649,3 +650,4 @@ That is the purpose of the AI Architecture.
 ---
 
 # End of AI Architecture
+```

@@ -1,7 +1,7 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { FormEvent, useState } from 'react';
 
 import { login } from '@/lib/auth-client';
 
@@ -35,13 +35,13 @@ export default function LoginPage() {
         <div className="mb-10 text-center">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-astra-500">Astra</p>
           <h1 className="mt-3 text-3xl font-light text-astra-950">Entrar na plataforma</h1>
-          <p className="mt-2 text-sm text-astra-600">
-            Fundação Phase 0.1 — autenticação segura
-          </p>
+          <p className="mt-2 text-sm text-astra-600">Fundação Phase 0.1 — autenticação segura</p>
         </div>
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={(event) => {
+            void handleSubmit(event);
+          }}
           className="rounded-2xl border border-astra-200 bg-white p-8 shadow-sm"
         >
           {error && (
@@ -60,7 +60,7 @@ export default function LoginPage() {
               autoComplete="email"
               required
               value={email}
-              onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-lg border border-astra-200 px-4 py-3 text-astra-950 outline-none transition focus:border-astra-400 focus:ring-2 focus:ring-astra-100"
               placeholder="admin@astra.local"
             />
@@ -73,7 +73,7 @@ export default function LoginPage() {
               autoComplete="current-password"
               required
               value={password}
-              onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border border-astra-200 px-4 py-3 text-astra-950 outline-none transition focus:border-astra-400 focus:ring-2 focus:ring-astra-100"
             />
           </label>
@@ -86,7 +86,7 @@ export default function LoginPage() {
               type="text"
               autoComplete="organization"
               value={organizationSlug}
-              onChange={(e) => setOrganizationSlug((e.target as HTMLInputElement).value)}
+              onChange={(e) => setOrganizationSlug(e.target.value)}
               className="w-full rounded-lg border border-astra-200 px-4 py-3 text-astra-950 outline-none transition focus:border-astra-400 focus:ring-2 focus:ring-astra-100"
               placeholder="astra-demo"
             />

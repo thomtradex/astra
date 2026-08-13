@@ -105,16 +105,14 @@ function findLayer(filePath) {
 }
 
 function findImportedLayer(importPath) {
-  return importPath
-    .split(/[\\/]/)
-    .find((segment) => LAYER_NAMES.has(segment));
+  return importPath.split(/[\\/]/).find((segment) => LAYER_NAMES.has(segment));
 }
 
 function isForbiddenExternal(layer, importPath) {
   const forbidden = FORBIDDEN_EXTERNALS[layer] ?? [];
-  return forbidden.some((dependency) => (
-    importPath === dependency || importPath.startsWith(dependency)
-  ));
+  return forbidden.some(
+    (dependency) => importPath === dependency || importPath.startsWith(dependency),
+  );
 }
 
 function collectImports(source) {
@@ -150,10 +148,7 @@ function checkFile(filePath) {
       });
     }
 
-    if (
-      importedLayer &&
-      (FORBIDDEN_LAYER_IMPORTS[layer] ?? new Set()).has(importedLayer)
-    ) {
+    if (importedLayer && (FORBIDDEN_LAYER_IMPORTS[layer] ?? new Set()).has(importedLayer)) {
       violations.push({
         filePath,
         importPath,

@@ -1,8 +1,9 @@
 import { INestApplication } from '@nestjs/common';
-import request from 'supertest';
 import * as bcrypt from 'bcryptjs';
 
 import { PrismaService } from '../../src/prisma/prisma.service';
+import { apiRequest } from '../helpers/http-client';
+import { bodyOf, LoginResponse, MeResponse } from '../helpers/http-types';
 import { apiPath, createTestApp } from '../helpers/test-app';
 import { login, seedIntegrationTestData, TEST_PASSWORD } from '../helpers/test-data';
 
@@ -11,8 +12,9 @@ describe('Auth (integration)', () => {
   let prisma: PrismaService;
 
   beforeAll(async () => {
-    app = await createTestApp();
-    prisma = app.get(PrismaService);
+    const context = await createTestApp();
+    app = context.app;
+    prisma = context.prisma;
     await seedIntegrationTestData(prisma);
   });
 
@@ -21,18 +23,18 @@ describe('Auth (integration)', () => {
   });
 
   it('logs in with valid credentials', async () => {
-    const response = await request(app.getHttpServer())
+    const response = await apiRequest(app)
       .post(apiPath('/auth/login'))
       .send({ email: 'admin@alpha.test', password: TEST_PASSWORD })
       .expect(200);
 
-    expect(response.body.accessToken).toBeDefined();
-    expect(response.body.refreshToken).toBeDefined();
-    expect(response.body.expiresIn).toBeGreaterThan(0);
+    expect(bodyOf<LoginResponse>(response).accessToken).toBeDefined();
+    expect(bodyOf<LoginResponse>(response).refreshToken).toBeDefined();
+    expect(bodyOf<LoginResponse>(response).expiresIn).toBeGreaterThan(0);
   });
 
   it('rejects invalid credentials', async () => {
-    await request(app.getHttpServer())
+    await apiRequest(app)
       .post(apiPath('/auth/login'))
       .send({ email: 'admin@alpha.test', password: 'wrong-password' })
       .expect(401);
@@ -41,28 +43,29 @@ describe('Auth (integration)', () => {
   it('returns the authenticated profile', async () => {
     const { accessToken } = await login(app, 'admin@alpha.test');
 
-    const response = await request(app.getHttpServer())
+    const response = await apiRequest(app)
       .get(apiPath('/auth/me'))
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
 
-    expect(response.body.email).toBe('admin@alpha.test');
-    expect(response.body.organizationId).toBeDefined();
-    expect(response.body.permissions.length).toBeGreaterThan(0);
+    expect(bodyOf<MeResponse>(response).email).toBe('admin@alpha.test');
+    expect(bodyOf<MeResponse>(response).organizationId).toBeDefined();
+    expect(bodyOf<MeResponse>(response).permissions.length).toBeGreaterThan(0);
   });
 
   it('rotates refresh tokens', async () => {
     const initial = await login(app, 'viewer@alpha.test');
 
-    const refreshed = await request(app.getHttpServer())
+    const refreshed = await apiRequest(app)
       .post(apiPath('/auth/refresh'))
       .send({ refreshToken: initial.refreshToken })
       .expect(200);
 
-    expect(refreshed.body.accessToken).toBeDefined();
-    expect(refreshed.body.refreshToken).not.toBe(initial.refreshToken);
+    const refreshedBody = bodyOf<LoginResponse>(refreshed);
+    expect(refreshedBody.accessToken).toBeDefined();
+    expect(refreshedBody.refreshToken).not.toBe(initial.refreshToken);
 
-    await request(app.getHttpServer())
+    await apiRequest(app)
       .post(apiPath('/auth/refresh'))
       .send({ refreshToken: initial.refreshToken })
       .expect(401);
@@ -71,7 +74,7 @@ describe('Auth (integration)', () => {
   it('requires organization slug when email exists in multiple organizations', async () => {
     const role = await prisma.role.findFirstOrThrow({ where: { name: 'ADMIN' } });
     const passwordHash = await bcrypt.hash(TEST_PASSWORD, 10);
-    const sharedEmail = 'duplicated@test';
+    const sharedEmail = 'duplicated@test.local';
 
     await prisma.user.create({
       data: {
@@ -79,7 +82,9 @@ describe('Auth (integration)', () => {
         passwordHash,
         firstName: 'Dup',
         lastName: 'Alpha',
-        organizationId: (await prisma.organization.findFirstOrThrow({ where: { slug: 'org-alpha' } })).id,
+        organizationId: (
+          await prisma.organization.findFirstOrThrow({ where: { slug: 'org-alpha' } })
+        ).id,
         roles: { create: { roleId: role.id } },
       },
     });
@@ -90,21 +95,24 @@ describe('Auth (integration)', () => {
         passwordHash,
         firstName: 'Dup',
         lastName: 'Beta',
-        organizationId: (await prisma.organization.findFirstOrThrow({ where: { slug: 'org-beta' } })).id,
+        organizationId: (
+          await prisma.organization.findFirstOrThrow({ where: { slug: 'org-beta' } })
+        ).id,
         roles: { create: { roleId: role.id } },
       },
     });
 
-    await request(app.getHttpServer())
+    await apiRequest(app)
       .post(apiPath('/auth/login'))
       .send({ email: sharedEmail, password: TEST_PASSWORD })
       .expect(401);
 
-    const alphaLogin = await request(app.getHttpServer())
+    const alphaLogin = await apiRequest(app)
       .post(apiPath('/auth/login'))
       .send({ email: sharedEmail, password: TEST_PASSWORD, organizationSlug: 'org-alpha' })
       .expect(200);
 
-    expect(alphaLogin.body.accessToken).toBeDefined();
+    const alphaLoginBody = bodyOf<LoginResponse>(alphaLogin);
+    expect(alphaLoginBody.accessToken).toBeDefined();
   });
 });

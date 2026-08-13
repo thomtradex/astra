@@ -1,5 +1,5 @@
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class LoginDto {
   @ApiProperty({ example: 'admin@astra.local' })
@@ -13,7 +13,8 @@ export class LoginDto {
 
   @ApiPropertyOptional({
     example: 'astra-demo',
-    description: 'Organization slug — required when the same email exists in multiple organizations',
+    description:
+      'Organization slug — required when the same email exists in multiple organizations',
   })
   @IsOptional()
   @IsString()

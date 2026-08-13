@@ -1,0 +1,524 @@
+
+============================================================
+[1] GIT STATE
+ M .ai/CONSTITUTION.md
+ M README.md
+ M Solution/modules/AI/src/Astra.AI.Api/Properties/launchSettings.json
+ M Solution/modules/AI/src/Astra.AI.Api/appsettings.Development.json
+ M Solution/modules/AI/src/Astra.AI.Api/appsettings.json
+ M Solution/modules/Agents/src/Astra.Agents.Api/Properties/launchSettings.json
+ M Solution/modules/Agents/src/Astra.Agents.Api/appsettings.Development.json
+ M Solution/modules/Agents/src/Astra.Agents.Api/appsettings.json
+ M Solution/modules/Audit/src/Astra.Audit.Api/Properties/launchSettings.json
+ M Solution/modules/Audit/src/Astra.Audit.Api/appsettings.Development.json
+ M Solution/modules/Audit/src/Astra.Audit.Api/appsettings.json
+ M Solution/modules/EventBus/src/Astra.EventBus.Api/Properties/launchSettings.json
+ M Solution/modules/EventBus/src/Astra.EventBus.Api/appsettings.Development.json
+ M Solution/modules/EventBus/src/Astra.EventBus.Api/appsettings.json
+ M Solution/modules/Gateway/src/Astra.Gateway.Api/Properties/launchSettings.json
+ M Solution/modules/Gateway/src/Astra.Gateway.Api/appsettings.Development.json
+ M Solution/modules/Gateway/src/Astra.Gateway.Api/appsettings.json
+ M Solution/modules/Identity/src/Astra.Identity.Api/Properties/launchSettings.json
+ M Solution/modules/Identity/src/Astra.Identity.Api/appsettings.Development.json
+ M Solution/modules/Identity/src/Astra.Identity.Api/appsettings.json
+ D Solution/modules/Identity/src/tests/Astra.Identity.UnitTests/Astra.Identity.UnitTests.csproj.bak
+ M Solution/modules/Knowledge/src/Astra.Knowledge.Api/Properties/launchSettings.json
+ M Solution/modules/Knowledge/src/Astra.Knowledge.Api/appsettings.Development.json
+ M Solution/modules/Knowledge/src/Astra.Knowledge.Api/appsettings.json
+ M Solution/modules/Marketplace/src/Astra.Marketplace.Api/Properties/launchSettings.json
+ M Solution/modules/Marketplace/src/Astra.Marketplace.Api/appsettings.Development.json
+ M Solution/modules/Marketplace/src/Astra.Marketplace.Api/appsettings.json
+ M Solution/modules/Memory/src/Astra.Memory.Api/Properties/launchSettings.json
+ M Solution/modules/Memory/src/Astra.Memory.Api/appsettings.Development.json
+ M Solution/modules/Memory/src/Astra.Memory.Api/appsettings.json
+ M Solution/modules/Notifications/src/Astra.Notifications.Api/Properties/launchSettings.json
+ M Solution/modules/Notifications/src/Astra.Notifications.Api/appsettings.Development.json
+ M Solution/modules/Notifications/src/Astra.Notifications.Api/appsettings.json
+ M Solution/modules/Organization/src/Astra.Organization.Api/appsettings.Development.json
+ M Solution/modules/Organization/src/Astra.Organization.Api/appsettings.json
+ M Solution/modules/Planning/src/Astra.Planning.Api/Properties/launchSettings.json
+ M Solution/modules/Planning/src/Astra.Planning.Api/appsettings.Development.json
+ M Solution/modules/Planning/src/Astra.Planning.Api/appsettings.json
+ M Solution/modules/Policy/src/Astra.Policy.Api/Properties/launchSettings.json
+ M Solution/modules/Policy/src/Astra.Policy.Api/appsettings.Development.json
+ M Solution/modules/Policy/src/Astra.Policy.Api/appsettings.json
+ M Solution/modules/Projects/src/Astra.Projects.Api/Properties/launchSettings.json
+ M Solution/modules/Projects/src/Astra.Projects.Api/appsettings.Development.json
+ M Solution/modules/Projects/src/Astra.Projects.Api/appsettings.json
+ M Solution/modules/Workflow/src/Astra.Workflow.Api/Properties/launchSettings.json
+ M Solution/modules/Workflow/src/Astra.Workflow.Api/appsettings.Development.json
+ M Solution/modules/Workflow/src/Astra.Workflow.Api/appsettings.json
+ M Solution/swagger.json
+ M apps/api/eslint.config.mjs
+ M apps/api/package.json
+ M apps/api/src/app.module.ts
+ M apps/api/src/common/dto/pagination-query.dto.ts
+ M apps/api/src/config/env.validation.ts
+ M apps/api/src/main.ts
+ M apps/api/src/modules/assets/assets.controller.ts
+ M apps/api/src/modules/assets/assets.module.ts
+ M apps/api/src/modules/assets/assets.service.ts
+ M apps/api/src/modules/assets/dto/create-asset.dto.ts
+ M apps/api/src/modules/assets/dto/update-asset.dto.ts
+ M apps/api/src/modules/audit/audit.controller.ts
+ M apps/api/src/modules/audit/audit.service.ts
+ M apps/api/src/modules/audit/dto/audit-query.dto.ts
+ M apps/api/src/modules/audit/interceptors/audit.interceptor.ts
+ M apps/api/src/modules/audit/interfaces/audit-log.interface.ts
+ M apps/api/src/modules/auth/auth.controller.ts
+ M apps/api/src/modules/auth/auth.module.ts
+ M apps/api/src/modules/auth/auth.service.ts
+ M apps/api/src/modules/auth/dto/auth.dto.ts
+ M apps/api/src/modules/auth/guards/jwt-auth.guard.ts
+ M apps/api/src/modules/auth/strategies/jwt.strategy.ts
+ M apps/api/src/modules/customers/customers.controller.ts
+ M apps/api/src/modules/customers/customers.module.ts
+ M apps/api/src/modules/customers/customers.service.ts
+ M apps/api/src/modules/customers/dto/create-customer.dto.ts
+ M apps/api/src/modules/customers/dto/update-customer.dto.ts
+ M apps/api/src/modules/health/health.controller.spec.ts
+ M apps/api/src/modules/health/health.controller.ts
+ M apps/api/src/modules/maintenance/dto/create-maintenance-plan.dto.ts
+------------------------------------------------------------
+[2] PACKAGE / TOOLCHAIN
+v26.5.0
+9.15.0
+undefined
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "next" not found
+{
+  "name": "astra",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Astra — Operational Intelligence Platform",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "architecture:check": "node scripts/architecture/check-boundaries.mjs",
+    "lint": "eslint .",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,md,json,yml,yaml}\"",
+    "db:generate": "pnpm --filter @astra/database db:generate",
+    "db:migrate": "pnpm --filter @astra/database db:migrate",
+    "db:migrate:deploy": "pnpm --filter @astra/database db:migrate:deploy",
+    "db:seed": "pnpm --filter @astra/database db:seed",
+    "db:studio": "pnpm --filter @astra/database db:studio",
+    "docker:up": "docker compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml down",
+    "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
+    "clean": "turbo run clean && rm -rf node_modules"
+  "devDependencies": {
+    "@astra/eslint-config": "workspace:*",
+    "@astra/typescript-config": "workspace:*",
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^22.20.1",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import-x": "^4.17.1",
+    "globals": "^17.9.0",
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.66.0"
+  }
+}
+[3] NEXT CONFIG
+import type { NextConfig } from 'next';
+const nextConfig: NextConfig = {
+  reactStrictMode: true,
+  transpilePackages: ['@astra/shared'],
+  poweredByHeader: false,
+  headers: async () =>
+    await Promise.resolve([
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
+    ]),
+};
+export default nextConfig;
+[4] NEXT SERVER/CLIENT BOUNDARIES
+--- next/headers imports ---
+apps/web/src/app/api/auth/logout/route.ts:1:import { cookies } from 'next/headers';
+apps/web/src/lib/auth.ts:2:import { cookies } from 'next/headers';
+--- files marked use client ---
+apps/web/src/app/login/page.tsx
+apps/web/src/components/logout-button.tsx
+--- client files importing next/headers ---
+--- users.ts ---
+--- create-user-form.tsx ---
+[5] TYPESCRIPT
+> astra@0.1.0 typecheck /Users/lelialopes/Projects/astra
+> turbo run typecheck
+• turbo 2.10.7
+   • Packages in scope: @astra/api, @astra/database, @astra/eslint-config, @astra/shared, @astra/typescript-config, @astra/web
+   • Running typecheck in 6 packages
+   • Remote caching disabled
+@astra/shared:typecheck: cache hit, replaying logs b84345b6c9a89f04
+@astra/shared:build: cache hit, replaying logs 4d6616010963282f
+@astra/shared:build: 
+@astra/shared:build: > @astra/shared@0.1.0 build /Users/lelialopes/Projects/astra/packages/shared
+@astra/shared:build: > tsc -p tsconfig.json
+@astra/shared:typecheck: 
+@astra/shared:typecheck: > @astra/shared@0.1.0 typecheck /Users/lelialopes/Projects/astra/packages/shared
+@astra/shared:typecheck: > tsc -p tsconfig.json --noEmit
+@astra/web:typecheck: cache hit, replaying logs c1e9ddfaf44bd1fa
+@astra/web:typecheck: 
+@astra/web:typecheck: > @astra/web@0.1.0 typecheck /Users/lelialopes/Projects/astra/apps/web
+@astra/web:typecheck: > tsc --noEmit
+@astra/database:build: cache hit, replaying logs 8260aa6ed7c9dab1
+@astra/database:typecheck: cache hit, replaying logs 4535f81c94883d06
+@astra/database:typecheck: 
+@astra/database:typecheck: > @astra/database@0.1.0 typecheck /Users/lelialopes/Projects/astra/packages/database
+@astra/database:typecheck: > tsc -p tsconfig.json --noEmit
+@astra/database:build: 
+@astra/database:build: > @astra/database@0.1.0 build /Users/lelialopes/Projects/astra/packages/database
+@astra/database:build: > tsc -p tsconfig.json
+@astra/api:typecheck: cache hit, replaying logs e332867f4e5cb4ab
+@astra/api:typecheck: 
+@astra/api:typecheck: > @astra/api@0.1.0 typecheck /Users/lelialopes/Projects/astra/apps/api
+@astra/api:typecheck: > tsc -p tsconfig.build.json --noEmit
+ Tasks:    6 successful, 6 total
+Cached:    6 cached, 6 total
+  Time:    55ms >>> FULL TURBO
+[6] ESLINT
+[7] TESTS
+> astra@0.1.0 test /Users/lelialopes/Projects/astra
+> turbo run test
+   • Running test in 6 packages
+@astra/shared:test: cache hit, replaying logs 64bfa4d090817416
+@astra/shared:test: 
+@astra/shared:test: > @astra/shared@0.1.0 test /Users/lelialopes/Projects/astra/packages/shared
+@astra/shared:test: > node -e "process.exit(0)"
+@astra/web:test: cache hit, replaying logs ff96bc8b91e89aee
+@astra/web:test: 
+@astra/web:test: > @astra/web@0.1.0 test /Users/lelialopes/Projects/astra/apps/web
+@astra/web:test: > node -e "process.exit(0)"
+@astra/database:test: cache hit, replaying logs 2a97ce03b2ff89da
+@astra/database:test: 
+@astra/database:test: > @astra/database@0.1.0 test /Users/lelialopes/Projects/astra/packages/database
+@astra/database:test: > node -e "process.exit(0)"
+@astra/api:test: cache hit, replaying logs 6287f715a176350d
+@astra/api:test: 
+@astra/api:test: > @astra/api@0.1.0 test /Users/lelialopes/Projects/astra/apps/api
+@astra/api:test: > jest --runInBand
+@astra/api:test: [1m[2mDetermining test suites to run...[22m[22m[999D[K
+@astra/api:test: [K
+@astra/api:test: [1A
+@astra/api:test: [0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...ts[22m
+[8] PRODUCTION BUILD
+> astra@0.1.0 build /Users/lelialopes/Projects/astra
+> turbo run build
+   • Running build in 6 packages
+@astra/web:build: cache hit, replaying logs 8f8ae2d945e2367d
+@astra/web:build: 
+@astra/web:build: > @astra/web@0.1.0 build /Users/lelialopes/Projects/astra/apps/web
+@astra/web:build: > next build
+@astra/web:build:    [1m[38;2;173;127;168m▲ Next.js 15.5.22[39m[22m
+@astra/web:build:    - Environments: .env.local
+@astra/web:build:  [37m[1m [22m[39m Creating an optimized production build ...
+@astra/web:build:  [32m[1m✓[22m[39m Compiled successfully in 1265ms
+@astra/web:build: [?25l [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G[1A[2K[1G[?25h [37m[1m [22m[39m Linting and checking validity of types    
+@astra/web:build:  [32m[1m✓[22m[39m Linting and checking validity of types 
+@astra/web:build: [?25l [37m[1m [22m[39m Collecting page data  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m...[39m[2K[1G[?25h [37m[1m [22m[39m Collecting page data    
+@astra/web:build:  [32m[1m✓[22m[39m Collecting page data 
+@astra/web:build: [?25l [37m[1m [22m[39m Generating static pages (0/9)  [36m[    ][39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Generating static pages (0/9)  [36m[=   ][39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Generating static pages (0/9)  [36m[==  ][39m[2K[1G[1A[2K[1G[?25h [32m[1m✓[22m[39m Generating static pages (9/9)
+@astra/web:build: [?25l [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[?25l [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[1A[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G[1A[2K[1G[?25h [37m[1m [22m[39m Collecting build traces    
+@astra/web:build:  [32m[1m✓[22m[39m Collecting build traces 
+@astra/web:build: [2K[1G[1A[2K[1G[?25h [37m[1m [22m[39m Finalizing page optimization    
+@astra/web:build:  [32m[1m✓[22m[39m Finalizing page optimization 
+@astra/web:build: [4mRoute (app)[24m                                 [4mSize[24m  [4mFirst Load JS[24m  [4m[24m  [4m[24m
+@astra/web:build: ┌ ƒ /                                      133 B         [37m[1m103 kB[22m[39m
+@astra/web:build: ├ ○ /_not-found                             1 kB         [37m[1m103 kB[22m[39m
+@astra/web:build: ├ ƒ /api/auth/login                        133 B         [37m[1m103 kB[22m[39m
+@astra/web:build: ├ ƒ /api/auth/logout                       133 B         [37m[1m103 kB[22m[39m
+@astra/web:build: ├ ƒ /api/auth/refresh                      133 B         [37m[1m103 kB[22m[39m
+@astra/web:build: ├ ○ /login                               1.39 kB         [37m[1m104 kB[22m[39m
+@astra/web:build: └ ƒ /session                               746 B         [37m[1m103 kB[22m[39m
+@astra/web:build: + First Load JS shared by all             [37m[1m102 kB[22m[39m
+@astra/web:build:   ├ chunks/8b9e9954-3986a01948abc0a0.js  54.2 kB
+@astra/web:build:   ├ chunks/994-992a2c0195eb27bd.js       46.2 kB
+@astra/web:build:   └ other shared chunks (total)          1.92 kB
+@astra/web:build: ƒ Middleware                             [37m[1m34.3 kB[22m[39m
+@astra/web:build: ○  (Static)   prerendered as static content
+@astra/web:build: ƒ  (Dynamic)  server-rendered on demand
+@astra/web:build: [?25h
+@astra/api:build: cache hit, replaying logs de092b4022011611
+@astra/api:build: 
+@astra/api:build: > @astra/api@0.1.0 build /Users/lelialopes/Projects/astra/apps/api
+@astra/api:build: > tsc -p tsconfig.build.json
+ Tasks:    4 successful, 4 total
+Cached:    4 cached, 4 total
+  Time:    24ms >>> FULL TURBO
+[9] PRETTIER
+Checking formatting...
+All matched files use Prettier code style!
+[10] TODO / FIXME / PLACEHOLDER COUNTS
+--- TODO ---
+     852
+--- IMPLEMENT markers ---
+     427
+[11] EMPTY / SUSPICIOUS IMPLEMENTATIONS
+[12] CONSTRUCTION DOMAIN
+apps/web/.next/types/app/page.ts:1:// File: /Users/lelialopes/Projects/astra/apps/web/src/app/page.tsx
+apps/web/.next/types/app/layout.ts:1:// File: /Users/lelialopes/Projects/astra/apps/web/src/app/layout.tsx
+apps/web/.next/types/app/api/auth/refresh/route.ts:1:// File: /Users/lelialopes/Projects/astra/apps/web/src/app/api/auth/refresh/route.ts
+apps/web/.next/types/app/api/auth/logout/route.ts:1:// File: /Users/lelialopes/Projects/astra/apps/web/src/app/api/auth/logout/route.ts
+apps/web/.next/types/app/api/auth/login/route.ts:1:// File: /Users/lelialopes/Projects/astra/apps/web/src/app/api/auth/login/route.ts
+apps/web/.next/types/app/login/page.ts:1:// File: /Users/lelialopes/Projects/astra/apps/web/src/app/login/page.tsx
+apps/web/.next/types/app/session/page.ts:1:// File: /Users/lelialopes/Projects/astra/apps/web/src/app/session/page.tsx
+apps/web/src/lib/auth.ts:59:    sameSite: 'lax' as const,
+apps/api/test/integration/resources.integration.spec.ts:39:  describe('sites', () => {
+apps/api/test/integration/resources.integration.spec.ts:40:    it('allows admin to create a site', async () => {
+apps/api/test/integration/resources.integration.spec.ts:42:        .post(apiPath('/sites'))
+apps/api/test/integration/resources.integration.spec.ts:45:          name: 'Alpha Site',
+apps/api/test/integration/resources.integration.spec.ts:46:          code: 'ALPHA-SITE-001',
+apps/api/test/integration/resources.integration.spec.ts:53:    it('denies viewer from creating a site', async () => {
+apps/api/test/integration/resources.integration.spec.ts:55:        .post(apiPath('/sites'))
+apps/api/test/integration/resources.integration.spec.ts:58:          name: 'Forbidden Site',
+apps/api/test/integration/resources.integration.spec.ts:64:    it('does not expose another organization site', async () => {
+apps/api/test/integration/resources.integration.spec.ts:65:      await prisma.sites.create({
+apps/api/test/integration/resources.integration.spec.ts:68:          name: 'Beta Site',
+apps/api/test/integration/resources.integration.spec.ts:69:          code: 'BETA-SITE-001',
+apps/api/test/integration/resources.integration.spec.ts:76:        .get(apiPath('/sites'))
+apps/api/test/integration/resources.integration.spec.ts:82:          (site) => site.organization_id === orgAlphaId,
+apps/api/test/integration/resources.integration.spec.ts:204:    await apiRequest(app).get(apiPath('/sites')).expect(401);
+apps/api/test/integration/resource-crud-isolation.integration.spec.ts:60:  it('does not allow Alpha to update or delete Beta sites', async () => {
+apps/api/test/integration/resource-crud-isolation.integration.spec.ts:63:    const betaSite = await prisma.sites.create({
+apps/api/test/integration/resource-crud-isolation.integration.spec.ts:66:        name: 'Beta Site',
+apps/api/test/integration/resource-crud-isolation.integration.spec.ts:67:        code: 'BETA-SITE-001',
+apps/api/test/integration/resource-crud-isolation.integration.spec.ts:74:      .patch(apiPath(`/sites/${betaSite.id}`))
+apps/api/test/integration/resource-crud-isolation.integration.spec.ts:76:      .send({ name: 'Hacked Site' })
+apps/api/test/integration/resource-crud-isolation.integration.spec.ts:80:      .delete(apiPath(`/sites/${betaSite.id}`))
+apps/api/test/integration/resource-crud-isolation.integration.spec.ts:84:    const unchanged = await prisma.sites.findUnique({
+apps/api/test/integration/resource-crud-isolation.integration.spec.ts:85:      where: { id: betaSite.id },
+apps/api/test/integration/resource-crud-isolation.integration.spec.ts:88:    expect(unchanged?.name).toBe('Beta Site');
+apps/api/dist/modules/sites/dto/update-site.dto.d.ts:1:import { CreateSiteDto } from './create-site.dto';
+apps/api/dist/modules/sites/dto/update-site.dto.d.ts:2:declare const UpdateSiteDto_base: import("@nestjs/common").Type<Partial<CreateSiteDto>>;
+apps/api/dist/modules/sites/dto/update-site.dto.d.ts:3:export declare class UpdateSiteDto extends UpdateSiteDto_base {
+apps/api/dist/modules/sites/dto/update-site.dto.d.ts:6://# sourceMappingURL=update-site.dto.d.ts.map
+apps/api/dist/modules/sites/dto/create-site.dto.d.ts:1:export declare class CreateSiteDto {
+apps/api/dist/modules/sites/dto/create-site.dto.d.ts:5://# sourceMappingURL=create-site.dto.d.ts.map
+apps/api/dist/modules/sites/sites.controller.d.ts:4:import { CreateSiteDto } from './dto/create-site.dto';
+apps/api/dist/modules/sites/sites.controller.d.ts:5:import { UpdateSiteDto } from './dto/update-site.dto';
+apps/api/dist/modules/sites/sites.controller.d.ts:6:import { SitesService } from './sites.service';
+apps/api/dist/modules/sites/sites.controller.d.ts:7:type SiteModel = Prisma.sitesGetPayload<Record<string, never>>;
+apps/api/dist/modules/sites/sites.controller.d.ts:8:export declare class SitesController {
+apps/api/dist/modules/sites/sites.controller.d.ts:9:    private readonly sitesService;
+apps/api/dist/modules/sites/sites.controller.d.ts:10:    constructor(sitesService: SitesService);
+apps/api/dist/modules/sites/sites.controller.d.ts:11:    findAll(user: AuthenticatedUser, _pagination: PaginationQueryDto): Promise<SiteModel[]>;
+apps/api/dist/modules/sites/sites.controller.d.ts:12:    findOne(id: string, user: AuthenticatedUser, _pagination: PaginationQueryDto): Promise<SiteModel | null>;
+apps/api/dist/modules/sites/sites.controller.d.ts:13:    create(dto: CreateSiteDto, user: AuthenticatedUser, _pagination: PaginationQueryDto): Promise<SiteModel>;
+apps/api/dist/modules/sites/sites.controller.d.ts:14:    update(id: string, dto: UpdateSiteDto, user: AuthenticatedUser, _pagination: PaginationQueryDto): Promise<SiteModel>;
+apps/api/dist/modules/sites/sites.controller.d.ts:15:    remove(id: string, user: AuthenticatedUser, _pagination: PaginationQueryDto): Promise<SiteModel>;
+apps/api/dist/modules/sites/sites.controller.d.ts:18://# sourceMappingURL=sites.controller.d.ts.map
+apps/api/dist/modules/sites/sites.module.d.ts:1:export declare class SitesModule {
+apps/api/dist/modules/sites/sites.module.d.ts:3://# sourceMappingURL=sites.module.d.ts.map
+apps/api/dist/modules/sites/sites.service.d.ts:3:import { CreateSiteDto } from './dto/create-site.dto';
+apps/api/dist/modules/sites/sites.service.d.ts:4:import { UpdateSiteDto } from './dto/update-site.dto';
+apps/api/dist/modules/sites/sites.service.d.ts:5:type SiteModel = Prisma.sitesGetPayload<Record<string, never>>;
+apps/api/dist/modules/sites/sites.service.d.ts:6:export declare class SitesService {
+apps/api/dist/modules/sites/sites.service.d.ts:9:    findAll(organization_id: string): Promise<SiteModel[]>;
+apps/api/dist/modules/sites/sites.service.d.ts:10:    findOne(id: string, organization_id: string): Promise<SiteModel | null>;
+apps/api/dist/modules/sites/sites.service.d.ts:11:    create(dto: CreateSiteDto, organization_id: string): Promise<SiteModel>;
+apps/api/dist/modules/sites/sites.service.d.ts:12:    update(id: string, dto: UpdateSiteDto, organization_id: string): Promise<{
+apps/api/dist/modules/sites/sites.service.d.ts:38://# sourceMappingURL=sites.service.d.ts.map
+apps/api/dist/modules/assets/dto/create-asset.dto.d.ts:7:    siteId?: string;
+apps/api/dist/modules/assets/assets.service.d.ts:20:        site_id: string | null;
+apps/api/dist/modules/assets/assets.service.d.ts:32:        site_id: string | null;
+apps/api/src/main.ts:4:import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+apps/api/src/main.ts:43:    const swaggerConfig = new DocumentBuilder()
+apps/api/src/main.ts:50:    const document = SwaggerModule.createDocument(app, swaggerConfig);
+apps/api/src/main.ts:51:    SwaggerModule.setup('api/docs', app, document);
+apps/api/src/app.module.ts:16:import { SitesModule } from './modules/sites/sites.module';
+apps/api/src/app.module.ts:37:    SitesModule,
+apps/api/src/modules/sites/dto/update-site.dto.ts:3:import { CreateSiteDto } from './create-site.dto';
+apps/api/src/modules/sites/dto/update-site.dto.ts:5:export class UpdateSiteDto extends PartialType(CreateSiteDto) {}
+apps/api/src/modules/sites/dto/create-site.dto.ts:4:export class CreateSiteDto {
+apps/api/src/modules/sites/sites.module.ts:5:import { SitesController } from './sites.controller';
+apps/api/src/modules/sites/sites.module.ts:6:import { SitesService } from './sites.service';
+apps/api/src/modules/sites/sites.module.ts:10:  controllers: [SitesController],
+[13] API SURFACE
+apps/api/src/modules/assets/assets.controller.ts
+apps/api/src/modules/audit/audit.controller.ts
+apps/api/src/modules/auth/auth.controller.ts
+apps/api/src/modules/customers/customers.controller.ts
+apps/api/src/modules/health/health.controller.ts
+apps/api/src/modules/maintenance/maintenance.controller.ts
+apps/api/src/modules/organizations/organizations.controller.ts
+apps/api/src/modules/sites/sites.controller.ts
+apps/api/src/modules/users/users.controller.ts
+apps/api/src/modules/work-orders/work-orders.controller.ts
+[14] WEB ROUTES
+apps/web/src/app/api/auth/login/route.ts
+apps/web/src/app/api/auth/logout/route.ts
+apps/web/src/app/api/auth/refresh/route.ts
+apps/web/src/app/layout.tsx
+apps/web/src/app/page.tsx
+apps/web/src/app/session/page.tsx
+[15] DATABASE SCHEMA
+packages/database/prisma/migrations/migration_lock.toml
+packages/database/prisma/schema.prisma
+packages/database/prisma/seed.ts
+packages/database/prisma/seeds/demo-executive.ts
+packages/database/prisma/seeds/demo-procurement.ts
+packages/database/prisma/seeds/demo-purchases.ts
+packages/database/prisma/seeds/demo-suppliers.ts
+packages/database/prisma/seeds/goods-receipts.ts
+packages/database/prisma/seeds/procurement.ts
+packages/database/prisma/seeds/purchases.ts
+packages/database/prisma/seeds/suppliers.ts
+packages/database/prisma/tsconfig.json
+[16] SECURITY SURFACE
+apps/api/src/config/env.validation.ts:10:  JWT_ACCESS_SECRET: Joi.string().min(32).required(),
+apps/api/src/config/env.validation.ts:11:  JWT_ACCESS_EXPIRES_IN: Joi.string().default('15m'),
+apps/api/src/config/env.validation.ts:12:  JWT_REFRESH_SECRET: Joi.string().min(32).required(),
+apps/api/src/config/env.validation.ts:13:  JWT_REFRESH_EXPIRES_IN: Joi.string().default('7d'),
+apps/api/src/config/env.validation.ts:16:  RATE_LIMIT_TTL: Joi.number().integer().default(60),
+apps/api/src/config/env.validation.ts:17:  RATE_LIMIT_MAX: Joi.number().integer().default(100),
+apps/api/src/app.module.ts:2:import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+apps/api/src/app.module.ts:3:import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+apps/api/src/app.module.ts:7:import { AuditModule } from './modules/audit/audit.module';
+apps/api/src/app.module.ts:8:import { AuditInterceptor } from './modules/audit/interceptors/audit.interceptor';
+apps/api/src/app.module.ts:10:import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+apps/api/src/app.module.ts:14:import { OrganizationsModule } from './modules/organizations/organizations.module';
+apps/api/src/app.module.ts:15:import { PermissionsGuard } from './modules/rbac/guards/permissions.guard';
+apps/api/src/app.module.ts:33:    AuditModule,
+apps/api/src/app.module.ts:35:    OrganizationsModule,
+apps/api/src/app.module.ts:44:      provide: APP_GUARD,
+apps/api/src/app.module.ts:45:      useClass: ThrottlerGuard,
+apps/api/src/app.module.ts:48:      provide: APP_GUARD,
+apps/api/src/app.module.ts:49:      useClass: JwtAuthGuard,
+apps/api/src/app.module.ts:52:      provide: APP_GUARD,
+apps/api/src/app.module.ts:53:      useClass: PermissionsGuard,
+apps/api/src/app.module.ts:57:      useClass: AuditInterceptor,
+apps/api/src/common/decorators/metadata.decorators.ts:7:/** Allows any authenticated user without specific permissions. */
+apps/api/src/common/decorators/metadata.decorators.ts:10:export const PERMISSIONS_KEY = 'permissions';
+apps/api/src/common/decorators/metadata.decorators.ts:11:export const RequirePermissions = (...permissions: string[]) =>
+apps/api/src/common/decorators/metadata.decorators.ts:12:  SetMetadata(PERMISSIONS_KEY, permissions);
+apps/api/src/common/decorators/metadata.decorators.ts:14:export const SKIP_AUDIT_KEY = 'skipAudit';
+apps/api/src/common/decorators/metadata.decorators.ts:15:export const SkipAudit = () => SetMetadata(SKIP_AUDIT_KEY, true);
+apps/api/src/modules/customers/customers.controller.ts:2:import { PERMISSIONS } from '@astra/shared';
+apps/api/src/modules/customers/customers.controller.ts:6:import { Authenticated, RequirePermissions } from '../../common/decorators/metadata.decorators';
+apps/api/src/modules/customers/customers.controller.ts:20:  @RequirePermissions(PERMISSIONS.CUSTOMER_READ)
+apps/api/src/modules/customers/customers.controller.ts:22:    return this.service.findAll(user.organizationId);
+apps/api/src/modules/customers/customers.controller.ts:26:  @RequirePermissions(PERMISSIONS.CUSTOMER_WRITE)
+apps/api/src/modules/customers/customers.controller.ts:31:    return this.service.create(dto, user.organizationId);
+apps/api/src/modules/customers/customers.service.ts:14:    organization_id: string,
+apps/api/src/modules/customers/customers.service.ts:18:        organization_id,
+apps/api/src/modules/customers/customers.service.ts:28:    organization_id: string,
+apps/api/src/modules/customers/customers.service.ts:37:        organization_id,
+apps/api/src/modules/organizations/dto/create-organization.dto.ts:4:export class CreateOrganizationDto {
+apps/api/src/modules/organizations/dto/query-organizations.dto.ts:5:export class QueryOrganizationsDto extends PaginationQueryDto {
+apps/api/src/modules/organizations/dto/update-organization.dto.ts:3:import { CreateOrganizationDto } from './create-organization.dto';
+apps/api/src/modules/organizations/dto/update-organization.dto.ts:5:export class UpdateOrganizationDto extends PartialType(CreateOrganizationDto) {}
+apps/api/src/modules/organizations/organizations.service.ts:6:import { CreateOrganizationDto } from './dto/create-organization.dto';
+apps/api/src/modules/organizations/organizations.service.ts:7:import { QueryOrganizationsDto } from './dto/query-organizations.dto';
+apps/api/src/modules/organizations/organizations.service.ts:8:import { UpdateOrganizationDto } from './dto/update-organization.dto';
+apps/api/src/modules/organizations/organizations.service.ts:11:export class OrganizationsService {
+apps/api/src/modules/organizations/organizations.service.ts:15:    query: QueryOrganizationsDto,
+apps/api/src/modules/organizations/organizations.service.ts:17:    PaginatedResult<Awaited<ReturnType<PrismaService['organization']['findMany']>>[number]>
+apps/api/src/modules/organizations/organizations.service.ts:40:    const [organizations, total] = await Promise.all([
+apps/api/src/modules/organizations/organizations.service.ts:41:      this.prisma.organization.findMany({
+apps/api/src/modules/organizations/organizations.service.ts:55:      this.prisma.organization.count({ where }),
+apps/api/src/modules/organizations/organizations.service.ts:58:    return buildPaginatedResult(organizations, total, page, limit);
+apps/api/src/modules/organizations/organizations.service.ts:62:    const organization = await this.prisma.organization.findUnique({
+apps/api/src/modules/organizations/organizations.service.ts:74:    if (!organization) {
+apps/api/src/modules/organizations/organizations.service.ts:75:      throw new NotFoundException('Organization not found');
+apps/api/src/modules/organizations/organizations.service.ts:78:    return organization;
+apps/api/src/modules/organizations/organizations.service.ts:81:  async create(dto: CreateOrganizationDto) {
+apps/api/src/modules/organizations/organizations.service.ts:84:    const existing = await this.prisma.organization.findUnique({
+apps/api/src/modules/organizations/organizations.service.ts:90:      throw new ConflictException('Organization slug already exists');
+apps/api/src/modules/organizations/organizations.service.ts:93:    return this.prisma.organization.create({
+apps/api/src/modules/organizations/organizations.service.ts:109:  async update(id: string, dto: UpdateOrganizationDto) {
+apps/api/src/modules/organizations/organizations.service.ts:115:      const existing = await this.prisma.organization.findFirst({
+apps/api/src/modules/organizations/organizations.service.ts:124:        throw new ConflictException('Organization slug already exists');
+apps/api/src/modules/organizations/organizations.service.ts:128:    return this.prisma.organization.update({
+apps/api/src/modules/organizations/organizations.service.ts:148:    return this.prisma.organization.update({
+apps/api/src/modules/organizations/organizations.controller.ts:1:import { PERMISSIONS } from '@astra/shared';
+apps/api/src/modules/organizations/organizations.controller.ts:5:import { RequirePermissions } from '../../common/decorators/metadata.decorators';
+apps/api/src/modules/organizations/organizations.controller.ts:7:import { CreateOrganizationDto } from './dto/create-organization.dto';
+apps/api/src/modules/organizations/organizations.controller.ts:8:import { QueryOrganizationsDto } from './dto/query-organizations.dto';
+apps/api/src/modules/organizations/organizations.controller.ts:9:import { UpdateOrganizationDto } from './dto/update-organization.dto';
+apps/api/src/modules/organizations/organizations.controller.ts:10:import { OrganizationsService } from './organizations.service';
+apps/api/src/modules/organizations/organizations.controller.ts:12:@ApiTags('Organizations')
+apps/api/src/modules/organizations/organizations.controller.ts:14:@Controller('organizations')
+apps/api/src/modules/organizations/organizations.controller.ts:15:export class OrganizationsController {
+apps/api/src/modules/organizations/organizations.controller.ts:16:  constructor(private readonly organizationsService: OrganizationsService) {}
+apps/api/src/modules/organizations/organizations.controller.ts:19:  @RequirePermissions(PERMISSIONS.ORG_READ)
+apps/api/src/modules/organizations/organizations.controller.ts:20:  @ApiOperation({ summary: 'List organizations' })
+apps/api/src/modules/organizations/organizations.controller.ts:21:  findAll(@Query() query: QueryOrganizationsDto) {
+[17] RELEASE / PACKAGING
+./.ai/CONSTITUTION.md
+./.ai/DEVELOPMENT.md
+./.ai/PRODUCT.md
+./.ai/PROJECT.md
+./.ai/SECURITY.md
+./.ai/STACK.md
+./.ai/TESTING.md
+./.github/workflows/ci.yml
+./docker/docker-compose.dev.yml
+./docker/docker-compose.yml
+./docker/Dockerfile.api
+./docs/adr/0001-engineering-book-governed-modular-monolith.md
+./docs/ARCHITECTURE.md
+./docs/architecture/AI_ARCHITECTURE.md
+./docs/architecture/DOMAIN_ARCHITECTURE.md
+./docs/architecture/INFRASTRUCTURE_ARCHITECTURE.md
+./docs/architecture/MODULE_BOUNDARIES.md
+./docs/architecture/PHASE_0_GOVERNANCE.md
+./docs/architecture/PHYSICAL_ARCHITECTURE.md
+./docs/architecture/README.md
+./docs/architecture/SOLUTION_ARCHITECTURE.md
+./docs/engineering-book/ASTRA_ENGINEERING_BOOK_MASTER.md
+./docs/engineering-book/README.md
+./docs/products/astra-coo/FLOWS.md
+./docs/products/astra-coo/METRICS.md
+./docs/products/astra-coo/PRD.md
+./docs/products/astra-coo/ROADMAP.md
+./docs/products/astra-coo/UX.md
+./docs/SECURITY.md
+./docs/SETUP.md
+./pnpm-lock.yaml
+./pnpm-workspace.yaml
+./README.md
+[18] ENVIRONMENT / SECRETS
+./.env
+./.env.example
+./apps/api/.env.example
+./apps/web/.env.example
+./apps/web/.env.local
+./packages/database/.env
+./packages/database/.env.example
+[19] BUILD ARTIFACT / DEPLOYMENT READINESS
+apps/web/.next: PRESENT
+apps/api/dist: PRESENT
+packages/database/dist: PRESENT
+packages/shared/dist: PRESENT
+END OF RELEASE HARDENING REPORT
+apps/api/src/modules/audit/audit.service.ts:24:  private readonly logger = new Logger(AuditService.name);
+apps/api/src/modules/audit/audit.service.ts:28:  async log(input: AuditLogInput): Promise<void> {
+apps/api/src/modules/audit/audit.service.ts:30:      await this.prisma.auditLog.create({
+apps/api/src/modules/audit/audit.service.ts:32:          organizationId: input.organizationId,
+apps/api/src/modules/audit/audit.service.ts:46:      this.logger.error('Failed to write audit log', error instanceof Error ? error.stack : error);
+apps/api/src/modules/audit/audit.service.ts:50:  async findByOrganization(query: AuditLogQuery): Promise<PaginatedResult<AuditLogWithActor>> {
+apps/api/src/modules/audit/audit.service.ts:54:      organizationId: query.organizationId,
+apps/api/src/modules/audit/audit.service.ts:60:      this.findAuditRecords(where, skip, limit),
+apps/api/src/modules/audit/audit.service.ts:61:      this.prisma.auditLog.count({ where }),
+apps/api/src/modules/audit/audit.service.ts:67:  private findAuditRecords(
+apps/api/src/modules/audit/audit.service.ts:69:      organizationId: string;
+apps/api/src/modules/audit/audit.service.ts:71:      action?: AuditAction;

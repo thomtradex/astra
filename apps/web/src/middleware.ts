@@ -1,5 +1,6 @@
-import { decodeJwt } from '@/lib/jwt';
 import { NextRequest, NextResponse } from 'next/server';
+
+import { decodeJwt } from '@/lib/jwt';
 
 const PUBLIC_PATHS = ['/login', '/api/auth/login', '/api/auth/refresh'];
 

@@ -1,10 +1,11 @@
+import { AuthTokens } from '@astra/shared';
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { AuthTokens } from '@astra/shared';
 
-import { Public, Authenticated } from '../../common/decorators/metadata.decorators';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Public, Authenticated } from '../../common/decorators/metadata.decorators';
+
 import { AuthService } from './auth.service';
 import { LoginDto, LogoutDto, RefreshTokenDto } from './dto/auth.dto';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';

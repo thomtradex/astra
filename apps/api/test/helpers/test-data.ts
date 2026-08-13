@@ -1,9 +1,11 @@
-import * as bcrypt from 'bcryptjs';
-import request from 'supertest';
-import { INestApplication } from '@nestjs/common';
 import { PERMISSIONS, SYSTEM_ROLES } from '@astra/shared';
+import { INestApplication } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 
 import { PrismaService } from '../../src/prisma/prisma.service';
+import { apiRequest } from '../helpers/http-client';
+
+import type { LoginResponse } from './http-types';
 import { apiPath } from './test-app';
 
 export const TEST_PASSWORD = 'TestPassword123!';
@@ -55,7 +57,7 @@ async function ensureRoleWithPermissions(
   return role.id;
 }
 
-async function createUserWithRole(
+export async function createUserWithRole(
   prisma: PrismaService,
   organizationId: string,
   email: string,
@@ -98,6 +100,26 @@ export async function resetDatabase(prisma: PrismaService): Promise<void> {
   await prisma.userRole.deleteMany();
   await prisma.user.deleteMany();
   await prisma.organization.deleteMany();
+}
+
+export async function seedRolesAndPermissions(
+  prisma: PrismaService,
+): Promise<{ adminRoleId: string; viewerRoleId: string }> {
+  const adminRoleId = await ensureRoleWithPermissions(
+    prisma,
+    SYSTEM_ROLES.ADMIN,
+    Object.values(PERMISSIONS),
+  );
+
+  const viewerRoleId = await ensureRoleWithPermissions(prisma, SYSTEM_ROLES.VIEWER, [
+    PERMISSIONS.USER_READ,
+    PERMISSIONS.ORG_READ,
+  ]);
+
+  return {
+    adminRoleId,
+    viewerRoleId,
+  };
 }
 
 export async function seedIntegrationTestData(prisma: PrismaService): Promise<TestTenantContext> {
@@ -148,14 +170,17 @@ export async function login(
   app: INestApplication,
   email: string,
   password = TEST_PASSWORD,
-): Promise<{ accessToken: string; refreshToken: string }> {
-  const response = await request(app.getHttpServer())
+): Promise<LoginResponse> {
+  const response = await apiRequest(app)
     .post(apiPath('/auth/login'))
     .send({ email, password })
     .expect(200);
 
+  const body = response.body as LoginResponse;
+
   return {
-    accessToken: response.body.accessToken as string,
-    refreshToken: response.body.refreshToken as string,
+    accessToken: body.accessToken,
+    refreshToken: body.refreshToken,
+    expiresIn: body.expiresIn,
   };
 }

@@ -1,13 +1,8 @@
+import { AuthTokens } from '@astra/shared';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { AuthTokens } from '@astra/shared';
-
 import { apiFetch } from '@/lib/api-client';
-import {
-  ACCESS_TOKEN_COOKIE,
-  REFRESH_TOKEN_COOKIE,
-  buildAuthCookieOptions,
-} from '@/lib/auth';
+import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, buildAuthCookieOptions } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   const body = (await request.json()) as {

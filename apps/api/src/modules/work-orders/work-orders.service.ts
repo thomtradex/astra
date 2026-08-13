@@ -1,92 +1,72 @@
+import { randomUUID } from 'crypto';
+
+import { Prisma } from '@astra/database';
 import { Injectable } from '@nestjs/common';
+
 import { PrismaService } from '../../prisma/prisma.service';
 
 import { CreateWorkOrderDto } from './dto/create-work-order.dto';
-import { Prisma, WorkOrder } from '@astra/database';
 
 @Injectable()
 export class WorkOrdersService {
+  constructor(private prisma: PrismaService) {}
 
-  constructor(
-    private prisma: PrismaService,
-  ) {}
-
-
-  async findAll(
-    organizationId: string,
-  ): Promise<WorkOrder[]> {
-
-    return this.prisma.workOrder.findMany({
-      where:{
-        organizationId,
+  async findAll(organizationId: string) {
+    return this.prisma.work_orders.findMany({
+      where: {
+        organization_id: organizationId,
       },
-      orderBy:{
-        createdAt:'desc'
-      }
+      orderBy: {
+        created_at: 'desc',
+      },
     });
-
   }
 
-
-  async create(
-    organizationId:string,
-    dto:CreateWorkOrderDto,
-  ): Promise<WorkOrder> {
-
-    return this.prisma.workOrder.create({
-      data:{
-        ...dto,
-        organizationId,
-      }
+  async create(organizationId: string, dto: CreateWorkOrderDto) {
+    return this.prisma.work_orders.create({
+      data: {
+        id: randomUUID(),
+        title: dto.title,
+        description: dto.description,
+        status: dto.status,
+        priority: dto.priority,
+        asset_id: dto.assetId,
+        assigned_to_id: dto.assignedToId,
+        organization_id: organizationId,
+        updated_at: new Date(),
+      },
     });
-
   }
 
-
-  async findOne(
-    id:string,
-    organizationId:string,
-  ): Promise<WorkOrder | null> {
-
-    return this.prisma.workOrder.findFirst({
-      where:{
+  async findOne(id: string, organizationId: string) {
+    return this.prisma.work_orders.findFirst({
+      where: {
         id,
-        organizationId,
-      }
+        organization_id: organizationId,
+      },
     });
-
   }
-
 
   async update(
-    id:string,
-    organizationId:string,
-    data:Prisma.WorkOrderUpdateInput,
+    id: string,
+    organizationId: string,
+    data: Prisma.work_ordersUpdateManyMutationInput,
   ) {
-
-    return this.prisma.workOrder.updateMany({
-      where:{
+    return this.prisma.work_orders.updateMany({
+      where: {
         id,
-        organizationId,
+        organization_id: organizationId,
       },
       data,
     });
-
   }
 
-
-  async remove(
-    id:string,
-    organizationId:string,
-  ){
-
-    return this.prisma.workOrder.deleteMany({
-      where:{
+  async remove(id: string, organizationId: string) {
+    return this.prisma.work_orders.deleteMany({
+      where: {
         id,
-        organizationId,
-      }
+        organization_id: organizationId,
+      },
     });
-
   }
-
 }

@@ -1,15 +1,32 @@
+import { AuditAction, Prisma } from '@astra/database';
+import { buildPaginatedResult, normalizePagination, PaginatedResult } from '@astra/shared';
 import { Injectable, Logger } from '@nestjs/common';
-import { AuditAction } from '@astra/database';
-import { buildPaginatedResult, normalizePagination } from '@astra/shared';
 
 import { PrismaService } from '../../prisma/prisma.service';
+
 import { AuditLogInput, AuditLogQuery } from './interfaces/audit-log.interface';
+
+type AuditLogWithActor = Prisma.AuditLogGetPayload<{
+  include: {
+    actor: {
+      select: {
+        id: true;
+        email: true;
+        firstName: true;
+        lastName: true;
+      };
+    };
+  };
+}>;
 
 @Injectable()
 export class AuditService {
   private readonly logger = new Logger(AuditService.name);
+  private readonly prisma: PrismaService;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(prisma: PrismaService) {
+    this.prisma = prisma;
+  }
 
   async log(input: AuditLogInput): Promise<void> {
     try {
@@ -33,7 +50,7 @@ export class AuditService {
     }
   }
 
-  async findByOrganization(query: AuditLogQuery) {
+  async findByOrganization(query: AuditLogQuery): Promise<PaginatedResult<AuditLogWithActor>> {
     const { page, limit, skip } = normalizePagination(query.page, query.limit);
 
     const where = {
@@ -58,7 +75,7 @@ export class AuditService {
     },
     skip: number,
     take: number,
-  ) {
+  ): Promise<AuditLogWithActor[]> {
     return this.prisma.auditLog.findMany({
       where,
       orderBy: { createdAt: 'desc' },

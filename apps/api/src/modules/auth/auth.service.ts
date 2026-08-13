@@ -1,19 +1,17 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ForbiddenException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcryptjs';
 import { createHash, randomBytes } from 'crypto';
+
 import { AuditAction } from '@astra/database';
 import { AuthTokens, JwtAccessPayload, Permission, SystemRole } from '@astra/shared';
+import { Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
-import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
+
 import { LoginDto } from './dto/auth.dto';
+import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 
 interface RequestContext {
   ipAddress?: string;
@@ -33,7 +31,7 @@ export class AuthService {
     const email = dto.email.toLowerCase();
     const user = await this.resolveUserForLogin(email, dto.organizationSlug);
 
-    if (!user || !user.isActive || !user.organization.isActive) {
+    if (!user || !user.isActive || !user.organization.is_active) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -111,7 +109,7 @@ export class AuthService {
       storedToken.revokedAt ||
       storedToken.expiresAt < new Date() ||
       !storedToken.user.isActive ||
-      !storedToken.user.organization.isActive
+      !storedToken.user.organization.is_active
     ) {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -140,7 +138,11 @@ export class AuthService {
     return tokens;
   }
 
-  async logout(refreshToken: string, user: AuthenticatedUser, context: RequestContext): Promise<void> {
+  async logout(
+    refreshToken: string,
+    user: AuthenticatedUser,
+    context: RequestContext,
+  ): Promise<void> {
     const tokenHash = this.hashToken(refreshToken);
 
     await this.prisma.refreshToken.updateMany({
@@ -166,7 +168,9 @@ export class AuthService {
     });
   }
 
-  async getProfile(userId: string): Promise<AuthenticatedUser & { firstName: string; lastName: string }> {
+  async getProfile(
+    userId: string,
+  ): Promise<AuthenticatedUser & { firstName: string; lastName: string }> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
@@ -216,17 +220,14 @@ export class AuthService {
       },
     });
 
-    if (!user || !user.isActive || !user.organization.isActive) {
+    if (!user || !user.isActive || !user.organization.is_active) {
       return null;
     }
 
     return this.mapToAuthenticatedUser(user);
   }
 
-  private async issueTokens(
-    user: AuthenticatedUser,
-    context: RequestContext,
-  ): Promise<AuthTokens> {
+  private async issueTokens(user: AuthenticatedUser, context: RequestContext): Promise<AuthTokens> {
     const payload: JwtAccessPayload = {
       sub: user.id,
       email: user.email,
@@ -235,7 +236,10 @@ export class AuthService {
       permissions: user.permissions,
     };
 
-    const accessExpiresIn = this.configService.get<string>('JWT_ACCESS_EXPIRES_IN', '15m');
+    const accessExpiresIn = this.configService.get<string>(
+      'JWT_ACCESS_EXPIRES_IN',
+      '15m',
+    ) as import('ms').StringValue;
     const refreshExpiresIn = this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d');
 
     const accessToken = await this.jwtService.signAsync(payload, {
@@ -308,24 +312,20 @@ export class AuthService {
     return matches[0] ?? null;
   }
 
-  private mapToAuthenticatedUser(
-    user: {
-      id: string;
-      email: string;
-      organizationId: string;
-      roles: Array<{
-        role: {
-          name: string;
-          permissions: Array<{ permission: { name: string } }>;
-        };
-      }>;
-    },
-  ): AuthenticatedUser {
+  private mapToAuthenticatedUser(user: {
+    id: string;
+    email: string;
+    organizationId: string;
+    roles: Array<{
+      role: {
+        name: string;
+        permissions: Array<{ permission: { name: string } }>;
+      };
+    }>;
+  }): AuthenticatedUser {
     const roles = [...new Set(user.roles.map((ur) => ur.role.name))] as SystemRole[];
     const permissions = [
-      ...new Set(
-        user.roles.flatMap((ur) => ur.role.permissions.map((rp) => rp.permission.name)),
-      ),
+      ...new Set(user.roles.flatMap((ur) => ur.role.permissions.map((rp) => rp.permission.name))),
     ] as Permission[];
 
     return {

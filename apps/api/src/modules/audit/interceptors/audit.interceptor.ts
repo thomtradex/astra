@@ -1,12 +1,7 @@
-import {
-  CallHandler,
-  ExecutionContext,
-  Injectable,
-  NestInterceptor,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable, tap } from 'rxjs';
 import { Request, Response } from 'express';
+import { Observable, tap } from 'rxjs';
 
 import { IS_PUBLIC_KEY, SKIP_AUDIT_KEY } from '../../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
@@ -29,9 +24,7 @@ export class AuditInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    const request = context.switchToHttp().getRequest<
-      Request & { user?: AuthenticatedUser }
-    >();
+    const request = context.switchToHttp().getRequest<Request & { user?: AuthenticatedUser }>();
     const response = context.switchToHttp().getResponse<Response>();
 
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -39,13 +32,17 @@ export class AuditInterceptor implements NestInterceptor {
       context.getClass(),
     ]);
 
-    // Skip GET audit for public routes to reduce noise (auth endpoints log explicitly)
     if (isPublic && request.method === 'GET') {
       return next.handle();
     }
 
+    const organizationId = request.user?.organizationId;
+
+    if (!organizationId) {
+      return next.handle();
+    }
+
     const resource = this.extractResource(request.path);
-    const organizationId = request.user?.organizationId ?? 'system';
 
     return next.handle().pipe(
       tap({
@@ -82,8 +79,8 @@ export class AuditInterceptor implements NestInterceptor {
 
   private extractResource(path: string): string {
     const segments = path.split('/').filter(Boolean);
-    // /api/v1/users -> users
     const resourceIndex = segments.findIndex((s) => s === 'v1') + 1;
+
     return segments[resourceIndex] ?? 'unknown';
   }
 }

@@ -78,6 +78,7 @@ Zero Trust.
 ```
 
 ```
+
 Infrastructure
 
 │
@@ -103,12 +104,10 @@ Infrastructure
 ├── Security
 
 └── Deployment
-```
+````
 
 ```md
-
 ---
-
 # Compute
 
 Responsible for application execution.
@@ -130,7 +129,6 @@ Scalable Compute.
 Compute executes software.
 
 Nothing else.
-
 ---
 
 # Networking
@@ -550,4 +548,8 @@ And always replaceable.
 ---
 
 # End of Infrastructure Architecture
-````
+```
+
+```
+
+```

@@ -409,7 +409,6 @@ Sem perder a sua identidade.
 
 End of Constitution.
 
-
 ASTRA CONSTITUTION
 
 Capítulo 1 — Purpose
@@ -443,12 +442,11 @@ Capítulo 28 — Forbidden Practices
 Capítulo 29 — Decision Hierarchy
 Capítulo 30 — Founder Manifesto
 
-
 # Chapter 1
 
 # Purpose
 
-*"Everything built inside Astra exists for one reason only: to help organizations reclaim their most valuable resource — time."*
+_"Everything built inside Astra exists for one reason only: to help organizations reclaim their most valuable resource — time."_
 
 ---
 
@@ -778,7 +776,7 @@ Will simply be consequences of fulfilling that mission.
 
 # Mission
 
-*"Our mission is not to build better software. Our mission is to build better organizations."*
+_"Our mission is not to build better software. Our mission is to build better organizations."_
 
 ---
 
@@ -1046,7 +1044,7 @@ Then our mission has been fulfilled.
 
 # Vision
 
-*"We are not building software for today's organizations. We are building the operational intelligence platform that tomorrow's organizations will depend on."*
+_"We are not building software for today's organizations. We are building the operational intelligence platform that tomorrow's organizations will depend on."_
 
 ---
 
@@ -1368,7 +1366,7 @@ But through better intelligence.
 
 # Core Values
 
-*"Values define how Astra makes decisions when no explicit instruction exists."*
+_"Values define how Astra makes decisions when no explicit instruction exists."_
 
 ---
 
@@ -1758,7 +1756,7 @@ And identity defines longevity.
 
 # Engineering Philosophy
 
-*"Great software is not measured by the amount of code it contains, but by the amount of complexity it removes."*
+_"Great software is not measured by the amount of code it contains, but by the amount of complexity it removes."_
 
 ---
 
@@ -2052,7 +2050,7 @@ That is the engineering culture Astra shall preserve.
 
 # Decision Framework
 
-*"Every decision shapes the future of Astra. Therefore, every decision shall be deliberate, rational and aligned with our purpose."*
+_"Every decision shapes the future of Astra. Therefore, every decision shall be deliberate, rational and aligned with our purpose."_
 
 ---
 
@@ -2452,7 +2450,7 @@ Because software remembers every decision ever made.
 
 # Architecture Principles
 
-*"Architecture is not about how software is built. It is about how software survives."*
+_"Architecture is not about how software is built. It is about how software survives."_
 
 ---
 
@@ -2856,7 +2854,7 @@ That is the standard Astra shall follow.
 
 # Domain Principles
 
-*"Technology creates software. The Domain creates value."*
+_"Technology creates software. The Domain creates value."_
 
 ---
 
@@ -3226,7 +3224,7 @@ Then we succeeded.
 
 # Artificial Intelligence Principles
 
-*"Artificial Intelligence is not the intelligence of Astra. It is merely one of the instruments through which Astra expresses its intelligence."*
+_"Artificial Intelligence is not the intelligence of Astra. It is merely one of the instruments through which Astra expresses its intelligence."_
 
 ---
 
@@ -3632,7 +3630,7 @@ That distinction will define the future of Astra.
 
 # Product Philosophy
 
-*"Astra is not built to be another enterprise system. Astra is built to become the operational mind of an organization."*
+_"Astra is not built to be another enterprise system. Astra is built to become the operational mind of an organization."_
 
 ---
 
@@ -3958,7 +3956,7 @@ We will have built operational intelligence itself.
 
 # Customer Philosophy
 
-*"Customers do not invest in software. They invest in a better future for their organization."*
+_"Customers do not invest in software. They invest in a better future for their organization."_
 
 ---
 
@@ -4314,7 +4312,7 @@ That is what we exist to build.
 
 # Product Excellence
 
-*"A product becomes exceptional when every interaction creates value, every decision reduces complexity and every capability strengthens the organization."*
+_"A product becomes exceptional when every interaction creates value, every decision reduces complexity and every capability strengthens the organization."_
 
 ---
 
@@ -4630,7 +4628,7 @@ It is measured by what organizations become because of it.
 
 # Engineering Excellence
 
-*"Engineering excellence is not measured by how quickly software is written, but by how confidently it can evolve."*
+_"Engineering excellence is not measured by how quickly software is written, but by how confidently it can evolve."_
 
 ---
 
@@ -4970,7 +4968,7 @@ That is the standard of engineering excellence Astra shall pursue.
 
 # Quality Principles
 
-*"Quality is not something that is added before release. It is something that exists from the very first decision."*
+_"Quality is not something that is added before release. It is something that exists from the very first decision."_
 
 ---
 
@@ -5298,7 +5296,7 @@ That commitment shall define Astra for decades.
 
 # Simplicity Principles
 
-*"Simplicity is not the absence of sophistication. Simplicity is the elimination of everything that does not create value."*
+_"Simplicity is not the absence of sophistication. Simplicity is the elimination of everything that does not create value."_
 
 ---
 
@@ -5642,7 +5640,7 @@ Because the greatest engineering achievement is making complexity disappear.
 
 # Long-Term Thinking
 
-*"Great companies are not built by optimizing for the next release. They are built by making decisions that remain correct decades later."*
+_"Great companies are not built by optimizing for the next release. They are built by making decisions that remain correct decades later."_
 
 ---
 
@@ -5940,7 +5938,7 @@ That is the culture this company shall preserve.
 
 # Scalability Principles
 
-*"Scalability is not the ability to handle more users. It is the ability to grow without losing simplicity, quality or purpose."*
+_"Scalability is not the ability to handle more users. It is the ability to grow without losing simplicity, quality or purpose."_
 
 ---
 
@@ -6322,7 +6320,7 @@ Every decision we make today shall prepare us for the scale we have not yet reac
 
 # Security Principles
 
-*"Trust is not granted. It is earned through security, preserved through discipline, and lost through a single mistake."*
+_"Trust is not granted. It is earned through security, preserved through discipline, and lost through a single mistake."_
 
 ---
 
@@ -6678,7 +6676,7 @@ It is a moral responsibility.
 
 # Data Principles
 
-*"Data is not the product. Data is the foundation upon which intelligence is built."*
+_"Data is not the product. Data is the foundation upon which intelligence is built."_
 
 ---
 
@@ -7056,7 +7054,7 @@ That is the responsibility we accept.
 
 # Integration Principles
 
-*"An integration should extend the intelligence of Astra, never define it."*
+_"An integration should extend the intelligence of Astra, never define it."_
 
 ---
 
@@ -7376,7 +7374,7 @@ It is to unify it into organizational intelligence.
 
 # Reliability Principles
 
-*"Reliability is not the absence of failure. Reliability is the ability to continue delivering value despite failure."*
+_"Reliability is not the absence of failure. Reliability is the ability to continue delivering value despite failure."_
 
 ---
 
@@ -7702,7 +7700,7 @@ That confidence is one of our greatest responsibilities.
 
 # Observability Principles
 
-*"You cannot improve what you cannot observe. You cannot trust what you cannot understand."*
+_"You cannot improve what you cannot observe. You cannot trust what you cannot understand."_
 
 ---
 
@@ -8050,7 +8048,7 @@ Confidence creates lasting trust.
 
 # Artificial Intelligence Governance
 
-*"Artificial Intelligence shall never govern Astra. Astra shall govern Artificial Intelligence."*
+_"Artificial Intelligence shall never govern Astra. Astra shall govern Artificial Intelligence."_
 
 ---
 
@@ -8416,7 +8414,7 @@ Never to replace their judgement.
 
 # Decision Intelligence
 
-*"Information tells you what happened. Intelligence tells you what to do next."*
+_"Information tells you what happened. Intelligence tells you what to do next."_
 
 ---
 
@@ -8788,7 +8786,7 @@ It will become part of the organization's way of thinking.
 
 # Knowledge Principles
 
-*"Knowledge is the only organizational asset that becomes more valuable every time it is used."*
+_"Knowledge is the only organizational asset that becomes more valuable every time it is used."_
 
 ---
 
@@ -9140,7 +9138,7 @@ And that intelligence will continue growing for decades.
 
 # Autonomous Agents
 
-*"An autonomous agent is not defined by its ability to act. It is defined by its ability to act responsibly."*
+_"An autonomous agent is not defined by its ability to act. It is defined by its ability to act responsibly."_
 
 ---
 
@@ -9472,7 +9470,7 @@ That is the future Astra exists to build.
 
 # Organizational Intelligence
 
-*"The ultimate purpose of Astra is not to execute work. It is to make the entire organization continuously more intelligent."*
+_"The ultimate purpose of Astra is not to execute work. It is to make the entire organization continuously more intelligent."_
 
 ---
 
@@ -9806,7 +9804,7 @@ Then we will have achieved our mission.
 
 # The Astra Principle
 
-*"Every organization already possesses intelligence. Astra exists to unify it, preserve it and amplify it."*
+_"Every organization already possesses intelligence. Astra exists to unify it, preserve it and amplify it."_
 
 ---
 
@@ -10146,7 +10144,7 @@ We will have built the operating system of organizational intelligence.
 
 # First Principles
 
-*"Every extraordinary system is built upon a small number of principles that are never compromised."*
+_"Every extraordinary system is built upon a small number of principles that are never compromised."_
 
 ---
 
@@ -10468,12 +10466,11 @@ But upon principles.
 
 # End of Chapter 29.
 
-
 # Chapter 30
 
 # The Astra Constitution
 
-*"A company is not defined by the software it builds. It is defined by the principles it refuses to compromise."*
+_"A company is not defined by the software it builds. It is defined by the principles it refuses to compromise."_
 
 ---
 
@@ -10833,15 +10830,15 @@ And that will always be our greatest competitive advantage.
 
 # End of Volume I.
 
-*"The Constitution is not the end of Astra.*
+_"The Constitution is not the end of Astra._
 
-*It is the beginning of everything Astra will become."*
+_It is the beginning of everything Astra will become."_
 
 # ASTRA PRODUCT BIBLE
 
 ## Volume II — Product
 
-*"Great products are not built by adding features. They are built by solving problems that truly matter."*
+_"Great products are not built by adding features. They are built by solving problems that truly matter."_
 
 ---
 
@@ -10849,7 +10846,7 @@ And that will always be our greatest competitive advantage.
 
 # Product Vision
 
-*"Every organization deserves an intelligence that grows with it."*
+_"Every organization deserves an intelligence that grows with it."_
 
 ---
 
@@ -11083,7 +11080,7 @@ Then the product will have fulfilled its purpose.
 
 # The Ideal Customer
 
-*"A product for everyone becomes indispensable to no one."*
+_"A product for everyone becomes indispensable to no one."_
 
 ---
 
@@ -11377,7 +11374,7 @@ Because organizations that continuously seek improvement will always recognize t
 
 # The Core Problem
 
-*"Organizations rarely fail because they lack information. They fail because they cannot transform information into consistent, intelligent action."*
+_"Organizations rarely fail because they lack information. They fail because they cannot transform information into consistent, intelligent action."_
 
 ---
 
@@ -11711,12 +11708,11 @@ They can finally focus on progress.
 
 # End of Chapter 3.
 
-
 # Chapter 4
 
 # Value Proposition
 
-*"Customers do not buy software. They buy better outcomes."*
+_"Customers do not buy software. They buy better outcomes."_
 
 ---
 
@@ -11992,7 +11988,7 @@ That is the promise Astra exists to fulfill.
 
 # Product Principles
 
-*"Every product decision should strengthen the intelligence of the organization."*
+_"Every product decision should strengthen the intelligence of the organization."_
 
 ---
 
@@ -12289,7 +12285,7 @@ That is the standard we should never compromise.
 
 # Product Architecture
 
-*"Customers should experience one platform, even if thousands of systems work together behind it."*
+_"Customers should experience one platform, even if thousands of systems work together behind it."_
 
 ---
 
@@ -12599,11 +12595,12 @@ Neither should Astra.
 
 # End of Chapter 6.
 ```
+
 # Chapter 7
 
 # User Experience Principles
 
-*"The best interface is the one that allows people to focus on their work instead of the software."*
+_"The best interface is the one that allows people to focus on their work instead of the software."_
 
 ---
 
@@ -12934,7 +12931,7 @@ Building better organizations.
 
 # Marketplace Strategy
 
-*"A platform becomes indispensable when others can build upon it."*
+_"A platform becomes indispensable when others can build upon it."_
 
 ---
 
@@ -13274,11 +13271,12 @@ That is how a product becomes a platform.
 
 # End of Chapter 8.
 ```
+
 # Chapter 9
 
 # Pricing Strategy
 
-*"Customers should pay for the value Astra creates, not for the complexity it contains."*
+_"Customers should pay for the value Astra creates, not for the complexity it contains."_
 
 ---
 
@@ -13554,7 +13552,7 @@ Value becomes the only conversation that matters.
 
 # Go-To-Market Strategy
 
-*"The greatest product in the world creates no value until it reaches the people who need it."*
+_"The greatest product in the world creates no value until it reaches the people who need it."_
 
 ---
 
@@ -13866,7 +13864,7 @@ Not an objective.
 
 # Competitive Advantage
 
-*"Technology can be copied. Organizational Intelligence cannot."*
+_"Technology can be copied. Organizational Intelligence cannot."_
 
 ---
 
@@ -14178,7 +14176,7 @@ That is the competitive advantage worth building.
 
 # Product Roadmap
 
-*"Vision defines where we are going. The roadmap defines how we get there."*
+_"Vision defines where we are going. The roadmap defines how we get there."_
 
 ---
 
@@ -14484,7 +14482,7 @@ It is the disciplined execution of our vision.
 
 # Success Metrics
 
-*"What is not measured cannot be improved. What is measured incorrectly improves the wrong things."*
+_"What is not measured cannot be improved. What is measured incorrectly improves the wrong things."_
 
 ---
 
@@ -14788,7 +14786,7 @@ Every other metric will eventually follow.
 
 # Long-Term Vision
 
-*"The purpose of Astra is not to become the best software company. It is to become the intelligence layer of every modern organization."*
+_"The purpose of Astra is not to become the best software company. It is to become the intelligence layer of every modern organization."_
 
 ---
 
@@ -15106,15 +15104,15 @@ Then everything we build today will have been worthwhile.
 
 # End of Volume II — Product.
 
-*"Products solve today's problems.*
+_"Products solve today's problems._
 
-*Visions define tomorrow's world."*
+_Visions define tomorrow's world."_
 
 # ASTRA ENGINEERING BOOK
 
 ## Volume III — Platform Engineering
 
-*"Architecture transforms vision into reality."*
+_"Architecture transforms vision into reality."_
 
 ---
 
@@ -15122,7 +15120,7 @@ Then everything we build today will have been worthwhile.
 
 # Engineering Vision
 
-*"Engineering exists to transform enduring principles into reliable systems."*
+_"Engineering exists to transform enduring principles into reliable systems."_
 
 ---
 
@@ -15348,7 +15346,7 @@ That is the standard our engineering should pursue.
 
 # System Architecture
 
-*"A great architecture is one where every component knows exactly what it should do, and nothing more."*
+_"A great architecture is one where every component knows exactly what it should do, and nothing more."_
 
 ---
 
@@ -15736,7 +15734,7 @@ It should enable everything Astra may become over the coming decades.
 
 # Service Architecture
 
-*"A service should own one capability completely, rather than many capabilities poorly."*
+_"A service should own one capability completely, rather than many capabilities poorly."_
 
 ---
 
@@ -16070,7 +16068,7 @@ It is measured by the clarity of their responsibilities.
 
 # API Architecture
 
-*"An API is not merely an interface. It is a long-term contract between systems."*
+_"An API is not merely an interface. It is a long-term contract between systems."_
 
 ---
 
@@ -16412,7 +16410,7 @@ Promises should never be made carelessly.
 
 # Multi-Tenant Architecture
 
-*"Every organization shares the platform. No organization shares its intelligence."*
+_"Every organization shares the platform. No organization shares its intelligence."_
 
 ---
 
@@ -16732,7 +16730,7 @@ That principle shall remain permanent regardless of how large Astra becomes.
 
 # Identity & Access Management
 
-*"Every action begins with identity. Every permission begins with trust."*
+_"Every action begins with identity. Every permission begins with trust."_
 
 ---
 
@@ -17100,7 +17098,7 @@ It is one of the foundations of trust itself.
 
 # Knowledge Engine
 
-*"Data records the past. Knowledge enables the future."*
+_"Data records the past. Knowledge enables the future."_
 
 ---
 
@@ -17450,7 +17448,7 @@ Its potential becomes almost limitless.
 
 # Organizational Memory
 
-*"Knowledge tells the organization what it knows. Memory tells it what it has lived."*
+_"Knowledge tells the organization what it knows. Memory tells it what it has lived."_
 
 ---
 
@@ -17792,7 +17790,7 @@ And memory should never be temporary.
 
 # AI Engine
 
-*"Artificial Intelligence is not a feature of Astra. It is the reasoning layer of the entire platform."*
+_"Artificial Intelligence is not a feature of Astra. It is the reasoning layer of the entire platform."_
 
 ---
 
@@ -18166,7 +18164,7 @@ It becomes part of the organization's way of operating.
 
 # Agent Framework
 
-*"Intelligence becomes scalable when specialized agents collaborate under a shared purpose."*
+_"Intelligence becomes scalable when specialized agents collaborate under a shared purpose."_
 
 ---
 
@@ -18566,7 +18564,7 @@ They become the collective operational intelligence of the organization.
 
 # Workflow Engine
 
-*"Organizations do not operate through isolated tasks. They operate through connected workflows."*
+_"Organizations do not operate through isolated tasks. They operate through connected workflows."_
 
 ---
 
@@ -18936,7 +18934,7 @@ That is the purpose of the Workflow Engine.
 
 # Event Architecture
 
-*"Events describe what has happened. Systems decide what to do next."*
+_"Events describe what has happened. Systems decide what to do next."_
 
 ---
 
@@ -19300,7 +19298,7 @@ Astra should too.
 
 # Integration Layer
 
-*"Organizations should not replace their systems. They should connect them through intelligence."*
+_"Organizations should not replace their systems. They should connect them through intelligence."_
 
 ---
 
@@ -19680,7 +19678,7 @@ That distinction should remain permanent.
 
 # Marketplace Runtime
 
-*"The Marketplace extends Astra. The Runtime protects Astra."*
+_"The Marketplace extends Astra. The Runtime protects Astra."_
 
 ---
 
@@ -20056,7 +20054,7 @@ They are those where every extension can be trusted.
 
 # Security Architecture
 
-*"Trust is not a feature. It is the foundation upon which every capability is built."*
+_"Trust is not a feature. It is the foundation upon which every capability is built."_
 
 ---
 
@@ -20428,7 +20426,7 @@ Protecting that intelligence is our highest engineering responsibility.
 
 # Observability
 
-*"You cannot improve what you cannot observe."*
+_"You cannot improve what you cannot observe."_
 
 ---
 
@@ -20800,7 +20798,7 @@ That is the purpose of Observability.
 
 # Infrastructure
 
-*"Infrastructure should enable innovation, not constrain it."*
+_"Infrastructure should enable innovation, not constrain it."_
 
 ---
 
@@ -21164,7 +21162,7 @@ Never for the servers on which it runs.
 
 # Deployment
 
-*"Deployment should be routine. Reliability should be automatic."*
+_"Deployment should be routine. Reliability should be automatic."_
 
 ---
 
@@ -21516,7 +21514,7 @@ That is the standard Astra should pursue.
 
 # Engineering Standards
 
-*"Code is temporary. Engineering standards are what allow a platform to endure."*
+_"Code is temporary. Engineering standards are what allow a platform to endure."_
 
 ---
 
@@ -21864,7 +21862,7 @@ That discipline will become one of Astra's greatest competitive advantages.
 
 # Future Evolution
 
-*"A platform prepared for change will outlive every technology it was built upon."*
+_"A platform prepared for change will outlive every technology it was built upon."_
 
 ---
 
@@ -22200,13 +22198,13 @@ It is measured by how gracefully it embraces the future.
 
 # End of Volume III — Platform Engineering.
 
-*"Engineering builds the platform.*
+_"Engineering builds the platform._
 
-*Discipline ensures it survives."*
+_Discipline ensures it survives."_
 
 # Volume IV — Artificial Intelligence Architecture
 
-*"Artificial Intelligence is not the product. It is the cognitive architecture that amplifies every capability of the product."*
+_"Artificial Intelligence is not the product. It is the cognitive architecture that amplifies every capability of the product."_
 
 ---
 
@@ -22214,7 +22212,7 @@ It is measured by how gracefully it embraces the future.
 
 # AI Philosophy
 
-*"Before an AI can answer correctly, it must understand correctly."*
+_"Before an AI can answer correctly, it must understand correctly."_
 
 ---
 
@@ -22512,7 +22510,7 @@ AI simply becomes the mechanism that allows organizations to understand themselv
 
 # AI Reasoning Engine
 
-*"Knowledge provides information. Reasoning transforms information into decisions."*
+_"Knowledge provides information. Reasoning transforms information into decisions."_
 
 ---
 
@@ -22886,7 +22884,7 @@ That distinction will define Astra for years to come.
 
 # Context Engine
 
-*"Artificial Intelligence is only as intelligent as the context it receives."*
+_"Artificial Intelligence is only as intelligent as the context it receives."_
 
 ---
 
@@ -23270,7 +23268,7 @@ The Context Engine exists to make that understanding complete.
 
 # Prompt Orchestration
 
-*"A prompt is not intelligence. It is the interface through which intelligence is expressed."*
+_"A prompt is not intelligence. It is the interface through which intelligence is expressed."_
 
 ---
 
@@ -23642,7 +23640,7 @@ And predictable intelligence is what organizations can truly trust.
 
 # Retrieval-Augmented Generation (RAG)
 
-*"Artificial Intelligence should answer from organizational knowledge before answering from its own memory."*
+_"Artificial Intelligence should answer from organizational knowledge before answering from its own memory."_
 
 ---
 
@@ -23988,7 +23986,7 @@ Because organizations should trust answers that are grounded in what they actual
 
 # AI Memory Architecture
 
-*"Knowledge tells the AI what the organization knows. Memory tells it what the organization remembers."*
+_"Knowledge tells the AI what the organization knows. Memory tells it what the organization remembers."_
 
 ---
 
@@ -24368,7 +24366,7 @@ Organizational intelligence should become stronger with every single day of oper
 
 # AI Agent Architecture
 
-*"An intelligent organization is not powered by one intelligence. It is powered by many intelligences working together."*
+_"An intelligent organization is not powered by one intelligence. It is powered by many intelligences working together."_
 
 ---
 
@@ -24764,7 +24762,7 @@ That is the future I want Astra to build.
 
 # AI Planning Engine
 
-*"Reasoning decides. Planning transforms decisions into execution."*
+_"Reasoning decides. Planning transforms decisions into execution."_
 
 ---
 
@@ -25144,7 +25142,7 @@ Not intention.
 
 # AI Decision Engine
 
-*"Reasoning produces possibilities. Decision-making chooses the best path."*
+_"Reasoning produces possibilities. Decision-making chooses the best path."_
 
 ---
 
@@ -25534,7 +25532,7 @@ But to help people think better than they could alone.
 
 # Multi-Agent Orchestration
 
-*"One intelligent agent can solve a task. A coordinated network of agents can transform an organization."*
+_"One intelligent agent can solve a task. A coordinated network of agents can transform an organization."_
 
 ---
 
@@ -25932,7 +25930,7 @@ It is collective.
 
 # AI Tool Execution
 
-*"Intelligence becomes truly valuable when it can safely act upon the world."*
+_"Intelligence becomes truly valuable when it can safely act upon the world."_
 
 ---
 
@@ -26332,7 +26330,7 @@ The AI Tool Execution Engine exists to transform intelligence into measurable or
 
 # AI Governance
 
-*"Power without governance creates risk. Intelligence without governance creates chaos."*
+_"Power without governance creates risk. Intelligence without governance creates chaos."_
 
 ---
 
@@ -26718,7 +26716,7 @@ It is created by governance.
 
 # AI Evaluation Framework
 
-*"Artificial Intelligence should not be trusted because it is intelligent. It should be trusted because it can be measured."*
+_"Artificial Intelligence should not be trusted because it is intelligent. It should be trusted because it can be measured."_
 
 ---
 
@@ -27086,7 +27084,7 @@ And evolve.
 
 # AI Safety Architecture
 
-*"The more capable Artificial Intelligence becomes, the more disciplined its architecture must be."*
+_"The more capable Artificial Intelligence becomes, the more disciplined its architecture must be."_
 
 ---
 
@@ -27468,7 +27466,7 @@ Reliably.
 
 # The Future of Organizational Intelligence
 
-*"Artificial Intelligence will not replace organizations. It will transform how organizations think."*
+_"Artificial Intelligence will not replace organizations. It will transform how organizations think."_
 
 ---
 
@@ -27810,6 +27808,6 @@ It will become part of how organizations think.
 
 # End of Volume IV — Artificial Intelligence Architecture.
 
-*"The future of Artificial Intelligence is not artificial.*
+_"The future of Artificial Intelligence is not artificial._
 
-*It is organizational."*
+_It is organizational."_

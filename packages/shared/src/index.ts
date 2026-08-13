@@ -14,6 +14,17 @@ export const PERMISSIONS = {
   USER_READ: 'user:read',
   USER_WRITE: 'user:write',
   USER_DELETE: 'user:delete',
+  CUSTOMER_READ: 'customer:read',
+  CUSTOMER_WRITE: 'customer:write',
+  SITE_READ: 'site:read',
+  SITE_WRITE: 'site:write',
+  ASSET_READ: 'asset:read',
+  ASSET_WRITE: 'asset:write',
+  WORK_ORDER_READ: 'work_order:read',
+  WORK_ORDER_WRITE: 'work_order:write',
+  WORK_ORDER_DELETE: 'work_order:delete',
+  MAINTENANCE_READ: 'maintenance:read',
+  MAINTENANCE_WRITE: 'maintenance:write',
 
   // Roles & permissions
   ROLE_READ: 'role:read',
@@ -39,11 +50,7 @@ export const ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     PERMISSIONS.ORG_READ,
     PERMISSIONS.ORG_WRITE,
   ],
-  [SYSTEM_ROLES.OPERATOR]: [
-    PERMISSIONS.USER_READ,
-    PERMISSIONS.AUDIT_READ,
-    PERMISSIONS.ORG_READ,
-  ],
+  [SYSTEM_ROLES.OPERATOR]: [PERMISSIONS.USER_READ, PERMISSIONS.AUDIT_READ, PERMISSIONS.ORG_READ],
   [SYSTEM_ROLES.VIEWER]: [PERMISSIONS.USER_READ, PERMISSIONS.ORG_READ],
 };
 

@@ -1,20 +1,15 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { AuditAction } from '@astra/database';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { AuditAction } from '@astra/database';
 
 import {
   AUTHENTICATED_KEY,
   IS_PUBLIC_KEY,
   PERMISSIONS_KEY,
 } from '../../../common/decorators/metadata.decorators';
-import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
 import { AuditService } from '../../audit/audit.service';
+import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {

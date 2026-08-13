@@ -2,12 +2,12 @@
 
 ## Environment Requirements
 
-| Tool | Version | Notes |
-|------|---------|-------|
-| Node.js | 22+ | Use `nvm use` (see `.nvmrc`) |
-| pnpm | 9+ | Enable via `corepack enable` |
-| Docker | Latest | For PostgreSQL |
-| Git | Latest | Optional — requires Xcode CLI tools on macOS |
+| Tool    | Version | Notes                                        |
+| ------- | ------- | -------------------------------------------- |
+| Node.js | 22+     | Use `nvm use` (see `.nvmrc`)                 |
+| pnpm    | 9+      | Enable via `corepack enable`                 |
+| Docker  | Latest  | For PostgreSQL                               |
+| Git     | Latest  | Optional — requires Xcode CLI tools on macOS |
 
 ---
 

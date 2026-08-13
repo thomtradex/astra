@@ -8,6 +8,7 @@ module.exports = {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
   collectCoverageFrom: ['src/**/*.(t|j)s'],
+  coveragePathIgnorePatterns: ['/main.ts$'],
   coverageDirectory: './coverage',
   testEnvironment: 'node',
   testTimeout: 30000,
