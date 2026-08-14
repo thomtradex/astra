@@ -10,6 +10,7 @@ import { AuditInterceptor } from './modules/audit/interceptors/audit.interceptor
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { CustomersModule } from './modules/customers/customers.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { ForecastingModule } from './modules/forecasting/forecasting.module';
 import { HealthModule } from './modules/health/health.module';
 import { IntelligenceModule } from './modules/intelligence/intelligence.module';
@@ -38,6 +39,7 @@ import { PrismaModule } from './prisma/prisma.module';
     HealthModule,
     OrganizationsModule,
     CustomersModule,
+    DashboardModule,
     SitesModule,
     AssetsModule,
     WorkOrdersModule,
