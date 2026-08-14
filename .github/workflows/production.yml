@@ -1,0 +1,41 @@
+name: Astra Production Pipeline
+
+on:
+  push:
+    branches:
+      - release/commercial-ready
+      - feat/production-readiness
+
+jobs:
+
+  verify:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+
+      - name: Install
+        run: corepack enable && pnpm install
+
+      - name: Tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Architecture
+        run: pnpm architecture:check
