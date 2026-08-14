@@ -49,7 +49,7 @@ export default tseslint.config(
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        projectService: true,
+        projectService: { allowDefaultProject: ['apps/database/src/schema/intelligence/intelligence.ts'] },
         tsconfigRootDir: import.meta.dirname,
       },
       globals: {
