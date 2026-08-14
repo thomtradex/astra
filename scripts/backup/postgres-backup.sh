@@ -6,7 +6,9 @@ DATE=$(date +"%Y-%m-%d-%H-%M")
 
 mkdir -p backups
 
-docker exec astra-postgres \
+docker compose \
+-f deploy/production/docker-compose.production.yml \
+exec -T postgres \
 pg_dump -U astra_user astra \
 > backups/astra-$DATE.sql
 
