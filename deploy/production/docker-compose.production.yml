@@ -30,3 +30,9 @@ services:
 
 volumes:
   postgres_data:
+
+# Production security notes:
+# - Run behind reverse proxy
+# - Enable HTTPS
+# - Rotate secrets periodically
+# - Restrict database exposure
