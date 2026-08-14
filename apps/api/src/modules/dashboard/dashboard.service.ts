@@ -5,35 +5,43 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class DashboardService {
 
 constructor(
-private readonly prisma: PrismaService
+private prisma:PrismaService
 ){}
 
 
-async overview(organizationId:string){
+async overview(orgId:string){
 
 const [
 customers,
 sites,
 assets,
-workOrders
+openOrders,
+highPriority
 ]=await Promise.all([
 
-this.prisma.customers.count({
-where:{organization_id:organizationId}
+this.prisma.customer.count({
+where:{organizationId:orgId}
 }),
 
-this.prisma.sites.count({
-where:{organization_id:organizationId}
+this.prisma.site.count({
+where:{organizationId:orgId}
 }),
 
-this.prisma.assets.count({
-where:{organization_id:organizationId}
+this.prisma.asset.count({
+where:{organizationId:orgId}
 }),
 
-this.prisma.work_orders.count({
+this.prisma.workOrder.count({
 where:{
-organization_id:organizationId,
+organizationId:orgId,
 status:"OPEN"
+}
+}),
+
+this.prisma.workOrder.count({
+where:{
+organizationId:orgId,
+priority:"HIGH"
 }
 })
 
@@ -41,10 +49,17 @@ status:"OPEN"
 
 
 return {
+
 customers,
 sites,
 assets,
-openWorkOrders:workOrders
+workOrders:{
+open:openOrders,
+highPriority
+},
+
+generatedAt:new Date()
+
 }
 
 }
