@@ -24,10 +24,7 @@ describe('HttpExceptionFilter', () => {
   it('handles HttpException with string response', () => {
     const { host, status, json } = createHost();
 
-    filter.catch(
-      new HttpException('Not found', HttpStatus.NOT_FOUND),
-      host,
-    );
+    filter.catch(new HttpException('Not found', HttpStatus.NOT_FOUND), host);
 
     expect(status).toHaveBeenCalledWith(404);
     expect(json).toHaveBeenCalledWith(
@@ -44,10 +41,7 @@ describe('HttpExceptionFilter', () => {
     const { host, json } = createHost();
 
     filter.catch(
-      new HttpException(
-        { message: ['Invalid email', 'Invalid name'] },
-        HttpStatus.BAD_REQUEST,
-      ),
+      new HttpException({ message: ['Invalid email', 'Invalid name'] }, HttpStatus.BAD_REQUEST),
       host,
     );
 

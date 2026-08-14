@@ -26,7 +26,32 @@ describe('SitesService', () => {
 
   describe('findAll', () => {
     it('returns sites for the organization ordered by created_at desc', async () => {
-      const sites = [{ id: 'site-1' }, { id: 'site-2' }];
+      const sites = [
+        {
+          id: 'site-1',
+          name: 'Lisbon',
+          code: 'LIS',
+          organization_id: 'org-1',
+          is_active: true,
+          created_at: new Date(),
+          updated_at: new Date(),
+          address: null,
+          city: 'Lisbon',
+          country: 'Portugal',
+        },
+        {
+          id: 'site-2',
+          name: 'Porto',
+          code: 'POR',
+          organization_id: 'org-1',
+          is_active: true,
+          created_at: new Date(),
+          updated_at: new Date(),
+          address: null,
+          city: 'Porto',
+          country: 'Portugal',
+        },
+      ];
 
       prisma.sites.findMany.mockResolvedValue(sites);
 
@@ -43,7 +68,15 @@ describe('SitesService', () => {
     it('returns a site using id and organization_id', async () => {
       const site = {
         id: 'site-1',
+        name: 'Lisbon',
+        code: 'LIS',
         organization_id: 'org-1',
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+        address: null,
+        city: 'Lisbon',
+        country: 'Portugal',
       };
 
       prisma.sites.findUnique.mockResolvedValue(site);
@@ -72,6 +105,12 @@ describe('SitesService', () => {
         name: 'Lisbon',
         code: 'LIS',
         organization_id: 'org-1',
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+        address: null,
+        city: 'Lisbon',
+        country: 'Portugal',
       };
 
       prisma.sites.create.mockResolvedValue(created);
@@ -107,7 +146,15 @@ describe('SitesService', () => {
     it('updates a site belonging to the organization', async () => {
       const site = {
         id: 'site-1',
+        name: 'Lisbon',
+        code: 'LIS',
         organization_id: 'org-1',
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+        address: null,
+        city: 'Lisbon',
+        country: 'Portugal',
       };
 
       const updated = {
@@ -145,7 +192,15 @@ describe('SitesService', () => {
     it('throws NotFoundException when the site belongs to another organization', async () => {
       prisma.sites.findUnique.mockResolvedValue({
         id: 'site-1',
+        name: 'Lisbon',
+        code: 'LIS',
         organization_id: 'org-2',
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+        address: null,
+        city: 'Lisbon',
+        country: 'Portugal',
       });
 
       await expect(service.update('site-1', { name: 'Updated' }, 'org-1')).rejects.toBeInstanceOf(
@@ -160,7 +215,15 @@ describe('SitesService', () => {
     it('deletes a site belonging to the organization', async () => {
       const site = {
         id: 'site-1',
+        name: 'Lisbon',
+        code: 'LIS',
         organization_id: 'org-1',
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+        address: null,
+        city: 'Lisbon',
+        country: 'Portugal',
       };
 
       prisma.sites.findUnique.mockResolvedValue(site);
@@ -184,7 +247,15 @@ describe('SitesService', () => {
     it('throws NotFoundException when the site belongs to another organization', async () => {
       prisma.sites.findUnique.mockResolvedValue({
         id: 'site-1',
+        name: 'Lisbon',
+        code: 'LIS',
         organization_id: 'org-2',
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+        address: null,
+        city: 'Lisbon',
+        country: 'Portugal',
       });
 
       await expect(service.remove('site-1', 'org-1')).rejects.toBeInstanceOf(NotFoundException);

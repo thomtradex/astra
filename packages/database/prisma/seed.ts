@@ -1,6 +1,7 @@
 import { PERMISSIONS, ROLE_PERMISSIONS, SYSTEM_ROLES } from '@astra/shared';
-import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+
+import { PrismaClient } from '@astra/database/client';
 
 const prisma = new PrismaClient();
 

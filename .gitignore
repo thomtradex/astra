@@ -46,3 +46,6 @@ docker/data/
 # Misc
 *.tsbuildinfo
 .eslintcache
+
+# Prisma generated client
+packages/database/generated/

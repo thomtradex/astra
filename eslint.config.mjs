@@ -9,6 +9,7 @@ export default tseslint.config(
     ignores: ['**/.next/**', 
       '**/node_modules/**',
       '**/dist/**',
+      'packages/database/generated/**',
       '**/.next/**',
       '**/coverage/**',
       '**/.turbo/**',

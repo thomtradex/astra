@@ -84,14 +84,9 @@ describe('AuditInterceptor', () => {
   });
 
   it('skips public GET requests', () => {
-    reflector.getAllAndOverride
-      .mockReturnValueOnce(false)
-      .mockReturnValueOnce(true);
+    reflector.getAllAndOverride.mockReturnValueOnce(false).mockReturnValueOnce(true);
 
-    const result = interceptor.intercept(
-      makeContext({ method: 'GET' }),
-      next,
-    );
+    const result = interceptor.intercept(makeContext({ method: 'GET' }), next);
 
     expect(jest.spyOn(next, 'handle')).toHaveBeenCalled();
     expect(jest.spyOn(auditService, 'log')).not.toHaveBeenCalled();
@@ -99,15 +94,15 @@ describe('AuditInterceptor', () => {
   });
 
   it('skips requests without an organization', () => {
-    reflector.getAllAndOverride
-      .mockReturnValueOnce(false)
-      .mockReturnValueOnce(false);
+    reflector.getAllAndOverride.mockReturnValueOnce(false).mockReturnValueOnce(false);
 
     interceptor.intercept(
       makeContext({
         method: 'POST',
         user: {
           id: 'user-1',
+          email: 'test@example.com',
+          roles: [],
           organizationId: '',
           permissions: [],
         },
@@ -120,9 +115,7 @@ describe('AuditInterceptor', () => {
   });
 
   it('writes an audit record after a successful request', () => {
-    reflector.getAllAndOverride
-      .mockReturnValueOnce(false)
-      .mockReturnValueOnce(false);
+    reflector.getAllAndOverride.mockReturnValueOnce(false).mockReturnValueOnce(false);
 
     next.handle = jest.fn().mockReturnValueOnce(of({ ok: true }));
 
@@ -131,6 +124,8 @@ describe('AuditInterceptor', () => {
         method: 'POST',
         user: {
           id: 'user-1',
+          email: 'test@example.com',
+          roles: [],
           organizationId: 'org-1',
           permissions: [],
         },
@@ -153,9 +148,7 @@ describe('AuditInterceptor', () => {
   });
 
   it('writes an audit record after a failed request', () => {
-    reflector.getAllAndOverride
-      .mockReturnValueOnce(false)
-      .mockReturnValueOnce(false);
+    reflector.getAllAndOverride.mockReturnValueOnce(false).mockReturnValueOnce(false);
 
     next.handle = jest.fn().mockReturnValueOnce(
       throwError(() => ({
@@ -169,6 +162,8 @@ describe('AuditInterceptor', () => {
         method: 'GET',
         user: {
           id: 'user-1',
+          email: 'test@example.com',
+          roles: [],
           organizationId: 'org-1',
           permissions: [],
         },
@@ -194,9 +189,7 @@ describe('AuditInterceptor', () => {
   });
 
   it('uses 500 when an error has no status', () => {
-    reflector.getAllAndOverride
-      .mockReturnValueOnce(false)
-      .mockReturnValueOnce(false);
+    reflector.getAllAndOverride.mockReturnValueOnce(false).mockReturnValueOnce(false);
 
     next.handle = jest.fn().mockReturnValueOnce(
       throwError(() => ({
@@ -210,6 +203,8 @@ describe('AuditInterceptor', () => {
           method: 'POST',
           user: {
             id: 'user-1',
+            email: 'test@example.com',
+            roles: [],
             organizationId: 'org-1',
             permissions: [],
           },

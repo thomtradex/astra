@@ -25,15 +25,11 @@ describe('OrganizationsService', () => {
   it('throws when findOne cannot find the organization', async () => {
     prisma.organization.findUnique.mockResolvedValue(null);
 
-    await expect(service.findOne('org-missing')).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    await expect(service.findOne('org-missing')).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('finds organizations without a search filter', async () => {
-    prisma.organization.findMany.mockResolvedValue([
-      { id: 'org-1', name: 'Alpha', slug: 'alpha' },
-    ]);
+    prisma.organization.findMany.mockResolvedValue([{ id: 'org-1', name: 'Alpha', slug: 'alpha' }]);
     prisma.organization.count.mockResolvedValue(1);
 
     const result = await service.findAll({});
@@ -245,8 +241,8 @@ describe('OrganizationsService', () => {
       id: 'org-2',
     });
 
-    await expect(
-      service.update('org-1', { slug: 'Existing-Slug' }),
-    ).rejects.toBeInstanceOf(ConflictException);
+    await expect(service.update('org-1', { slug: 'Existing-Slug' })).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 });

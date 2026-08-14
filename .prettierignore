@@ -6,3 +6,5 @@ coverage/
 .git/
 Solution/CoverageReport/
 *.bak
+
+packages/database/generated/

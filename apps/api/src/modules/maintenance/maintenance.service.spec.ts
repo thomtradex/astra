@@ -29,8 +29,28 @@ describe('MaintenanceService', () => {
   describe('findAll', () => {
     it('returns plans for the organization ordered by nextDue asc', async () => {
       const plans = [
-        { id: 'plan-1', nextDue: new Date('2026-01-01') },
-        { id: 'plan-2', nextDue: new Date('2026-02-01') },
+        {
+          id: 'plan-1',
+          status: 'ACTIVE',
+          organization_id: 'org-1',
+          created_at: new Date(),
+          updated_at: new Date(),
+          plan: 'Inspection',
+          assetId: 'asset-1',
+          frequency: 'MONTHLY',
+          nextDue: new Date('2026-01-01'),
+        },
+        {
+          id: 'plan-2',
+          status: 'ACTIVE',
+          organization_id: 'org-1',
+          created_at: new Date(),
+          updated_at: new Date(),
+          plan: 'Inspection',
+          assetId: 'asset-2',
+          frequency: 'MONTHLY',
+          nextDue: new Date('2026-02-01'),
+        },
       ];
 
       prisma.maintenance_plans.findMany.mockResolvedValue(plans);
@@ -48,7 +68,14 @@ describe('MaintenanceService', () => {
     it('returns a plan belonging to the organization', async () => {
       const plan = {
         id: 'plan-1',
+        status: 'ACTIVE',
         organization_id: 'org-1',
+        created_at: new Date(),
+        updated_at: new Date(),
+        plan: 'Inspection',
+        assetId: 'asset-1',
+        frequency: 'MONTHLY',
+        nextDue: new Date('2026-01-01'),
       };
 
       prisma.maintenance_plans.findFirst.mockResolvedValue(plan);
@@ -99,16 +126,27 @@ describe('MaintenanceService', () => {
     it('creates a maintenance plan when the asset belongs to the organization', async () => {
       prisma.assets.findFirst.mockResolvedValue({
         id: 'asset-1',
+        name: 'Asset',
+        code: 'AST-001',
+        serial_number: null,
+        description: null,
+        status: 'ACTIVE',
         organization_id: 'org-1',
+        site_id: null,
+        created_at: new Date(),
+        updated_at: new Date(),
       });
 
       const created = {
         id: 'plan-1',
+        status: 'ACTIVE',
+        organization_id: 'org-1',
+        created_at: new Date(),
+        updated_at: new Date(),
         plan: 'Monthly inspection',
         assetId: 'asset-1',
         frequency: 'MONTHLY',
         nextDue: new Date('2026-09-01T10:00:00.000Z'),
-        organization_id: 'org-1',
       };
 
       prisma.maintenance_plans.create.mockResolvedValue(created);

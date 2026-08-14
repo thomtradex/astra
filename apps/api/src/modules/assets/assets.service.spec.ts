@@ -29,7 +29,13 @@ describe('AssetsService', () => {
       id: 'asset-1',
       name: 'Asset',
       code: 'AST-001',
+      serial_number: null,
+      description: null,
+      status: 'ACTIVE',
       organization_id: 'org-1',
+      site_id: null,
+      created_at: new Date(),
+      updated_at: new Date(),
     };
 
     const updated = {
@@ -54,7 +60,15 @@ describe('AssetsService', () => {
   it('throws NotFoundException when the asset belongs to another organization', async () => {
     prisma.assets.findUnique.mockResolvedValue({
       id: 'asset-1',
+      name: 'Asset',
+      code: 'AST-001',
+      serial_number: null,
+      description: null,
+      status: 'ACTIVE',
       organization_id: 'org-2',
+      site_id: null,
+      created_at: new Date(),
+      updated_at: new Date(),
     });
 
     await expect(service.update('asset-1', { name: 'Updated' }, 'org-1')).rejects.toBeInstanceOf(
@@ -66,7 +80,14 @@ describe('AssetsService', () => {
     const created = {
       id: 'asset-1',
       name: 'Asset',
+      code: 'AST-001',
+      serial_number: null,
+      description: null,
+      status: 'ACTIVE',
       organization_id: 'org-1',
+      site_id: null,
+      created_at: new Date(),
+      updated_at: new Date(),
     };
 
     prisma.assets.create.mockResolvedValue(created);

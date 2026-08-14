@@ -6,20 +6,14 @@ import { AuditService } from './audit.service';
 import { AuditLogInput, AuditLogQuery } from './interfaces/audit-log.interface';
 
 describe('AuditService', () => {
-  const create = jest.fn<
-    Promise<Prisma.AuditLogGetPayload<object>>,
-    [Prisma.AuditLogCreateArgs]
-  >();
+  const create = jest.fn<Promise<Prisma.AuditLogGetPayload<object>>, [Prisma.AuditLogCreateArgs]>();
 
   const findMany = jest.fn<
     Promise<Prisma.AuditLogGetPayload<object>[]>,
     [Prisma.AuditLogFindManyArgs]
   >();
 
-  const count = jest.fn<
-    Promise<number>,
-    [Prisma.AuditLogCountArgs]
-  >();
+  const count = jest.fn<Promise<number>, [Prisma.AuditLogCountArgs]>();
 
   const prisma = {
     auditLog: {
@@ -36,7 +30,21 @@ describe('AuditService', () => {
   });
 
   it('writes an audit log with optional fields normalized', async () => {
-    create.mockResolvedValue({ id: 'audit-1' });
+    create.mockResolvedValue({
+      id: 'audit-1',
+      organizationId: 'org-1',
+      actorId: null,
+      action: AuditAction.CREATE,
+      resource: 'assets',
+      resourceId: null,
+      method: null,
+      path: null,
+      ipAddress: null,
+      userAgent: null,
+      statusCode: null,
+      metadata: {},
+      createdAt: new Date(),
+    });
 
     const input: AuditLogInput = {
       organizationId: 'org-1',
