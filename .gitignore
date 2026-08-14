@@ -49,3 +49,7 @@ docker/data/
 
 # Prisma generated client
 packages/database/generated/
+
+# Local backups
+*.backup*
+*.bak
