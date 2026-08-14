@@ -18,7 +18,7 @@ function shouldRefreshAccessToken(accessToken: string | undefined): boolean {
   return expiresInMs < 60_000;
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get('astra_access_token')?.value;
   const refreshToken = request.cookies.get('astra_refresh_token')?.value;
