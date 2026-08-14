@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: astra_user
-      POSTGRES_PASSWORD: CHANGE_PASSWORD
+      POSTGRES_PASSWORD: 8c9f2b4d7e6a1f3c9e5b7a2d4f8c6e1a9b3d5f7a2c8e4b6d9f1a3c5e7b9d2f4
       POSTGRES_DB: astra
     volumes:
       - postgres_data:/var/lib/postgresql/data
