@@ -1,10 +1,14 @@
 import { Module } from '@nestjs/common';
+
+import { ForecastingEngine } from './engines/forecasting.engine';
 import { ForecastingController } from './forecasting.controller';
 import { ForecastingService } from './forecasting.service';
-import { ForecastingEngine } from './engines/forecasting.engine';
 
 @Module({
   controllers: [ForecastingController],
-  providers: [ForecastingService, ForecastingEngine],
+  providers: [
+    ForecastingService,
+    ForecastingEngine,
+  ],
 })
 export class ForecastingModule {}

@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { ScoringEngine } from './engines/scoring.engine';
 import { ScoringService } from './scoring.service';
 
 describe('ScoringService', () => {
@@ -7,7 +8,7 @@ describe('ScoringService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ScoringService],
+      providers: [ScoringService, ScoringEngine],
     }).compile();
 
     service = module.get<ScoringService>(ScoringService);
