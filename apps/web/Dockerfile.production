@@ -1,0 +1,48 @@
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+RUN npm install -g pnpm@11.18.0
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/web/package.json apps/web/package.json
+COPY packages/shared/package.json packages/shared/package.json
+
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_PUBLIC_API_URL=http://localhost:3001
+
+RUN CI=true pnpm --filter @astra/web build
+
+
+FROM node:22-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# O Next.js standalone já contém o server.js e as
+# dependências necessárias para execução.
+COPY --from=builder --chown=nextjs:nodejs \
+  /app/apps/web/.next/standalone/ \
+  /app/
+
+# Assets estáticos do Next.js
+COPY --from=builder --chown=nextjs:nodejs \
+  /app/apps/web/.next/static \
+  /app/apps/web/.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+CMD ["node", "apps/web/server.js"]

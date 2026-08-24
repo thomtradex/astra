@@ -140,26 +140,40 @@ export class AuthService {
 
   async logout(
     refreshToken: string,
-    user: AuthenticatedUser,
     context: RequestContext,
   ): Promise<void> {
     const tokenHash = this.hashToken(refreshToken);
 
-    await this.prisma.refreshToken.updateMany({
-      where: {
-        tokenHash,
-        userId: user.id,
-        revokedAt: null,
+    const storedToken = await this.prisma.refreshToken.findUnique({
+      where: { tokenHash },
+      include: {
+        user: true,
       },
+    });
+
+    if (!storedToken) {
+      return;
+    }
+
+    if (storedToken.revokedAt) {
+      return;
+    }
+
+    if (storedToken.expiresAt < new Date()) {
+      return;
+    }
+
+    await this.prisma.refreshToken.update({
+      where: { id: storedToken.id },
       data: { revokedAt: new Date() },
     });
 
     await this.auditService.log({
-      organizationId: user.organizationId,
-      actorId: user.id,
+      organizationId: storedToken.user.organizationId,
+      actorId: storedToken.user.id,
       action: AuditAction.LOGOUT,
       resource: 'auth',
-      resourceId: user.id,
+      resourceId: storedToken.user.id,
       method: 'POST',
       path: '/auth/logout',
       ipAddress: context.ipAddress,

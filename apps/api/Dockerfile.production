@@ -13,6 +13,7 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
+RUN pnpm --filter @astra/database db:generate
 RUN CI=true pnpm --filter @astra/api build
 
 

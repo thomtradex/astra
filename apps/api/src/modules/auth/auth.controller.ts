@@ -38,16 +38,14 @@ export class AuthController {
   }
 
   @Post('logout')
-  @Authenticated()
+  @Public()
   @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Revoke refresh token and logout' })
   logout(
     @Body() dto: LogoutDto,
-    @CurrentUser() user: AuthenticatedUser,
     @Req() req: Request,
   ): Promise<void> {
-    return this.authService.logout(dto.refreshToken, user, {
+    return this.authService.logout(dto.refreshToken, {
       ipAddress: req.ip,
       userAgent: req.headers['user-agent'],
     });

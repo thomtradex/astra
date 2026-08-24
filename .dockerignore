@@ -1,0 +1,53 @@
+# Git
+.git/
+.github/
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+.turbo/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Prisma generated artifacts
+packages/database/generated/
+
+# Local databases / backups
+docker/data/
+backups/
+*.sql
+*.backup*
+*.bak
+
+# Temporary audit artifacts
+.astra-audit/
