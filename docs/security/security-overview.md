@@ -9,7 +9,6 @@ A Astra segue boas práticas:
 - validação de permissões
 - auditoria de operações
 
-
 ## Arquitetura
 
 Inclui:
@@ -18,7 +17,6 @@ Inclui:
 - autenticação
 - autorização baseada em permissões
 - logs operacionais
-
 
 ## Operação
 
@@ -29,7 +27,6 @@ Processos:
 - testes automatizados
 - validação de código
 
-
 ## Roadmap
 
 Evolução futura:
@@ -37,4 +34,3 @@ Evolução futura:
 - compliance empresarial
 - certificações
 - auditorias externas
-

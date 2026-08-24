@@ -5,10 +5,7 @@ export class IntelligenceEngine {
   analyze(data: Record<string, unknown>) {
     return {
       status: 'analyzed',
-      insights: [
-        'Operational performance evaluated',
-        'Risk indicators calculated',
-      ],
+      insights: ['Operational performance evaluated', 'Risk indicators calculated'],
       input: data,
     };
   }

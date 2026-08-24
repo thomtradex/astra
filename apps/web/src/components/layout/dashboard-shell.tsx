@@ -1,13 +1,11 @@
-import { Sidebar } from "@/components/layout/sidebar";
-import { Topbar } from "@/components/layout/topbar";
+import { Sidebar } from '@/components/layout/sidebar';
+import { Topbar } from '@/components/layout/topbar';
 
 type DashboardShellProps = {
   children: React.ReactNode;
 };
 
-export function DashboardShell({
-  children,
-}: DashboardShellProps) {
+export function DashboardShell({ children }: DashboardShellProps) {
   return (
     <div>
       <Sidebar />

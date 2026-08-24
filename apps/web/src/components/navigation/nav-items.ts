@@ -1,26 +1,26 @@
 export const navItems = [
   {
-    label: "Dashboard",
-    href: "/dashboard",
+    label: 'Dashboard',
+    href: '/dashboard',
   },
   {
-    label: "Projetos",
-    href: "/projects",
+    label: 'Projetos',
+    href: '/projects',
   },
   {
-    label: "Ativos",
-    href: "/assets",
+    label: 'Ativos',
+    href: '/assets',
   },
   {
-    label: "Manutenção",
-    href: "/maintenance",
+    label: 'Manutenção',
+    href: '/maintenance',
   },
   {
-    label: "Documentos",
-    href: "/documents",
+    label: 'Documentos',
+    href: '/documents',
   },
   {
-    label: "Intelligence AI",
-    href: "/intelligence",
+    label: 'Intelligence AI',
+    href: '/intelligence',
   },
 ];

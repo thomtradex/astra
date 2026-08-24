@@ -4,7 +4,6 @@
 
 Uma empresa de construção com múltiplas obras precisava melhorar a gestão operacional.
 
-
 ## Desafio
 
 Problemas encontrados:
@@ -12,7 +11,6 @@ Problemas encontrados:
 - processos manuais
 - informação dispersa
 - pouca visibilidade global
-
 
 ## Implementação Astra
 
@@ -23,7 +21,6 @@ A empresa implementou:
 - inteligência operacional
 - acompanhamento de projetos
 
-
 ## Resultados
 
 Impacto esperado:
@@ -32,8 +29,6 @@ Impacto esperado:
 - decisões mais rápidas
 - maior controlo das obras
 
-
 ## Próximo passo
 
 Expansão da utilização para todas as equipas.
-

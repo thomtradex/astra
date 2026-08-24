@@ -1,9 +1,7 @@
 export function ValueProposition() {
   return (
     <section>
-      <h2>
-        Construction Intelligence Platform
-      </h2>
+      <h2>Construction Intelligence Platform</h2>
 
       <ul>
         <li>Reduce operational risks</li>

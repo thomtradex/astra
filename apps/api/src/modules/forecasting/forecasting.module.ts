@@ -6,9 +6,6 @@ import { ForecastingService } from './forecasting.service';
 
 @Module({
   controllers: [ForecastingController],
-  providers: [
-    ForecastingService,
-    ForecastingEngine,
-  ],
+  providers: [ForecastingService, ForecastingEngine],
 })
 export class ForecastingModule {}

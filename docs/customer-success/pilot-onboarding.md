@@ -13,7 +13,6 @@ Checklist:
 - configurar projetos
 - importar dados iniciais
 
-
 ## Semana 2
 
 Objetivo:
@@ -26,7 +25,6 @@ Validar:
 - redução de tarefas manuais
 - feedback
 
-
 ## Semana 4
 
 Avaliação:
@@ -34,4 +32,3 @@ Avaliação:
 - métricas
 - melhorias
 - decisão de expansão
-

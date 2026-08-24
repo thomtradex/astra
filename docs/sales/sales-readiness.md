@@ -7,7 +7,6 @@
 [x] Build produção
 [x] Testes
 
-
 ## Comercial
 
 [ ] Landing page final
@@ -18,7 +17,6 @@
 
 [ ] Caso de estudo
 
-
 ## Operação
 
 [ ] Processo onboarding
@@ -26,4 +24,3 @@
 [ ] Suporte definido
 
 [ ] Pricing final
-

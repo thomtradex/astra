@@ -4,11 +4,9 @@
 
 Validar impacto real numa empresa de construção.
 
-
 ## Duração
 
 30 dias.
-
 
 ## Fase 1 — Setup
 
@@ -18,14 +16,12 @@ Semana 1:
 - criar utilizadores
 - importar projetos
 
-
 ## Fase 2 — Utilização
 
 Semanas 2-3:
 
 - utilizar Astra em operações reais
 - recolher feedback
-
 
 ## Fase 3 — Avaliação
 
@@ -37,7 +33,6 @@ Medir:
 - adoção
 - melhorias
 
-
 ## Resultado
 
 Decisão:
@@ -45,4 +40,3 @@ Decisão:
 - expansão
 - contrato anual
 - melhorias
-

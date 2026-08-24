@@ -11,7 +11,6 @@ Os gestores precisam de:
 - controlar documentação
 - analisar problemas
 
-
 ## Demonstração Astra
 
 Mostrar:
@@ -26,7 +25,6 @@ Mostrar:
 
 5. Inteligência operacional
 
-
 ## Resultado esperado
 
 Após utilização:
@@ -34,4 +32,3 @@ Após utilização:
 - decisões mais rápidas
 - menos tarefas repetitivas
 - melhor controlo das operações
-

@@ -43,4 +43,3 @@ Propor:
 - piloto de 30 dias
 - definição de métricas
 - avaliação final
-

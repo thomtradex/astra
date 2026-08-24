@@ -25,7 +25,7 @@ curl https://YOUR_DOMAIN/api/v1/health
 Expected:
 
 {
-  "status":"ok"
+"status":"ok"
 }
 
 ## Database

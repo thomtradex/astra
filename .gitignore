@@ -53,3 +53,9 @@ packages/database/generated/
 # Local backups
 *.backup*
 *.bak
+
+# Local database backups
+astra-backup.sql
+
+# Database backups
+backups/*.sql

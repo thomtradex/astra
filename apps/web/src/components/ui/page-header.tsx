@@ -3,19 +3,12 @@ type PageHeaderProps = {
   description: string;
 };
 
-export function PageHeader({
-  title,
-  description,
-}: PageHeaderProps) {
+export function PageHeader({ title, description }: PageHeaderProps) {
   return (
     <header>
-      <h1>
-        {title}
-      </h1>
+      <h1>{title}</h1>
 
-      <p>
-        {description}
-      </p>
+      <p>{description}</p>
     </header>
   );
 }

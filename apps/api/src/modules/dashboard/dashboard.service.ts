@@ -1,67 +1,100 @@
 import { Injectable } from '@nestjs/common';
+
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class DashboardService {
+  constructor(private prisma: PrismaService) {}
 
-constructor(
-private prisma:PrismaService
-){}
+  async overview(orgId: string) {
+    const [
+      customers,
+      sites,
+      assets,
+      openOrders,
+      highPriority,
+      activeAssets,
+      overdueMaintenance,
+      recentAuditLogs,
+    ] = await Promise.all([
+      this.prisma.customers.count({
+        where: { organization_id: orgId },
+      }),
 
+      this.prisma.sites.count({
+        where: { organization_id: orgId },
+      }),
 
-async overview(orgId:string){
+      this.prisma.assets.count({
+        where: { organization_id: orgId },
+      }),
 
-const [
-customers,
-sites,
-assets,
-openOrders,
-highPriority
-]=await Promise.all([
+      this.prisma.work_orders.count({
+        where: {
+          organization_id: orgId,
+          status: 'OPEN',
+        },
+      }),
 
-this.prisma.customer.count({
-where:{organizationId:orgId}
-}),
+      this.prisma.work_orders.count({
+        where: {
+          organization_id: orgId,
+          priority: 'HIGH',
+        },
+      }),
 
-this.prisma.site.count({
-where:{organizationId:orgId}
-}),
+      this.prisma.assets.count({
+        where: {
+          organization_id: orgId,
+          status: 'ACTIVE',
+        },
+      }),
 
-this.prisma.asset.count({
-where:{organizationId:orgId}
-}),
+      this.prisma.maintenance_plans.count({
+        where: {
+          organization_id: orgId,
+          status: 'ACTIVE',
+          nextDue: {
+            lt: new Date(),
+          },
+        },
+      }),
 
-this.prisma.workOrder.count({
-where:{
-organizationId:orgId,
-status:"OPEN"
-}
-}),
+      this.prisma.auditLog.findMany({
+        where: {
+          organizationId: orgId,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: 5,
+        select: {
+          id: true,
+          action: true,
+          resource: true,
+          createdAt: true,
+        },
+      }),
+    ]);
 
-this.prisma.workOrder.count({
-where:{
-organizationId:orgId,
-priority:"HIGH"
-}
-})
+    return {
+      customers,
+      sites,
+      assets,
+      workOrders: {
+        open: openOrders,
+        highPriority,
+      },
+      assetHealth: {
+        active: activeAssets,
+        total: assets,
+      },
+      maintenance: {
+        overdue: overdueMaintenance,
+      },
+      recentActivity: recentAuditLogs,
 
-])
-
-
-return {
-
-customers,
-sites,
-assets,
-workOrders:{
-open:openOrders,
-highPriority
-},
-
-generatedAt:new Date()
-
-}
-
-}
-
+      generatedAt: new Date(),
+    };
+  }
 }

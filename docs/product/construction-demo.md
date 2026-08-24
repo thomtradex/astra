@@ -22,4 +22,3 @@ Manutenção preventiva
 - Manutenção preventiva
 - Controlo operacional
 - Histórico de equipamentos
-

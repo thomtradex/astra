@@ -1,5 +1,5 @@
-import { Badge } from "@/components/ui/badge/badge";
-import { Card } from "@/components/ui/card/card";
+import { Badge } from '@/components/ui/badge/badge';
+import { Card } from '@/components/ui/card/card';
 
 type KpiCardProps = {
   title: string;
@@ -7,20 +7,12 @@ type KpiCardProps = {
   trend: string;
 };
 
-export function KpiCard({
-  title,
-  value,
-  trend,
-}: KpiCardProps) {
+export function KpiCard({ title, value, trend }: KpiCardProps) {
   return (
     <Card title={title}>
-      <strong>
-        {value}
-      </strong>
+      <strong>{value}</strong>
 
-      <Badge>
-        {trend}
-      </Badge>
+      <Badge>{trend}</Badge>
     </Card>
   );
 }

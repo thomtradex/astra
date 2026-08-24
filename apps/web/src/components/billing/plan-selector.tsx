@@ -1,9 +1,7 @@
 export function PlanSelector() {
   return (
     <section>
-      <h2>
-        Enterprise Plans
-      </h2>
+      <h2>Enterprise Plans</h2>
 
       <ul>
         <li>Starter Construction</li>

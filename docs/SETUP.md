@@ -32,7 +32,7 @@ nvm use
 
 ```bash
 corepack enable
-corepack prepare pnpm@9.15.0 --activate
+corepack prepare pnpm@11.18.0 --activate
 ```
 
 ### 4. Install dependencies

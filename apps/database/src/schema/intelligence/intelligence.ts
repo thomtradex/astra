@@ -2,10 +2,7 @@ export interface IntelligenceRecord {
   id: string;
   organizationId: string;
 
-  type:
-    | "RISK"
-    | "PREDICTION"
-    | "RECOMMENDATION";
+  type: 'RISK' | 'PREDICTION' | 'RECOMMENDATION';
 
   score: number;
 

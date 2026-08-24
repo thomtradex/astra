@@ -1,13 +1,9 @@
 export function ProjectMetrics() {
   return (
     <section>
-      <h2>
-        Project Metrics
-      </h2>
+      <h2>Project Metrics</h2>
 
-      <p>
-        Active construction projects monitored by Astra Intelligence.
-      </p>
+      <p>Active construction projects monitored by Astra Intelligence.</p>
 
       <ul>
         <li>12 Active Projects</li>

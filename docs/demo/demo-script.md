@@ -2,7 +2,6 @@
 
 ## Duração: 30 minutos
 
-
 # 1. Introdução (5 min)
 
 Perguntas:
@@ -11,7 +10,6 @@ Perguntas:
 - Onde está armazenada a informação?
 - Quanto tempo é perdido em tarefas administrativas?
 
-
 # 2. Problema (5 min)
 
 Mostrar:
@@ -19,7 +17,6 @@ Mostrar:
 - informação dispersa
 - processos manuais
 - falta de visão global
-
 
 # 3. Demonstração Astra (15 min)
 
@@ -31,7 +28,6 @@ Mostrar:
 - inteligência artificial
 - conhecimento interno
 
-
 # 4. ROI (3 min)
 
 Mostrar:
@@ -40,11 +36,9 @@ Mostrar:
 - redução de erros
 - melhoria operacional
 
-
 # 5. Próximo passo (2 min)
 
 Propor:
 
 - piloto de 30 dias
 - avaliação de resultados
-

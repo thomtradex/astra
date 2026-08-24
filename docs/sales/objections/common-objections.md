@@ -43,4 +43,3 @@ A Astra foi desenhada com:
 - controlo de acesso
 - logs
 - processos de validação
-

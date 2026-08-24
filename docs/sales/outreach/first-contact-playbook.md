@@ -59,4 +59,3 @@ Descobrir:
 - ferramentas usadas
 - volume operacional
 - oportunidades de melhoria
-

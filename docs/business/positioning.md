@@ -44,4 +44,3 @@ A Astra ajuda empresas de construção a:
 Não é apenas gestão de tarefas.
 
 É uma camada inteligente sobre toda a empresa.
-

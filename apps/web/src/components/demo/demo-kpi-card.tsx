@@ -4,11 +4,7 @@ type DemoKpiCardProps = {
   description: string;
 };
 
-export function DemoKpiCard({
-  title,
-  value,
-  description,
-}: DemoKpiCardProps) {
+export function DemoKpiCard({ title, value, description }: DemoKpiCardProps) {
   return (
     <div>
       <h3>{title}</h3>

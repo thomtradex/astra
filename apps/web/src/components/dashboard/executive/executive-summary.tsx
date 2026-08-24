@@ -1,15 +1,25 @@
-export function ExecutiveSummary() {
+type ExecutiveSummaryProps = {
+  portfolioHealth: number;
+  operationalEfficiency: number;
+  financialRisk: string;
+  recommendations: number;
+};
+
+export function ExecutiveSummary({
+  portfolioHealth,
+  operationalEfficiency,
+  financialRisk,
+  recommendations,
+}: ExecutiveSummaryProps) {
   return (
     <section>
-      <h2>
-        Executive Intelligence
-      </h2>
+      <h2>Executive Intelligence</h2>
 
       <ul>
-        <li>Portfolio Health Score: 94%</li>
-        <li>Operational Efficiency: 91%</li>
-        <li>Financial Risk: Low</li>
-        <li>AI Recommendations: 12</li>
+        <li>Portfolio Health Score: {portfolioHealth}%</li>
+        <li>Operational Efficiency: {operationalEfficiency}%</li>
+        <li>Financial Risk: {financialRisk}</li>
+        <li>AI Recommendations: {recommendations}</li>
       </ul>
     </section>
   );

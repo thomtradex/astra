@@ -1,36 +1,23 @@
-const risks = [
-  {
-    asset: "Grua Norte",
-    risk: "Alta probabilidade de manutenção",
-    score: "87%",
-  },
-  {
-    asset: "Escavadora 04",
-    risk: "Performance abaixo do normal",
-    score: "72%",
-  },
-];
+type RiskEngineProps = {
+  risks: Array<{
+    asset: string;
+    risk: string;
+    score: string;
+  }>;
+};
 
-export function RiskEngine() {
+export function RiskEngine({ risks }: RiskEngineProps) {
   return (
     <section>
-      <h2>
-        AI Risk Engine
-      </h2>
+      <h2>AI Risk Engine</h2>
 
       {risks.map((risk) => (
-        <article key={risk.asset}>
-          <strong>
-            {risk.asset}
-          </strong>
+        <article key={`${risk.asset}-${risk.risk}`}>
+          <strong>{risk.asset}</strong>
 
-          <p>
-            {risk.risk}
-          </p>
+          <p>{risk.risk}</p>
 
-          <span>
-            {risk.score}
-          </span>
+          <span>{risk.score}</span>
         </article>
       ))}
     </section>

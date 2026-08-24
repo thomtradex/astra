@@ -1,13 +1,9 @@
 export function DemoEnvironment() {
   return (
     <section>
-      <h2>
-        Astra Enterprise Demo
-      </h2>
+      <h2>Astra Enterprise Demo</h2>
 
-      <p>
-        Simulated construction intelligence environment.
-      </p>
+      <p>Simulated construction intelligence environment.</p>
 
       <ul>
         <li>5 Construction Sites Connected</li>

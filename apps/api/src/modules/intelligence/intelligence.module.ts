@@ -6,9 +6,6 @@ import { IntelligenceService } from './intelligence.service';
 
 @Module({
   controllers: [IntelligenceController],
-  providers: [
-    IntelligenceService,
-    IntelligenceEngine,
-  ],
+  providers: [IntelligenceService, IntelligenceEngine],
 })
 export class IntelligenceModule {}

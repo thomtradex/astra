@@ -6,9 +6,6 @@ import { ScoringService } from './scoring.service';
 
 @Module({
   controllers: [ScoringController],
-  providers: [
-    ScoringService,
-    ScoringEngine,
-  ],
+  providers: [ScoringService, ScoringEngine],
 })
 export class ScoringModule {}

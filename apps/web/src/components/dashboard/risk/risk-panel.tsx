@@ -1,21 +1,15 @@
-const risks = [
-  "Equipment failure probability increased",
-  "Maintenance delay detected",
-  "Project cost deviation identified",
-];
+type RiskPanelProps = {
+  risks: string[];
+};
 
-export function RiskPanel() {
+export function RiskPanel({ risks }: RiskPanelProps) {
   return (
     <section>
-      <h2>
-        AI Risk Detection
-      </h2>
+      <h2>AI Risk Detection</h2>
 
       <ul>
         {risks.map((risk) => (
-          <li key={risk}>
-            {risk}
-          </li>
+          <li key={risk}>{risk}</li>
         ))}
       </ul>
     </section>

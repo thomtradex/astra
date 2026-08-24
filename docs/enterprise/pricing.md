@@ -11,7 +11,6 @@ Inclui:
 - Organização operacional
 - Assistente inteligente básico
 
-
 ## Professional
 
 Para empresas com várias obras.
@@ -23,7 +22,6 @@ Inclui:
 - Automações
 - Dashboards
 - Gestão avançada
-
 
 ## Enterprise
 
@@ -37,7 +35,6 @@ Inclui:
 - Configuração empresarial
 - Segurança avançada
 
-
 ## Modelo Comercial
 
 Preço baseado em:
@@ -46,4 +43,3 @@ Preço baseado em:
 - número de projetos
 - complexidade operacional
 - integrações necessárias
-

@@ -1,13 +1,9 @@
 export function CompanySetup() {
   return (
     <section>
-      <h2>
-        Company Setup
-      </h2>
+      <h2>Company Setup</h2>
 
-      <p>
-        Configure your construction organization inside Astra.
-      </p>
+      <p>Configure your construction organization inside Astra.</p>
 
       <ul>
         <li>Create organization</li>

@@ -1,9 +1,6 @@
-export function generateRecommendations(
-  risks: string[],
-) {
+export function generateRecommendations(risks: string[]) {
   return risks.map((risk) => ({
     risk,
-    recommendation:
-      `AI recommendation generated for: ${risk}`,
+    recommendation: `AI recommendation generated for: ${risk}`,
   }));
 }
