@@ -1,5 +1,5 @@
 import { PERMISSIONS, ROLE_PERMISSIONS, SYSTEM_ROLES } from '@astra/shared';
-import * as bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 
 import { PrismaClient } from '@astra/database/client';
 
@@ -122,6 +122,7 @@ async function main(): Promise<void> {
   const permissionMap = await seedPermissions();
   const roleMap = await seedRoles(permissionMap);
   await seedOrganizationAndAdmin(roleMap);
+  await import('./seeds/demo-construction.ts');
 
   console.info('Database seed completed successfully.');
 }

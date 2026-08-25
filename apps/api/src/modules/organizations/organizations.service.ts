@@ -2,6 +2,7 @@ import { buildPaginatedResult, normalizePagination, PaginatedResult } from '@ast
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import { BillingService } from '../billing/billing.service';
 
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { QueryOrganizationsDto } from './dto/query-organizations.dto';
@@ -10,7 +11,10 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto';
 @Injectable()
 export class OrganizationsService {
   /* istanbul ignore next */
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly billingService: BillingService,
+  ) {}
 
   async findAll(
     query: QueryOrganizationsDto,
@@ -91,7 +95,7 @@ export class OrganizationsService {
       throw new ConflictException('Organization slug already exists');
     }
 
-    return this.prisma.organization.create({
+    const organization = await this.prisma.organization.create({
       data: {
         name: dto.name.trim(),
         slug,
@@ -105,6 +109,10 @@ export class OrganizationsService {
         updatedAt: true,
       },
     });
+
+    await this.billingService.ensureTrialSubscription(organization.id);
+
+    return organization;
   }
 
   async update(id: string, dto: UpdateOrganizationDto) {

@@ -4,6 +4,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { AppModule } from '../../src/app.module';
 import { PrismaService } from '../../src/prisma/prisma.service';
+import { StripeProvider } from '../../src/modules/billing/payment/stripe.provider';
+import { BillingWebhookService } from '../../src/modules/billing/webhooks/billing-webhook.service';
 
 @Controller('test-harness')
 class TestHarnessController {
@@ -22,7 +24,17 @@ export async function createTestApp(): Promise<TestAppContext> {
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [AppModule],
     controllers: [TestHarnessController],
-  }).compile();
+  })
+    .overrideProvider(StripeProvider)
+    .useValue({
+      createCheckoutSession: jest.fn(),
+      createCustomerPortalSession: jest.fn(),
+    })
+    .overrideProvider(BillingWebhookService)
+    .useValue({
+      handleStripeWebhook: jest.fn(),
+    })
+    .compile();
 
   const app = moduleFixture.createNestApplication();
 

@@ -41,10 +41,7 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Revoke refresh token and logout' })
-  logout(
-    @Body() dto: LogoutDto,
-    @Req() req: Request,
-  ): Promise<void> {
+  logout(@Body() dto: LogoutDto, @Req() req: Request): Promise<void> {
     return this.authService.logout(dto.refreshToken, {
       ipAddress: req.ip,
       userAgent: req.headers['user-agent'],

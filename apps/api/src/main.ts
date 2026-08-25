@@ -10,6 +10,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn', 'log'],
+    rawBody: true,
   });
 
   const configService = app.get(ConfigService);

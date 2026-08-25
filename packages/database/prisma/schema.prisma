@@ -23,6 +23,7 @@ model Organization {
   sites             sites[]
   users             User[]
   work_orders       work_orders[]
+  subscriptions     Subscription[]
 
   @@map("organizations")
 }
@@ -240,4 +241,57 @@ enum AuditAction {
   ROLE_REMOVE
   PERMISSION_ASSIGN
   PERMISSION_REMOVE
+}
+
+model BillingPlan {
+  id                String         @id @default(cuid())
+  code              String         @unique
+  name              String
+  description       String?
+  monthlyPriceCents Int
+  currency          String         @default("EUR")
+  trialDays         Int            @default(0)
+  limits            Json           @default("{}")
+  features          Json           @default("{}")
+  displayOrder      Int            @default(0) @map("display_order")
+  isActive          Boolean        @default(true) @map("is_active")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+  subscriptions     Subscription[]
+
+  @@map("billing_plans")
+}
+
+model Subscription {
+  id                     String             @id @default(cuid())
+  organizationId         String             @map("organization_id")
+  planId                 String             @map("plan_id")
+  status                 SubscriptionStatus @default(TRIALING)
+  currentPeriodStart     DateTime           @map("current_period_start")
+  currentPeriodEnd       DateTime           @map("current_period_end")
+  trialStart             DateTime?          @map("trial_start")
+  trialEnd               DateTime?          @map("trial_end")
+  cancelAtPeriodEnd      Boolean            @default(false) @map("cancel_at_period_end")
+  canceledAt             DateTime?          @map("canceled_at")
+  provider               String?
+  providerCustomerId     String?            @map("provider_customer_id")
+  providerSubscriptionId String?            @map("provider_subscription_id")
+  createdAt              DateTime           @default(now()) @map("created_at")
+  updatedAt              DateTime           @updatedAt @map("updated_at")
+  organization           Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan                   BillingPlan        @relation(fields: [planId], references: [id])
+
+  @@unique([provider, providerSubscriptionId])
+  @@index([organizationId])
+  @@index([planId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
 }

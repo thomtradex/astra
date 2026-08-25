@@ -7,6 +7,7 @@ import { AiModule } from './modules/ai/ai.module';
 import { AssetsModule } from './modules/assets/assets.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { AuditInterceptor } from './modules/audit/interceptors/audit.interceptor';
+import { BillingModule } from './modules/billing/billing.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { CustomersModule } from './modules/customers/customers.module';
@@ -25,6 +26,7 @@ import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
+    BillingModule,
     AppConfigModule,
     ThrottlerModule.forRoot([
       {

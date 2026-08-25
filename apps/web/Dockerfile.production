@@ -13,7 +13,7 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NEXT_PUBLIC_API_URL=http://localhost:3001
+ENV NEXT_PUBLIC_API_URL=http://api:3001
 
 RUN CI=true pnpm --filter @astra/web build
 

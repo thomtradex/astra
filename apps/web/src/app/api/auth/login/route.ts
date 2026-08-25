@@ -1,49 +1,41 @@
-import { AuthTokens } from '@astra/shared';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { apiFetch } from '@/lib/api-client';
-import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, buildAuthCookieOptions } from '@/lib/auth';
+const API_URL = process.env.API_URL ?? 'http://api:3001';
 
 export async function POST(request: NextRequest) {
-  const body = (await request.json()) as {
-    email?: string;
-    password?: string;
-    organizationSlug?: string;
-  };
+  const body = await request.json();
 
-  if (!body.email || !body.password) {
-    return NextResponse.json({ message: 'Email and password are required' }, { status: 400 });
-  }
+  const response = await fetch(`${API_URL}/api/v1/auth/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
 
-  try {
-    const tokens = await apiFetch<AuthTokens>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({
-        email: body.email,
-        password: body.password,
-        organizationSlug: body.organizationSlug,
-      }),
+  const data = await response.json();
+
+  if (!response.ok) {
+    return NextResponse.json(data, {
+      status: response.status,
     });
-
-    const response = NextResponse.json({ success: true, expiresIn: tokens.expiresIn });
-
-    response.cookies.set(
-      ACCESS_TOKEN_COOKIE,
-      tokens.accessToken,
-      buildAuthCookieOptions(tokens.expiresIn),
-    );
-
-    response.cookies.set(
-      REFRESH_TOKEN_COOKIE,
-      tokens.refreshToken,
-      buildAuthCookieOptions(60 * 60 * 24 * 7),
-    );
-
-    return response;
-  } catch (error) {
-    return NextResponse.json(
-      { message: error instanceof Error ? error.message : 'Authentication failed' },
-      { status: 401 },
-    );
   }
+
+  const res = NextResponse.json(data);
+
+  res.cookies.set('astra_access_token', data.accessToken, {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',
+    path: '/',
+  });
+
+  res.cookies.set('astra_refresh_token', data.refreshToken, {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',
+    path: '/',
+  });
+
+  return res;
 }
