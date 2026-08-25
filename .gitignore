@@ -59,3 +59,4 @@ astra-backup.sql
 
 # Database backups
 backups/*.sql
+test-cookies*.txt
