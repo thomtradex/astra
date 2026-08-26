@@ -4,13 +4,28 @@ import { NextRequest, NextResponse } from 'next/server';
 import { apiFetch } from '@/lib/api-client';
 import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, buildAuthCookieOptions } from '@/lib/auth';
 
+function getSafeRedirect(request: NextRequest): string {
+  const redirectTo = request.nextUrl.searchParams.get('redirect');
+
+  if (!redirectTo) {
+    return '/session';
+  }
+
+  if (!redirectTo.startsWith('/') || redirectTo.startsWith('//')) {
+    return '/session';
+  }
+
+  return redirectTo;
+}
+
 export async function GET(request: NextRequest) {
   const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE)?.value;
-  const redirectTo = request.nextUrl.searchParams.get('redirect') ?? '/session';
 
   if (!refreshToken) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
+
+  const redirectTo = getSafeRedirect(request);
 
   try {
     const tokens = await apiFetch<AuthTokens>('/auth/refresh', {
@@ -35,8 +50,10 @@ export async function GET(request: NextRequest) {
     return response;
   } catch {
     const response = NextResponse.redirect(new URL('/login', request.url));
+
     response.cookies.delete(ACCESS_TOKEN_COOKIE);
     response.cookies.delete(REFRESH_TOKEN_COOKIE);
+
     return response;
   }
 }
