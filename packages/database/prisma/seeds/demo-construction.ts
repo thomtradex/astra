@@ -176,7 +176,6 @@ async function main() {
     assets.push(asset);
   }
 
-
   // MAINTENANCE PLANS
   for (const asset of assets) {
     await prisma.maintenance_plans.create({
@@ -192,7 +191,6 @@ async function main() {
       },
     });
   }
-
 
   // WORK ORDERS
   const orders = [
@@ -218,7 +216,6 @@ async function main() {
       },
     });
   }
-
 
   console.log('Construction demo created successfully!');
   console.log(`Customers: ${customers.length}`);

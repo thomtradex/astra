@@ -15,17 +15,13 @@ export class StripeProvider implements PaymentProvider {
     const secretKey = process.env.STRIPE_SECRET_KEY;
 
     if (!secretKey) {
-      throw new Error(
-        'STRIPE_SECRET_KEY is required when the Stripe provider is initialized.',
-      );
+      throw new Error('STRIPE_SECRET_KEY is required when the Stripe provider is initialized.');
     }
 
     this.stripe = new Stripe(secretKey);
   }
 
-  async createCheckoutSession(
-    input: CreateCheckoutSessionInput,
-  ): Promise<CheckoutSessionResult> {
+  async createCheckoutSession(input: CreateCheckoutSessionInput): Promise<CheckoutSessionResult> {
     const priceId = this.resolvePriceId(input.planCode);
 
     if (!priceId) {
@@ -80,17 +76,13 @@ export class StripeProvider implements PaymentProvider {
     };
   }
 
-  async cancelSubscriptionAtPeriodEnd(
-    subscriptionId: string,
-  ): Promise<void> {
+  async cancelSubscriptionAtPeriodEnd(subscriptionId: string): Promise<void> {
     await this.stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: true,
     });
   }
 
-  async reactivateSubscription(
-    subscriptionId: string,
-  ): Promise<void> {
+  async reactivateSubscription(subscriptionId: string): Promise<void> {
     await this.stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: false,
     });

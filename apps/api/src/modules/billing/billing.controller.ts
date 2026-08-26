@@ -50,10 +50,7 @@ export class BillingController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: CreateCustomerPortalSessionDto,
   ) {
-    return this.billingService.createCustomerPortalSession(
-      user.organizationId,
-      dto.returnUrl,
-    );
+    return this.billingService.createCustomerPortalSession(user.organizationId, dto.returnUrl);
   }
 
   @Patch('cancel')

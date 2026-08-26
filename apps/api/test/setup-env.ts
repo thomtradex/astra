@@ -45,10 +45,7 @@ const fileEnv = candidates.reduce<Record<string, string>>(
   {},
 );
 
-const databaseUrl =
-  process.env.DATABASE_URL ||
-  fileEnv.DATABASE_URL ||
-  fileEnv.TEST_DATABASE_URL;
+const databaseUrl = process.env.DATABASE_URL || fileEnv.DATABASE_URL || fileEnv.TEST_DATABASE_URL;
 
 if (!databaseUrl) {
   throw new Error(
@@ -56,10 +53,7 @@ if (!databaseUrl) {
   );
 }
 
-if (
-  databaseUrl.includes('CHANGE_ME') ||
-  databaseUrl.includes('CHANGE_PASSWORD')
-) {
+if (databaseUrl.includes('CHANGE_ME') || databaseUrl.includes('CHANGE_PASSWORD')) {
   throw new Error(
     'DATABASE_URL points to a placeholder credential. Configure the local database credentials before running integration tests.',
   );

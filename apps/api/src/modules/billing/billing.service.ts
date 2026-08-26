@@ -224,14 +224,10 @@ export class BillingService {
     const subscription = await this.getSubscription(organizationId);
 
     if (!subscription.providerSubscriptionId) {
-      throw new BadRequestException(
-        'This subscription is not connected to a Stripe subscription.',
-      );
+      throw new BadRequestException('This subscription is not connected to a Stripe subscription.');
     }
 
-    await this.paymentProvider.cancelSubscriptionAtPeriodEnd(
-      subscription.providerSubscriptionId,
-    );
+    await this.paymentProvider.cancelSubscriptionAtPeriodEnd(subscription.providerSubscriptionId);
 
     return this.prisma.subscription.update({
       where: {
@@ -257,14 +253,10 @@ export class BillingService {
     }
 
     if (!subscription.providerSubscriptionId) {
-      throw new BadRequestException(
-        'This subscription is not connected to a Stripe subscription.',
-      );
+      throw new BadRequestException('This subscription is not connected to a Stripe subscription.');
     }
 
-    await this.paymentProvider.reactivateSubscription(
-      subscription.providerSubscriptionId,
-    );
+    await this.paymentProvider.reactivateSubscription(subscription.providerSubscriptionId);
 
     return this.prisma.subscription.update({
       where: {
@@ -280,16 +272,11 @@ export class BillingService {
     });
   }
 
-  async createCustomerPortalSession(
-    organizationId: string,
-    returnUrl: string,
-  ) {
+  async createCustomerPortalSession(organizationId: string, returnUrl: string) {
     const subscription = await this.getSubscription(organizationId);
 
     if (!subscription.providerCustomerId) {
-      throw new BadRequestException(
-        'This organization does not have a Stripe customer yet.',
-      );
+      throw new BadRequestException('This organization does not have a Stripe customer yet.');
     }
 
     return this.paymentProvider.createCustomerPortalSession(

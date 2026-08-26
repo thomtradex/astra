@@ -15,20 +15,11 @@ export interface CheckoutSessionResult {
 }
 
 export interface PaymentProvider {
-  createCheckoutSession(
-    input: CreateCheckoutSessionInput,
-  ): Promise<CheckoutSessionResult>;
+  createCheckoutSession(input: CreateCheckoutSessionInput): Promise<CheckoutSessionResult>;
 
-  createCustomerPortalSession(
-    customerId: string,
-    returnUrl: string,
-  ): Promise<{ url: string }>;
+  createCustomerPortalSession(customerId: string, returnUrl: string): Promise<{ url: string }>;
 
-  cancelSubscriptionAtPeriodEnd(
-    subscriptionId: string,
-  ): Promise<void>;
+  cancelSubscriptionAtPeriodEnd(subscriptionId: string): Promise<void>;
 
-  reactivateSubscription(
-    subscriptionId: string,
-  ): Promise<void>;
+  reactivateSubscription(subscriptionId: string): Promise<void>;
 }

@@ -3,6 +3,7 @@
 Status: 99.2%
 
 ## Authentication
+
 [x] Login
 [x] JWT Access Token
 [x] Refresh Token
@@ -11,12 +12,14 @@ Status: 99.2%
 [x] Protected Sessions
 
 ## Infrastructure
+
 [x] Docker Production Build
 [x] PostgreSQL Healthy
 [x] API Running
 [x] Web Running
 
 ## Remaining
+
 [ ] Production domain
 [ ] HTTPS
 [ ] Full business workflow testing
