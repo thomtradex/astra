@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../../prisma/prisma.service';
 import { SubscriptionStatus } from '@astra/database';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import Stripe from 'stripe';
+
+import { PrismaService } from '../../../prisma/prisma.service';
 
 @Injectable()
 export class BillingWebhookService {
@@ -47,18 +48,18 @@ export class BillingWebhookService {
 
     switch (event.type) {
       case 'checkout.session.completed':
-        await this.handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+        await this.handleCheckoutCompleted(event.data.object);
         break;
 
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted':
-        await this.handleSubscriptionEvent(event.data.object as Stripe.Subscription);
+        await this.handleSubscriptionEvent(event.data.object);
         break;
 
       case 'invoice.paid':
       case 'invoice.payment_failed':
-        await this.handleInvoiceEvent(event.data.object as Stripe.Invoice);
+        await this.handleInvoiceEvent(event.data.object);
         break;
 
       default:

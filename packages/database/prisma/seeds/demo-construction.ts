@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+
 import { PrismaClient } from '@astra/database/client';
 
 const prisma = new PrismaClient();

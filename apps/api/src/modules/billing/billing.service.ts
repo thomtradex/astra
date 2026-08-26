@@ -1,3 +1,4 @@
+import { SubscriptionStatus } from '@astra/database';
 import {
   BadRequestException,
   ConflictException,
@@ -5,9 +6,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { SubscriptionStatus } from '@astra/database';
 
 import { PrismaService } from '../../prisma/prisma.service';
+
 import {
   BillingEntitlements,
   BillingFeatures,

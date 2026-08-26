@@ -19,11 +19,16 @@ export async function login(
   });
 
   if (!response.ok) {
-    const errorBody = await response.json().catch(() => null);
+    const errorBody: unknown = await response.json().catch(() => null);
+    const message =
+      typeof errorBody === 'object' &&
+      errorBody !== null &&
+      'message' in errorBody &&
+      typeof errorBody.message === 'string'
+        ? errorBody.message
+        : 'Invalid credentials';
 
-    throw new Error(
-      errorBody?.message ?? 'Invalid credentials',
-    );
+    throw new Error(message);
   }
 }
 

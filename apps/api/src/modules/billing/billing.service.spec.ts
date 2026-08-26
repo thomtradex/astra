@@ -1,5 +1,6 @@
-import { BillingService } from './billing.service';
 import { SubscriptionStatus } from '@astra/database';
+
+import { BillingService } from './billing.service';
 
 describe('BillingService', () => {
   const prisma = {

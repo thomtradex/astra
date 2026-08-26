@@ -49,7 +49,7 @@ export default tseslint.config(
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        projectService: { allowDefaultProject: ['apps/database/src/schema/intelligence/intelligence.ts'] },
+        projectService: { allowDefaultProject: ['apps/database/src/schema/intelligence/intelligence.ts', 'apps/api/prisma/seeds/demo.ts'] },
         tsconfigRootDir: import.meta.dirname,
       },
       globals: {

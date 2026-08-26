@@ -9,7 +9,7 @@
     "start": "next start --port 3000",
     "clean": "rm -rf .next",
     "typecheck": "tsc --noEmit",
-    "lint": "next lint",
+    "lint": "eslint .",
     "test": "node -e \"process.exit(0)\""
   },
   "dependencies": {
