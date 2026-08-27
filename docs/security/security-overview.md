@@ -34,3 +34,22 @@ Evolução futura:
 - compliance empresarial
 - certificações
 - auditorias externas
+# Astra Security Overview
+
+## Authentication
+
+- JWT authentication
+- Role based access control
+- Organization isolation
+
+## Data Protection
+
+- Tenant isolation
+- Audited operations
+- Protected environment variables
+
+## Reliability
+
+- Automated tests
+- CI validation
+- Production deployment controls

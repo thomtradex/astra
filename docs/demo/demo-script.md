@@ -42,3 +42,44 @@ Propor:
 
 - piloto de 30 dias
 - avaliação de resultados
+# Astra Demo Script
+
+## Cenário
+
+Empresa:
+Construtora Demo Portugal
+
+Utilizador:
+Diretor de Operações
+
+## Fluxo
+
+1. Login na plataforma
+
+2. Criar organização
+
+3. Criar obra:
+- Nome
+- Localização
+- Estado
+
+4. Adicionar ativos:
+- Equipamentos
+- Veículos
+- Máquinas
+
+5. Consultar dashboard:
+
+Mostrar:
+- obras ativas
+- ativos
+- manutenção
+- indicadores
+
+6. Mostrar isolamento multi-tenant
+
+Criar segunda organização e demonstrar separação dos dados.
+
+7. Mostrar auditoria
+
+Explicar rastreabilidade das operações.
