@@ -1,4 +1,5 @@
 import { Controller, Headers, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
+import { Public } from '../../../common/decorators/metadata.decorators';
 import { Request } from 'express';
 
 import { BillingWebhookService } from './billing-webhook.service';
@@ -7,6 +8,7 @@ import { BillingWebhookService } from './billing-webhook.service';
 export class BillingWebhookController {
   constructor(private readonly billingWebhookService: BillingWebhookService) {}
 
+  @Public()
   @Post('stripe')
   @HttpCode(HttpStatus.OK)
   async stripe(
