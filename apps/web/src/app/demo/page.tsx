@@ -2,12 +2,21 @@ import { DemoRequestForm } from '@/components/forms/demo-request-form';
 
 export default function DemoPage() {
   return (
-    <main>
-      <h1>Agendar Demo Astra</h1>
+    <main className="min-h-screen bg-white">
+      <section className="mx-auto max-w-4xl px-6 py-24">
+        <h1 className="text-5xl font-light">
+          Agende uma demonstração Astra
+        </h1>
 
-      <p>Descubra como a Astra pode melhorar a operação da sua empresa.</p>
+        <p className="mt-6 text-lg text-astra-600">
+          Veja como empresas de construção podem reduzir custos,
+          melhorar controlo operacional e tomar decisões melhores.
+        </p>
 
-      <DemoRequestForm />
+        <div className="mt-10 rounded-2xl border p-8">
+          <DemoRequestForm />
+        </div>
+      </section>
     </main>
   );
 }
