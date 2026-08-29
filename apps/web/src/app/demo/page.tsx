@@ -1,3 +1,4 @@
+import { MarketingFooter } from '@/components/marketing/marketing-footer';
 import { MarketingHeader } from '@/components/marketing/marketing-header';
 
 import { DemoRequestForm } from '@/components/forms/demo-request-form';
@@ -20,6 +21,7 @@ export default function DemoPage() {
           <DemoRequestForm />
         </div>
       </section>
+          <MarketingFooter />
     </main>
   );
 }

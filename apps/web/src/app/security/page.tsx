@@ -1,3 +1,4 @@
+import { MarketingFooter } from '@/components/marketing/marketing-footer';
 import { MarketingHeader } from '@/components/marketing/marketing-header';
 
 export default function SecurityPage() {
@@ -15,6 +16,7 @@ export default function SecurityPage() {
           isolamento multi-tenant.
         </p>
       </section>
+          <MarketingFooter />
     </main>
   );
 }

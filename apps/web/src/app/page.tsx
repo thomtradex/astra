@@ -1,3 +1,4 @@
+import { MarketingFooter } from '@/components/marketing/marketing-footer';
 import Link from 'next/link';
 
 import { MarketingHeader } from '@/components/marketing/marketing-header';
@@ -56,6 +57,7 @@ export default function HomePage() {
           </div>
         ))}
       </section>
+          <MarketingFooter />
     </main>
   );
 }
