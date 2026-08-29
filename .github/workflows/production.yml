@@ -3,6 +3,7 @@ name: Astra Production Pipeline
 on:
   push:
     branches:
+      - main
       - release/commercial-ready
       - feat/production-readiness
 
