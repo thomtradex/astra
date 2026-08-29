@@ -11,7 +11,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: 'Astra | Operational Intelligence Platform',
-  description: 'Astra transforma operações de construção com inteligência operacional, gestão de ativos e manutenção preditiva.',
+  description: 'Astra é uma plataforma enterprise de inteligência operacional para construção, ativos, manutenção e equipas.',
   robots: 'index, follow',
 };
 

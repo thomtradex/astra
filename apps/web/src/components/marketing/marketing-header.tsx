@@ -15,6 +15,8 @@ export function MarketingHeader() {
 
           <Link href="/pricing">Pricing</Link>
 
+          <Link href="/contact">Contacto</Link>
+
           <Link href="/demo">
             Demo
           </Link>
