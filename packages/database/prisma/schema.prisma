@@ -21,9 +21,9 @@ model Organization {
   customers         customers[]
   maintenance_plans maintenance_plans[]
   sites             sites[]
+  subscriptions     Subscription[]
   users             User[]
   work_orders       work_orders[]
-  subscriptions     Subscription[]
 
   @@map("organizations")
 }
@@ -228,21 +228,6 @@ model work_orders {
   @@index([organization_id])
 }
 
-enum AuditAction {
-  CREATE
-  READ
-  UPDATE
-  DELETE
-  LOGIN
-  LOGOUT
-  REFRESH
-  ACCESS_DENIED
-  ROLE_ASSIGN
-  ROLE_REMOVE
-  PERMISSION_ASSIGN
-  PERMISSION_REMOVE
-}
-
 model BillingPlan {
   id                String         @id @default(cuid())
   code              String         @unique
@@ -251,12 +236,12 @@ model BillingPlan {
   monthlyPriceCents Int
   currency          String         @default("EUR")
   trialDays         Int            @default(0)
-  limits            Json           @default("{}")
-  features          Json           @default("{}")
-  displayOrder      Int            @default(0) @map("display_order")
   isActive          Boolean        @default(true) @map("is_active")
   createdAt         DateTime       @default(now()) @map("created_at")
   updatedAt         DateTime       @updatedAt @map("updated_at")
+  displayOrder      Int            @default(0) @map("display_order")
+  features          Json           @default("{}")
+  limits            Json           @default("{}")
   subscriptions     Subscription[]
 
   @@map("billing_plans")
@@ -286,6 +271,21 @@ model Subscription {
   @@index([planId])
   @@index([status])
   @@map("subscriptions")
+}
+
+enum AuditAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  REFRESH
+  ACCESS_DENIED
+  ROLE_ASSIGN
+  ROLE_REMOVE
+  PERMISSION_ASSIGN
+  PERMISSION_REMOVE
 }
 
 enum SubscriptionStatus {
