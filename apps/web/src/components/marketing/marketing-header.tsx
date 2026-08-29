@@ -9,6 +9,10 @@ export function MarketingHeader() {
         </Link>
 
         <nav className="flex gap-6 text-sm text-astra-700">
+          <Link href="/features">Features</Link>
+
+          <Link href="/security">Security</Link>
+
           <Link href="/enterprise">
             Enterprise
           </Link>
