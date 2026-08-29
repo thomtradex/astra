@@ -10,9 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Astra',
-  description: 'Operational Intelligence Platform',
-  robots: 'noindex, nofollow',
+  title: 'Astra | Operational Intelligence Platform',
+  description: 'Astra transforma operações de construção com inteligência operacional, gestão de ativos e manutenção preditiva.',
+  robots: 'index, follow',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

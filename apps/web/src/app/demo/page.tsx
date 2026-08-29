@@ -1,8 +1,11 @@
+import { MarketingHeader } from '@/components/marketing/marketing-header';
+
 import { DemoRequestForm } from '@/components/forms/demo-request-form';
 
 export default function DemoPage() {
   return (
     <main className="min-h-screen bg-white">
+      <MarketingHeader />
       <section className="mx-auto max-w-4xl px-6 py-24">
         <h1 className="text-5xl font-light">
           Agende uma demonstração Astra
