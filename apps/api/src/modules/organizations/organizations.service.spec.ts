@@ -230,7 +230,7 @@ describe('OrganizationsService', () => {
     expect(prisma.organization.update).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'org-1' },
-        data: { is_active: true },
+        data: expect.objectContaining({ is_active: true }) as unknown,
       }),
     );
 

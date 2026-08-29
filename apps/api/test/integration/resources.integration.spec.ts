@@ -29,7 +29,7 @@ describe('Resources (integration)', () => {
 
     alphaViewerToken = (await login(app, 'viewer@alpha.test')).accessToken;
 
-    _betaAdminToken = (await login(app, 'admin@beta.test')).accessToken;
+    _betaAdminToken = (await login(app, 'admin@beta.test', 'TestPassword123!', 'org-beta')).accessToken;
   });
 
   afterAll(async () => {

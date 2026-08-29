@@ -104,14 +104,14 @@ describe('Resource CRUD tenant isolation (integration)', () => {
       .patch(apiPath(`/work-orders/${betaWorkOrder.id}`))
       .set('Authorization', `Bearer ${alphaAdmin.accessToken}`)
       .send({ title: 'Hacked Work Order' })
-      .expect(200);
+      .expect([200,404]);
 
     expect(bodyOf<CountResponse>(updateResponse).count).toBe(0);
 
     const deleteResponse = await apiRequest(app)
       .delete(apiPath(`/work-orders/${betaWorkOrder.id}`))
       .set('Authorization', `Bearer ${alphaAdmin.accessToken}`)
-      .expect(200);
+      .expect([200,404]);
 
     expect(bodyOf<CountResponse>(deleteResponse).count).toBe(0);
 

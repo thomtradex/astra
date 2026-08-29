@@ -1,11 +1,12 @@
 import { PERMISSIONS } from '@astra/shared';
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Authenticated, RequirePermissions } from '../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 import { CreateMaintenancePlanDto } from './dto/create-maintenance-plan.dto';
+import { UpdateMaintenancePlanDto } from './dto/update-maintenance-plan.dto';
 import { MaintenanceService } from './maintenance.service';
 
 @Controller('maintenance')
@@ -23,6 +24,26 @@ export class MaintenanceController {
   @RequirePermissions(PERMISSIONS.MAINTENANCE_READ)
   findOne(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.service.findOne(id, user.organizationId);
+  }
+
+
+  @Patch(':id')
+  @RequirePermissions(PERMISSIONS.MAINTENANCE_WRITE)
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateMaintenancePlanDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.service.update(id, dto, user.organizationId);
+  }
+
+  @Delete(':id')
+  @RequirePermissions(PERMISSIONS.MAINTENANCE_WRITE)
+  remove(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.service.remove(id, user.organizationId);
   }
 
   @Post()

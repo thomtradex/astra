@@ -57,7 +57,10 @@ export class WorkOrdersService {
         id,
         organization_id: organizationId,
       },
-      data,
+      data: {
+        ...data,
+        updated_at: new Date(),
+      },
     });
   }
 

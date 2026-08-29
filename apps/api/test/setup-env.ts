@@ -35,6 +35,7 @@ function readEnvFile(filePath: string): Record<string, string> {
 
 const root = path.resolve(__dirname, '../../..');
 const candidates = [
+  path.join(root, '.env.test'),
   path.join(root, '.env'),
   path.join(root, 'packages/database/.env'),
   path.join(root, 'apps/api/.env'),
@@ -45,7 +46,11 @@ const fileEnv = candidates.reduce<Record<string, string>>(
   {},
 );
 
-const databaseUrl = process.env.DATABASE_URL || fileEnv.DATABASE_URL || fileEnv.TEST_DATABASE_URL;
+const databaseUrl =
+  process.env.TEST_DATABASE_URL ||
+  fileEnv.TEST_DATABASE_URL ||
+  process.env.DATABASE_URL ||
+  fileEnv.DATABASE_URL;
 
 if (!databaseUrl) {
   throw new Error(
@@ -59,5 +64,6 @@ if (databaseUrl.includes('CHANGE_ME') || databaseUrl.includes('CHANGE_PASSWORD')
   );
 }
 
+console.log('TEST DATABASE:', databaseUrl);
 process.env.DATABASE_URL = databaseUrl;
 process.env.NODE_ENV = 'test';

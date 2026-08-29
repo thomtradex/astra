@@ -7,13 +7,21 @@ import { PrismaService } from '../../../prisma/prisma.service';
 @Injectable()
 export class BillingWebhookService {
   private readonly logger = new Logger(BillingWebhookService.name);
-  private readonly stripe: Stripe;
+  private readonly stripe?: Stripe;
 
   constructor(private readonly prisma: PrismaService) {
     const secretKey = process.env.STRIPE_SECRET_KEY;
 
     if (!secretKey) {
-      throw new Error('STRIPE_SECRET_KEY is required when billing webhooks are enabled.');
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('STRIPE_SECRET_KEY is required when billing webhooks are enabled.');
+      }
+
+      console.warn(
+        'Stripe webhooks disabled: STRIPE_SECRET_KEY not configured.',
+      );
+
+      return;
     }
 
     this.stripe = new Stripe(secretKey);
@@ -33,7 +41,13 @@ export class BillingWebhookService {
     let event: Stripe.Event;
 
     try {
-      event = this.stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+      const stripe = this.stripe;
+
+      if (!stripe) {
+        throw new Error('Stripe webhook processing is disabled.');
+      }
+
+      event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
     } catch (error) {
       this.logger.warn(
         `Invalid Stripe webhook signature: ${

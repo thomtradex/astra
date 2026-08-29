@@ -57,7 +57,10 @@ export class SitesService {
 
     return this.prisma.sites.update({
       where: { id },
-      data: dto,
+      data: {
+        ...dto,
+        updated_at: new Date(),
+      },
     });
   }
 

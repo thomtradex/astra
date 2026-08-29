@@ -28,7 +28,7 @@ describe('Tenant isolation (integration)', () => {
 
   it('returns only users from the authenticated organization', async () => {
     const alphaAdmin = await login(app, 'admin@alpha.test');
-    const betaAdmin = await login(app, 'admin@beta.test');
+    const betaAdmin = await login(app, 'admin@beta.test', 'TestPassword123!', 'org-beta');
 
     const alphaResponse = await apiRequest(app)
       .get(apiPath('/users'))

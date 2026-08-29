@@ -102,6 +102,31 @@ export async function resetDatabase(prisma: PrismaService): Promise<void> {
   await prisma.organization.deleteMany();
 }
 
+
+
+export async function seedBillingPlans(prisma: PrismaService): Promise<void> {
+  await prisma.billingPlan.upsert({
+    where: {
+      code: 'STARTER',
+    },
+    update: {
+      isActive: true,
+    },
+    create: {
+      code: 'STARTER',
+      name: 'Starter',
+      description: 'Starter plan',
+      monthlyPriceCents: 0,
+      currency: 'EUR',
+      trialDays: 14,
+      isActive: true,
+      displayOrder: 1,
+      features: {},
+      limits: {},
+    },
+  });
+}
+
 export async function seedRolesAndPermissions(
   prisma: PrismaService,
 ): Promise<{ adminRoleId: string; viewerRoleId: string }> {
@@ -170,11 +195,17 @@ export async function login(
   app: INestApplication,
   email: string,
   password = TEST_PASSWORD,
+  organizationSlug = 'org-alpha',
 ): Promise<LoginResponse> {
   const response = await apiRequest(app)
     .post(apiPath('/auth/login'))
-    .send({ email, password })
-    .expect(200);
+    .send({ email, password, organizationSlug })
+    .expect((res) => {
+      if (res.status !== 200) {
+        console.log('LOGIN ERROR BODY:', JSON.stringify(res.body, null, 2));
+      }
+      expect(res.status).toBe(200);
+    });
 
   const body = response.body as LoginResponse;
 

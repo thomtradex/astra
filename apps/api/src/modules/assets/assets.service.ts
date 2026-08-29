@@ -64,7 +64,10 @@ export class AssetsService {
 
     return this.prisma.assets.update({
       where: { id },
-      data: dto,
+      data: {
+        ...dto,
+        updated_at: new Date(),
+      },
     });
   }
 

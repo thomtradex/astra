@@ -156,7 +156,10 @@ export class OrganizationsService {
 
     return this.prisma.organization.update({
       where: { id },
-      data: { is_active: isActive },
+      data: {
+        is_active: isActive,
+        updatedAt: new Date(),
+      },
       select: {
         id: true,
         name: true,

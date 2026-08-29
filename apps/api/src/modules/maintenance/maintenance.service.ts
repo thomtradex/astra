@@ -6,6 +6,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 import { CreateMaintenancePlanDto } from './dto/create-maintenance-plan.dto';
+import { UpdateMaintenancePlanDto } from './dto/update-maintenance-plan.dto';
 
 type MaintenancePlanModel = Prisma.maintenance_plansGetPayload<Record<string, never>>;
 
@@ -37,6 +38,56 @@ export class MaintenanceService {
     }
 
     return plan;
+  }
+
+
+  async update(
+    id: string,
+    dto: UpdateMaintenancePlanDto,
+    organization_id: string,
+  ) {
+    const plan = await this.prisma.maintenance_plans.findFirst({
+      where: {
+        id,
+        organization_id,
+      },
+    });
+
+    if (!plan) {
+      throw new NotFoundException('Maintenance plan not found');
+    }
+
+    return this.prisma.maintenance_plans.update({
+      where: {
+        id,
+      },
+      data: {
+        ...dto,
+        updated_at: new Date(),
+      },
+    });
+  }
+
+  async remove(
+    id: string,
+    organization_id: string,
+  ) {
+    const plan = await this.prisma.maintenance_plans.findFirst({
+      where: {
+        id,
+        organization_id,
+      },
+    });
+
+    if (!plan) {
+      throw new NotFoundException('Maintenance plan not found');
+    }
+
+    return this.prisma.maintenance_plans.delete({
+      where: {
+        id,
+      },
+    });
   }
 
   async create(

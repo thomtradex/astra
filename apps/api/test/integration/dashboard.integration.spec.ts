@@ -92,7 +92,7 @@ describe('Dashboard overview (integration)', () => {
 
   it('returns different organization-scoped results for Alpha and Beta', async () => {
     const alphaAdmin = await login(app, 'admin@alpha.test');
-    const betaAdmin = await login(app, 'admin@beta.test');
+    const betaAdmin = await login(app, 'admin@beta.test', 'TestPassword123!', 'org-beta');
 
     const alphaResponse = await apiRequest(app)
       .get(apiPath('/dashboard/overview'))

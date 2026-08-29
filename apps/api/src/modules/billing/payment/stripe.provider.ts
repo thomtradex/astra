@@ -9,17 +9,25 @@ import {
 
 @Injectable()
 export class StripeProvider implements PaymentProvider {
-  private readonly stripe: Stripe;
+  private readonly stripe?: Stripe;
 
   constructor() {
-    const secretKey = process.env.STRIPE_SECRET_KEY;
+  const secretKey = process.env.STRIPE_SECRET_KEY;
 
-    if (!secretKey) {
-      throw new Error('STRIPE_SECRET_KEY is required when the Stripe provider is initialized.');
+  if (!secretKey) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('STRIPE_SECRET_KEY is required in production.');
     }
 
-    this.stripe = new Stripe(secretKey);
+    console.warn(
+      'Stripe disabled: STRIPE_SECRET_KEY not configured. Running without billing.',
+    );
+
+    return;
   }
+
+  this.stripe = new Stripe(secretKey);
+}
 
   async createCheckoutSession(input: CreateCheckoutSessionInput): Promise<CheckoutSessionResult> {
     const priceId = this.resolvePriceId(input.planCode);
@@ -27,6 +35,12 @@ export class StripeProvider implements PaymentProvider {
     if (!priceId) {
       throw new InternalServerErrorException(
         `No Stripe price configured for plan ${input.planCode}`,
+      );
+    }
+
+    if (!this.stripe) {
+      throw new InternalServerErrorException(
+        'Billing is not configured in this environment.',
       );
     }
 
@@ -66,6 +80,12 @@ export class StripeProvider implements PaymentProvider {
     customerId: string,
     returnUrl: string,
   ): Promise<{ url: string }> {
+    if (!this.stripe) {
+      throw new InternalServerErrorException(
+        'Billing is not configured in this environment.',
+      );
+    }
+
     const session = await this.stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: returnUrl,
@@ -77,12 +97,24 @@ export class StripeProvider implements PaymentProvider {
   }
 
   async cancelSubscriptionAtPeriodEnd(subscriptionId: string): Promise<void> {
+    if (!this.stripe) {
+      throw new InternalServerErrorException(
+        'Billing is not configured in this environment.',
+      );
+    }
+
     await this.stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: true,
     });
   }
 
   async reactivateSubscription(subscriptionId: string): Promise<void> {
+    if (!this.stripe) {
+      throw new InternalServerErrorException(
+        'Billing is not configured in this environment.',
+      );
+    }
+
     await this.stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: false,
     });

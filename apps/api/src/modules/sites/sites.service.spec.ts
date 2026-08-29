@@ -175,7 +175,7 @@ describe('SitesService', () => {
 
       expect(prisma.sites.update).toHaveBeenCalledWith({
         where: { id: 'site-1' },
-        data: { name: 'Updated' },
+        data: expect.objectContaining({ name: 'Updated' }) as unknown,
       });
     });
 

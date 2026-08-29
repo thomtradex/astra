@@ -12,14 +12,18 @@ import { apiPath, createTestApp } from '../helpers/test-app';
 import {
   createUserWithRole,
   resetDatabase,
+  seedBillingPlans,
   seedRolesAndPermissions,
   TEST_PASSWORD,
 } from '../helpers/test-data';
 
 describe('Organizations integration', () => {
+
+
   let app: INestApplication;
   let prisma: PrismaService;
   let token: string;
+  let organizationSlug: string;
 
   const password = TEST_PASSWORD;
 
@@ -30,12 +34,13 @@ describe('Organizations integration', () => {
     prisma = context.prisma;
 
     await resetDatabase(prisma);
+    await seedBillingPlans(prisma);
     const seeded = await seedRolesAndPermissions(prisma);
 
     const organization = await prisma.organization.create({
       data: {
         name: 'Organization Test',
-        slug: 'organization-test',
+        slug: (organizationSlug = `test-org-${Date.now()}`), // 'organization-test',
       },
     });
 
@@ -52,7 +57,7 @@ describe('Organizations integration', () => {
       .send({
         email: 'org-admin@test.local',
         password,
-        organizationSlug: 'organization-test',
+        organizationSlug,
       })
       .then((response) => {
         if (response.status !== 200) {
@@ -77,7 +82,7 @@ describe('Organizations integration', () => {
 
     expect(bodyOf<PaginatedResponse<OrganizationResponse>>(response).items).toHaveLength(1);
     expect(bodyOf<PaginatedResponse<OrganizationResponse>>(response).items[0]?.slug).toBe(
-      'organization-test',
+      organizationSlug,
     );
     expect(bodyOf<PaginatedResponse<OrganizationResponse>>(response).pagination.total).toBe(1);
   });
@@ -88,11 +93,17 @@ describe('Organizations integration', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'Second Organization',
-        slug: 'second-organization',
+        slug: (organizationSlug = `second-organization-${Date.now()}-${Math.random().toString(36).slice(2)}`),
       })
-      .expect(201);
+      .expect((response) => {
+        if (response.status !== 201) {
+          console.log('CREATE ORG ERROR BODY:', JSON.stringify(response.body, null, 2));
+          console.log('CREATE ORG STATUS:', response.status);
+        }
+        expect(response.status).toBe(201);
+      });
 
-    expect(bodyOf<OrganizationResponse>(response).slug).toBe('second-organization');
+    expect(bodyOf<OrganizationResponse>(response).slug).toBe(organizationSlug);
     expect(bodyOf<OrganizationResponse>(response).is_active).toBe(true);
   });
 
@@ -102,14 +113,14 @@ describe('Organizations integration', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'Duplicate',
-        slug: 'organization-test',
+        slug: organizationSlug,
       })
       .expect(409);
   });
 
   it('updates an organization', async () => {
     const organization = await prisma.organization.findUniqueOrThrow({
-      where: { slug: 'second-organization' },
+      where: { slug: organizationSlug },
     });
 
     const response = await apiRequest(app)
@@ -117,17 +128,17 @@ describe('Organizations integration', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'Updated Organization',
-        slug: 'updated-organization',
+        slug: (organizationSlug = `test-org-${Date.now()}`), // 'updated-organization',
       })
       .expect(200);
 
     expect(bodyOf<OrganizationResponse>(response).name).toBe('Updated Organization');
-    expect(bodyOf<OrganizationResponse>(response).slug).toBe('updated-organization');
+    expect(bodyOf<OrganizationResponse>(response).slug).toBe(organizationSlug);
   });
 
   it('toggles organization activity', async () => {
     const organization = await prisma.organization.findUniqueOrThrow({
-      where: { slug: 'updated-organization' },
+      where: { slug: organizationSlug },
     });
 
     const response = await apiRequest(app)
