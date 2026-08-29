@@ -13,6 +13,8 @@ export function MarketingHeader() {
             Enterprise
           </Link>
 
+          <Link href="/pricing">Pricing</Link>
+
           <Link href="/demo">
             Demo
           </Link>
