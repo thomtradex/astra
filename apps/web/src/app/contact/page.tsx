@@ -1,5 +1,5 @@
-import { MarketingFooter } from '@/components/marketing/marketing-footer';
 import { DemoRequestForm } from '@/components/forms/demo-request-form';
+import { MarketingFooter } from '@/components/marketing/marketing-footer';
 import { MarketingHeader } from '@/components/marketing/marketing-header';
 
 export default function ContactPage() {

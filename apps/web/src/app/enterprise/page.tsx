@@ -1,7 +1,8 @@
+import Link from 'next/link';
+
 import { MarketingFooter } from '@/components/marketing/marketing-footer';
 import { MarketingHeader } from '@/components/marketing/marketing-header';
 
-import Link from 'next/link';
 
 export default function EnterprisePage() {
   return (
