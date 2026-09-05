@@ -15,3 +15,9 @@ export const SKIP_AUDIT_KEY = 'skipAudit';
 export const SkipAudit = () => SetMetadata(SKIP_AUDIT_KEY, true);
 
 export const CURRENT_USER_KEY = 'currentUser';
+
+
+export const AUTHORIZATION_POLICY_KEY = 'authorization_policy';
+
+export const RequirePolicy = (policyName: string): MethodDecorator =>
+  SetMetadata(AUTHORIZATION_POLICY_KEY, policyName);

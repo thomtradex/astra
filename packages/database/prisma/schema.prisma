@@ -13,6 +13,8 @@ model Organization {
   id                String              @id @default(cuid())
   name              String
   slug              String              @unique
+  employees         Int?
+  preference        String?
   is_active         Boolean             @default(true)
   createdAt         DateTime            @default(now()) @map("created_at")
   updatedAt         DateTime            @updatedAt @map("updated_at")
@@ -21,6 +23,7 @@ model Organization {
   customers         customers[]
   maintenance_plans maintenance_plans[]
   sites             sites[]
+  projects          projects[]
   subscriptions     Subscription[]
   users             User[]
   work_orders       work_orders[]
@@ -31,6 +34,7 @@ model Organization {
 model User {
   id             String         @id @default(cuid())
   email          String
+  username       String?
   passwordHash   String         @map("password_hash")
   firstName      String         @map("first_name")
   lastName       String         @map("last_name")
@@ -46,8 +50,10 @@ model User {
   work_orders    work_orders[]
 
   @@unique([organizationId, email])
+  @@unique([organizationId, username])
   @@index([organizationId])
   @@index([email])
+  @@index([username])
   @@map("users")
 }
 
@@ -136,6 +142,34 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+model projects {
+  id              String    @id
+  organization_id String
+  customer_id     String?
+  site_id         String?
+  code            String
+  name            String
+  description     String?
+  status          String    @default("PLANNING")
+  progress        Int       @default(0)
+  budget_cents    Int?
+  start_date      DateTime?
+  end_date        DateTime?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  organizations Organization  @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  customer      customers?    @relation(fields: [customer_id], references: [id], onDelete: SetNull)
+  site          sites?        @relation(fields: [site_id], references: [id], onDelete: SetNull)
+  work_orders   work_orders[]
+
+  @@unique([organization_id, code])
+  @@index([organization_id])
+  @@index([customer_id])
+  @@index([site_id])
+  @@index([organization_id, status])
+}
+
 model assets {
   id                String              @id
   name              String
@@ -167,6 +201,7 @@ model customers {
   created_at      DateTime     @default(now())
   updated_at      DateTime
   organizations   Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  projects        projects[]
 
   @@unique([organization_id, code])
   @@index([organization_id])
@@ -203,29 +238,34 @@ model sites {
   updated_at      DateTime
   assets          assets[]
   organizations   Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  projects        projects[]
 
   @@unique([organization_id, code])
   @@index([organization_id])
 }
 
 model work_orders {
-  id              String       @id
+  id              String   @id
   title           String
   description     String?
-  status          String       @default("OPEN")
-  priority        String       @default("MEDIUM")
+  status          String   @default("OPEN")
+  priority        String   @default("MEDIUM")
   organization_id String
+  project_id      String?
   asset_id        String?
   assigned_to_id  String?
-  created_at      DateTime     @default(now())
+  created_at      DateTime @default(now())
   updated_at      DateTime
-  assets          assets?      @relation(fields: [asset_id], references: [id])
-  users           User?        @relation(fields: [assigned_to_id], references: [id])
-  organizations   Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  assets          assets?  @relation(fields: [asset_id], references: [id])
+  users           User?    @relation(fields: [assigned_to_id], references: [id])
+
+  project       projects?    @relation(fields: [project_id], references: [id], onDelete: SetNull)
+  organizations Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
 
   @@index([asset_id])
   @@index([assigned_to_id])
   @@index([organization_id])
+  @@index([project_id])
 }
 
 model BillingPlan {
@@ -271,6 +311,28 @@ model Subscription {
   @@index([planId])
   @@index([status])
   @@map("subscriptions")
+}
+
+model EnterpriseRequest {
+  id           String   @id @default(cuid())
+  company      String
+  email        String
+  projects     String?
+  users        String?
+  companySize  String?  @map("company_size")
+  capacity     String?
+  features     String?
+  integrations String?
+  support      String?
+  needs        String
+  status       String   @default("NEW")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+  @@map("enterprise_requests")
 }
 
 enum AuditAction {

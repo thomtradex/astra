@@ -19,6 +19,7 @@ export interface PaymentProvider {
 
   createCustomerPortalSession(customerId: string, returnUrl: string): Promise<{ url: string }>;
 
+  changeSubscriptionPlan(subscriptionId: string, planCode: string, prorationBehavior?: 'always_invoice' | 'none'): Promise<void>;
   cancelSubscriptionAtPeriodEnd(subscriptionId: string): Promise<void>;
 
   reactivateSubscription(subscriptionId: string): Promise<void>;

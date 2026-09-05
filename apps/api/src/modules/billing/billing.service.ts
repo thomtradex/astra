@@ -55,6 +55,53 @@ export class BillingService {
     return subscription;
   }
 
+  async ensureFreeSubscription(organizationId: string) {
+    const existing = await this.prisma.subscription.findFirst({
+      where: {
+        organizationId,
+        status: {
+          in: [SubscriptionStatus.TRIALING, SubscriptionStatus.ACTIVE, SubscriptionStatus.PAST_DUE],
+        },
+      },
+      include: {
+        plan: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    if (existing) {
+      return existing;
+    }
+
+    const free = await this.prisma.billingPlan.findUnique({
+      where: {
+        code: 'FREE',
+      },
+    });
+
+    if (!free || !free.isActive || free.monthlyPriceCents !== 0) {
+      throw new ConflictException('FREE billing plan is not available');
+    }
+
+    const now = new Date();
+
+    return this.prisma.subscription.create({
+      data: {
+        organizationId,
+        planId: free.id,
+        status: SubscriptionStatus.ACTIVE,
+        currentPeriodStart: now,
+        currentPeriodEnd: new Date('2099-12-31T23:59:59.999Z'),
+        cancelAtPeriodEnd: false,
+      },
+      include: {
+        plan: true,
+      },
+    });
+  }
+
   async ensureTrialSubscription(organizationId: string) {
     const existing = await this.prisma.subscription.findFirst({
       where: {
@@ -107,7 +154,29 @@ export class BillingService {
   }
 
   async getEntitlements(organizationId: string): Promise<BillingEntitlements> {
-    const subscription = await this.getSubscription(organizationId);
+    let subscription;
+
+    try {
+      subscription = await this.getSubscription(organizationId);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        const freeSubscription = await this.ensureFreeSubscription(organizationId);
+
+        return {
+          plan: {
+            id: freeSubscription.plan.id,
+            code: freeSubscription.plan.code,
+            name: freeSubscription.plan.name,
+            monthlyPriceCents: freeSubscription.plan.monthlyPriceCents,
+            currency: freeSubscription.plan.currency,
+          },
+          limits: freeSubscription.plan.limits as BillingLimits,
+          features: freeSubscription.plan.features as BillingFeatures,
+        };
+      }
+
+      throw error;
+    }
 
     if (
       subscription.status === SubscriptionStatus.TRIALING &&
@@ -116,9 +185,19 @@ export class BillingService {
     ) {
       await this.expireSubscription(subscription.id);
 
-      throw new BadRequestException(
-        'Your free trial has expired. Please choose a paid plan to continue.',
-      );
+      const freeSubscription = await this.ensureFreeSubscription(organizationId);
+
+      return {
+        plan: {
+          id: freeSubscription.plan.id,
+          code: freeSubscription.plan.code,
+          name: freeSubscription.plan.name,
+          monthlyPriceCents: freeSubscription.plan.monthlyPriceCents,
+          currency: freeSubscription.plan.currency,
+        },
+        limits: freeSubscription.plan.limits as BillingLimits,
+        features: freeSubscription.plan.features as BillingFeatures,
+      };
     }
 
     return {
@@ -197,13 +276,30 @@ export class BillingService {
       throw new NotFoundException('Billing plan not found');
     }
 
+    if (plan.code === 'FREE') {
+      throw new BadRequestException(
+        'FREE does not use Stripe Checkout. Use the free-plan activation flow.',
+      );
+    }
+
     if (plan.monthlyPriceCents <= 0) {
       throw new BadRequestException('A paid Stripe checkout is not available for this plan.');
     }
 
-    const subscription = await this.getSubscription(organizationId);
+    const subscription = await this.prisma.subscription.findFirst({
+      where: {
+        organizationId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
-    if (subscription.status === SubscriptionStatus.ACTIVE && subscription.planId === plan.id) {
+    if (
+      subscription &&
+      subscription.status === SubscriptionStatus.ACTIVE &&
+      subscription.planId === plan.id
+    ) {
       throw new ConflictException('The organization is already subscribed to this plan.');
     }
 
@@ -213,11 +309,100 @@ export class BillingService {
       planCode: normalizedPlanCode,
       customerEmail,
       successUrl: process.env.BILLING_SUCCESS_URL || 'http://localhost:3000/billing/success',
-      cancelUrl: process.env.BILLING_CANCEL_URL || 'http://localhost:3000/billing',
-      trialDays: 14,
+      cancelUrl: process.env.BILLING_CANCEL_URL || 'http://localhost:3000/billing/cancel',
+      trialDays: plan.code === 'STARTER' ? plan.trialDays : 0,
     });
 
     return result;
+  }
+
+  async changePlan(organizationId: string, planCode: string) {
+    const normalizedPlanCode = planCode.toUpperCase();
+
+    const targetPlan = await this.prisma.billingPlan.findUnique({
+      where: {
+        code: normalizedPlanCode,
+      },
+    });
+
+    if (!targetPlan || !targetPlan.isActive) {
+      throw new NotFoundException('Billing plan not found');
+    }
+
+    if (targetPlan.code === 'FREE') {
+      throw new BadRequestException(
+        'FREE cannot be selected through paid subscription plan changes.',
+      );
+    }
+
+    const subscription = await this.getSubscription(organizationId);
+
+    if (
+      subscription.planId === targetPlan.id &&
+      subscription.status !== SubscriptionStatus.EXPIRED
+    ) {
+      throw new ConflictException('The organization is already subscribed to this plan.');
+    }
+
+    if (!subscription.providerSubscriptionId) {
+      throw new BadRequestException(
+        'This subscription is not connected to a Stripe subscription.',
+      );
+    }
+
+    const currentPlanCode = subscription.plan.code;
+
+    if (currentPlanCode === 'FREE') {
+      throw new BadRequestException(
+        'Free subscriptions must use Checkout to start a paid subscription.',
+      );
+    }
+
+    const originalTrialEnd = subscription.trialEnd;
+
+    const currentPrice = subscription.plan.monthlyPriceCents;
+    const targetPrice = targetPlan.monthlyPriceCents;
+
+    const isCurrentlyTrialing =
+      subscription.status === SubscriptionStatus.TRIALING &&
+      !!originalTrialEnd &&
+      originalTrialEnd > new Date();
+
+    const isUpgrade = targetPrice > currentPrice;
+    const isDowngrade = targetPrice < currentPrice;
+
+    const prorationBehavior =
+      isCurrentlyTrialing
+        ? 'none'
+        : isDowngrade
+          ? 'none'
+          : isUpgrade
+            ? 'always_invoice'
+            : 'none';
+
+    await this.paymentProvider.changeSubscriptionPlan(
+      subscription.providerSubscriptionId,
+      normalizedPlanCode,
+      prorationBehavior,
+    );
+
+    return this.prisma.subscription.update({
+      where: {
+        id: subscription.id,
+      },
+      data: {
+        planId: targetPlan.id,
+        cancelAtPeriodEnd: false,
+        canceledAt: null,
+        status: isCurrentlyTrialing
+          ? SubscriptionStatus.TRIALING
+          : SubscriptionStatus.ACTIVE,
+        trialEnd: isCurrentlyTrialing ? originalTrialEnd : null,
+      },
+      include: {
+        plan: true,
+      },
+    });
   }
 
   async cancelAtPeriodEnd(organizationId: string) {

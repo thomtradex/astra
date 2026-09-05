@@ -12,22 +12,20 @@ export class StripeProvider implements PaymentProvider {
   private readonly stripe?: Stripe;
 
   constructor() {
-  const secretKey = process.env.STRIPE_SECRET_KEY;
+    const secretKey = process.env.STRIPE_SECRET_KEY;
 
-  if (!secretKey) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('STRIPE_SECRET_KEY is required in production.');
+    if (!secretKey) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('STRIPE_SECRET_KEY is required in production.');
+      }
+
+      console.warn('Stripe disabled: STRIPE_SECRET_KEY not configured. Running without billing.');
+
+      return;
     }
 
-    console.warn(
-      'Stripe disabled: STRIPE_SECRET_KEY not configured. Running without billing.',
-    );
-
-    return;
+    this.stripe = new Stripe(secretKey);
   }
-
-  this.stripe = new Stripe(secretKey);
-}
 
   async createCheckoutSession(input: CreateCheckoutSessionInput): Promise<CheckoutSessionResult> {
     const priceId = this.resolvePriceId(input.planCode);
@@ -39,13 +37,12 @@ export class StripeProvider implements PaymentProvider {
     }
 
     if (!this.stripe) {
-      throw new InternalServerErrorException(
-        'Billing is not configured in this environment.',
-      );
+      throw new InternalServerErrorException('Billing is not configured in this environment.');
     }
 
     const session = await this.stripe.checkout.sessions.create({
       mode: 'subscription',
+      payment_method_collection: 'always',
       customer_email: input.customerEmail,
       line_items: [
         {
@@ -53,13 +50,17 @@ export class StripeProvider implements PaymentProvider {
           quantity: 1,
         },
       ],
-      subscription_data: {
-        trial_period_days: input.trialDays,
-        metadata: {
-          organizationId: input.organizationId,
-          planCode: input.planCode,
-        },
-      },
+      ...(input.trialDays > 0
+        ? {
+            subscription_data: {
+              trial_period_days: input.trialDays,
+              metadata: {
+                organizationId: input.organizationId,
+                planCode: input.planCode,
+              },
+            },
+          }
+        : {}),
       metadata: {
         organizationId: input.organizationId,
         planCode: input.planCode,
@@ -81,9 +82,7 @@ export class StripeProvider implements PaymentProvider {
     returnUrl: string,
   ): Promise<{ url: string }> {
     if (!this.stripe) {
-      throw new InternalServerErrorException(
-        'Billing is not configured in this environment.',
-      );
+      throw new InternalServerErrorException('Billing is not configured in this environment.');
     }
 
     const session = await this.stripe.billingPortal.sessions.create({
@@ -96,11 +95,47 @@ export class StripeProvider implements PaymentProvider {
     };
   }
 
+  async changeSubscriptionPlan(
+    subscriptionId: string,
+    planCode: string,
+    prorationBehavior: 'always_invoice' | 'none' = 'always_invoice',
+  ): Promise<void> {
+    if (!this.stripe) {
+      throw new InternalServerErrorException('Billing isnot configured in this environment.');
+    }
+
+    const priceId = this.resolvePriceId(planCode);
+
+    if (!priceId) {
+      throw new InternalServerErrorException(
+        `No Stripe price configured for plan ${planCode}`,
+      );
+    }
+
+    const subscription = await this.stripe.subscriptions.retrieve(subscriptionId);
+
+    const subscriptionItem = subscription.items.data[0];
+
+    if (!subscriptionItem) {
+      throw new InternalServerErrorException(
+        'Stripe subscription has no subscription items.',
+      );
+    }
+
+    await this.stripe.subscriptions.update(subscriptionId, {
+      items: [
+        {
+          id: subscriptionItem.id,
+          price: priceId,
+        },
+      ],
+      proration_behavior: prorationBehavior,
+    });
+  }
+
   async cancelSubscriptionAtPeriodEnd(subscriptionId: string): Promise<void> {
     if (!this.stripe) {
-      throw new InternalServerErrorException(
-        'Billing is not configured in this environment.',
-      );
+      throw new InternalServerErrorException('Billing is not configured in this environment.');
     }
 
     await this.stripe.subscriptions.update(subscriptionId, {
@@ -110,9 +145,7 @@ export class StripeProvider implements PaymentProvider {
 
   async reactivateSubscription(subscriptionId: string): Promise<void> {
     if (!this.stripe) {
-      throw new InternalServerErrorException(
-        'Billing is not configured in this environment.',
-      );
+      throw new InternalServerErrorException('Billing is not configured in this environment.');
     }
 
     await this.stripe.subscriptions.update(subscriptionId, {

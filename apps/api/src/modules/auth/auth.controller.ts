@@ -8,12 +8,24 @@ import { Public, Authenticated } from '../../common/decorators/metadata.decorato
 
 import { AuthService } from './auth.service';
 import { LoginDto, LogoutDto, RefreshTokenDto } from './dto/auth.dto';
+import { RegisterDto } from './dto/register.dto';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Public()
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a company and administrator account' })
+  register(@Body() dto: RegisterDto, @Req() req: Request): Promise<AuthTokens> {
+    return this.authService.register(dto, {
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
+  }
 
   @Public()
   @Post('login')

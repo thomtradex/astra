@@ -95,9 +95,16 @@ async function seedOrganizationAndAdmin(roleMap: Map<string, string>): Promise<v
         email: DEFAULT_ADMIN.email,
       },
     },
-    update: {},
+    update: {
+      username: 'admin',
+      passwordHash,
+      firstName: DEFAULT_ADMIN.firstName,
+      lastName: DEFAULT_ADMIN.lastName,
+      isActive: true,
+    },
     create: {
       email: DEFAULT_ADMIN.email,
+      username: 'admin',
       passwordHash,
       firstName: DEFAULT_ADMIN.firstName,
       lastName: DEFAULT_ADMIN.lastName,

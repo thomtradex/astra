@@ -16,6 +16,50 @@ type BillingPlanSeed = {
 
 const PLANS: BillingPlanSeed[] = [
   {
+    code: 'FREE',
+    name: 'Free',
+    description:
+      'Acesso gratuito e permanente à Astra para começar a organizar a operação.',
+    monthlyPriceCents: 0,
+    currency: 'EUR',
+    trialDays: 0,
+    displayOrder: 0,
+
+    limits: {
+      users: 2,
+      sites: 1,
+      customers: 25,
+      assets: 50,
+      workOrdersPerMonth: 100,
+      maintenancePlans: 25,
+      aiRequestsPerMonth: 25,
+      reportsPerMonth: 5,
+      storageGb: 1,
+    },
+
+    features: {
+      dashboard: true,
+      customerManagement: true,
+      siteManagement: true,
+      assetManagement: true,
+      workOrderManagement: true,
+      maintenanceManagement: true,
+      basicReports: true,
+      aiAssistant: true,
+      forecasting: false,
+      intelligence: false,
+      advancedAnalytics: false,
+      apiAccess: false,
+      auditLogs: false,
+      customRoles: false,
+      prioritySupport: false,
+      dedicatedSupport: false,
+      multiSiteOperations: false,
+      advancedAutomation: false,
+    },
+  },
+
+  {
     code: 'STARTER',
     name: 'Starter',
     description:
@@ -66,7 +110,7 @@ const PLANS: BillingPlanSeed[] = [
       'Para empresas de construção em crescimento que precisam de operações mais avançadas, automação e inteligência para tomar melhores decisões.',
     monthlyPriceCents: 24900,
     currency: 'EUR',
-    trialDays: 14,
+    trialDays: 0,
     displayOrder: 2,
 
     limits: {
@@ -90,16 +134,16 @@ const PLANS: BillingPlanSeed[] = [
       maintenanceManagement: true,
       basicReports: true,
       aiAssistant: true,
-      forecasting: true,
+      forecasting: false,
       intelligence: true,
-      advancedAnalytics: true,
-      apiAccess: true,
+      advancedAnalytics: false,
+      apiAccess: false,
       auditLogs: true,
-      customRoles: true,
+      customRoles: false,
       prioritySupport: true,
       dedicatedSupport: false,
       multiSiteOperations: true,
-      advancedAutomation: true,
+      advancedAutomation: false,
     },
   },
 
@@ -110,7 +154,7 @@ const PLANS: BillingPlanSeed[] = [
       'Para organizações de construção com operações complexas, múltiplas equipas e necessidade de máxima escala, controlo e inteligência operacional.',
     monthlyPriceCents: 59900,
     currency: 'EUR',
-    trialDays: 14,
+    trialDays: 0,
     displayOrder: 3,
 
     limits: {
@@ -134,25 +178,25 @@ const PLANS: BillingPlanSeed[] = [
       maintenanceManagement: true,
       basicReports: true,
       aiAssistant: true,
-      forecasting: true,
+      forecasting: false,
       intelligence: true,
-      advancedAnalytics: true,
-      apiAccess: true,
+      advancedAnalytics: false,
+      apiAccess: false,
       auditLogs: true,
-      customRoles: true,
+      customRoles: false,
       prioritySupport: true,
       dedicatedSupport: true,
       multiSiteOperations: true,
-      advancedAutomation: true,
-      enterpriseSecurity: true,
-      advancedIntegrations: true,
-      customWorkflows: true,
+      advancedAutomation: false,
+      enterpriseSecurity: false,
+      advancedIntegrations: false,
+      customWorkflows: false,
     },
   },
 ];
 
 async function seedBillingPlans(): Promise<void> {
-  console.info('Seeding professional billing plans...');
+  console.info('Seeding Astra billing plans...');
 
   for (const plan of PLANS) {
     const record = await prisma.billingPlan.upsert({
@@ -193,8 +237,8 @@ async function main(): Promise<void> {
 
   console.info('');
   console.info('Billing plan seed completed.');
-  console.info('Plans: STARTER / PROFESSIONAL / ENTERPRISE');
-  console.info('Trial: 14 days');
+  console.info('Plans: FREE / STARTER / PROFESSIONAL / ENTERPRISE');
+  console.info('Trial: STARTER only, 14 days');
 }
 
 main()

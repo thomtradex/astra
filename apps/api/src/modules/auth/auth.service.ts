@@ -1,16 +1,18 @@
 import { createHash, randomBytes } from 'crypto';
 
 import { AuditAction } from '@astra/database';
-import { AuthTokens, JwtAccessPayload, Permission, SystemRole } from '@astra/shared';
+import { AuthTokens, JwtAccessPayload, Permission, SystemRole, SYSTEM_ROLES } from '@astra/shared';
 import { Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import { BillingService } from '../billing/billing.service';
 import { AuditService } from '../audit/audit.service';
 
 import { LoginDto } from './dto/auth.dto';
+import { RegisterDto } from './dto/register.dto';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 
 interface RequestContext {
@@ -21,15 +23,174 @@ interface RequestContext {
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly billingService: BillingService,
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly auditService: AuditService,
   ) {}
 
+  async register(dto: RegisterDto, context: RequestContext): Promise<AuthTokens> {
+    const companyName = dto.companyName.trim();
+    const firstName = dto.firstName.trim();
+    const lastName = dto.lastName.trim();
+    const email = dto.email.trim().toLowerCase();
+
+    if (!companyName || !firstName || !lastName || !email) {
+      throw new ForbiddenException('Registration data is invalid');
+    }
+
+    const usernameBase = (
+      dto.username?.trim().toLowerCase() ||
+      `${firstName}.${lastName}`
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9._-]/g, '')
+    ).slice(0, 48);
+
+    if (!usernameBase) {
+      throw new ForbiddenException('Unable to create username');
+    }
+
+    const slugBase =
+      companyName
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 48) || 'empresa';
+
+    const passwordHash = await bcrypt.hash(dto.password, 12);
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      const existingEmail = await tx.user.findFirst({
+        where: { email },
+        select: { id: true },
+      });
+
+      if (existingEmail) {
+        throw new ForbiddenException('Este email já está registado.');
+      }
+
+      let slug = slugBase;
+      let suffix = 2;
+
+      while (await tx.organization.findUnique({ where: { slug }, select: { id: true } })) {
+        slug = `${slugBase}-${suffix}`;
+        suffix += 1;
+      }
+
+      let username = usernameBase;
+      let usernameSuffix = 2;
+
+      while (
+        await tx.user.findFirst({
+          where: { username },
+          select: { id: true },
+        })
+      ) {
+        username = `${usernameBase}-${usernameSuffix}`;
+        usernameSuffix += 1;
+      }
+
+      const adminRole = await tx.role.findUnique({
+        where: { name: SYSTEM_ROLES.ADMIN },
+        select: { id: true },
+      });
+
+      if (!adminRole) {
+        throw new ForbiddenException('Admin role is not configured.');
+      }
+
+      const organization = await tx.organization.create({
+        data: {
+          name: companyName,
+          slug,
+        },
+      });
+
+      const user = await tx.user.create({
+        data: {
+          email,
+          username,
+          passwordHash,
+          firstName,
+          lastName,
+          organizationId: organization.id,
+          isActive: true,
+        },
+      });
+
+      await tx.userRole.create({
+        data: {
+          userId: user.id,
+          roleId: adminRole.id,
+        },
+      });
+
+      const completeUser = await tx.user.findUniqueOrThrow({
+        where: { id: user.id },
+        include: {
+          roles: {
+            include: {
+              role: {
+                include: {
+                  permissions: {
+                    include: { permission: true },
+                  },
+                },
+              },
+            },
+          },
+          organization: true,
+        },
+      });
+
+      return completeUser;
+    });
+
+    const authenticatedUser = this.mapToAuthenticatedUser(result);
+    const tokens = await this.issueTokens(authenticatedUser, context);
+
+    await this.auditService.log({
+      organizationId: result.organizationId,
+      actorId: result.id,
+      action: AuditAction.CREATE,
+      resource: 'auth',
+      resourceId: result.id,
+      method: 'POST',
+      path: '/auth/register',
+      ipAddress: context.ipAddress,
+      userAgent: context.userAgent,
+      statusCode: 201,
+      metadata: {
+        email: result.email,
+        organizationId: result.organizationId,
+      },
+    });
+
+    await this.billingService.ensureFreeSubscription(result.organizationId);
+
+    return tokens;
+  }
+
   async login(dto: LoginDto, context: RequestContext): Promise<AuthTokens> {
-    const email = dto.email.toLowerCase();
-    const user = await this.resolveUserForLogin(email, dto.organizationSlug);
+    const identifier = (
+      dto.identifier ??
+      dto.username ??
+      dto.email ??
+      ''
+    ).trim().toLowerCase();
+
+    if (!identifier) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const user = await this.resolveUserForLogin(
+      identifier,
+      dto.organizationSlug,
+    );
 
     if (!user || !user.isActive || !user.organization.is_active) {
       throw new UnauthorizedException('Invalid credentials');
@@ -48,7 +209,7 @@ export class AuthService {
         ipAddress: context.ipAddress,
         userAgent: context.userAgent,
         statusCode: 401,
-        metadata: { email: dto.email, success: false },
+        metadata: { identifier, success: false },
       });
 
       throw new UnauthorizedException('Invalid credentials');
@@ -278,54 +439,66 @@ export class AuthService {
     };
   }
 
-  private async resolveUserForLogin(email: string, organizationSlug?: string) {
-    const include = {
-      roles: {
-        include: {
-          role: {
-            include: {
-              permissions: {
-                include: { permission: true },
+  private async resolveUserForLogin(
+    identifier: string,
+    organizationSlug?: string,
+  ) {
+    const users = await this.prisma.user.findMany({
+      where: {
+        OR: [
+          { email: identifier },
+          { username: identifier },
+        ],
+      },
+      include: {
+        organization: true,
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: {
+                  include: {
+                    permission: true,
+                  },
+                },
               },
             },
           },
         },
       },
-      organization: true,
-    } as const;
-
-    if (organizationSlug) {
-      return this.prisma.user.findFirst({
-        where: {
-          email,
-          organization: { slug: organizationSlug.toLowerCase() },
-        },
-        include,
-      });
-    }
-
-    const matches = await this.prisma.user.findMany({
-      where: { email },
-      include,
-      take: 2,
     });
 
-    if (matches.length === 0) {
-      return null;
+    if (organizationSlug) {
+      const filtered = users.filter(
+        (user) => user.organization.slug === organizationSlug,
+      );
+
+      if (filtered.length === 1) {
+        return filtered[0];
+      }
+
+      if (filtered.length > 1) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
     }
 
-    if (matches.length > 1) {
+    if (users.length === 1) {
+      return users[0];
+    }
+
+    if (users.length > 1) {
       throw new UnauthorizedException(
-        'Multiple accounts found for this email. Specify the organization slug.',
+        'Multiple accounts found. Specify the organization slug.',
       );
     }
 
-    return matches[0] ?? null;
+    throw new UnauthorizedException('Invalid credentials');
   }
 
   private mapToAuthenticatedUser(user: {
     id: string;
     email: string;
+    username?: string | null;
     organizationId: string;
     roles: Array<{
       role: {
@@ -342,6 +515,7 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
+      username: user.username ?? undefined,
       organizationId: user.organizationId,
       roles,
       permissions,

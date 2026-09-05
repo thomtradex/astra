@@ -17,9 +17,7 @@ export class BillingWebhookService {
         throw new Error('STRIPE_SECRET_KEY is required when billing webhooks are enabled.');
       }
 
-      console.warn(
-        'Stripe webhooks disabled: STRIPE_SECRET_KEY not configured.',
-      );
+      console.warn('Stripe webhooks disabled: STRIPE_SECRET_KEY not configured.');
 
       return;
     }
@@ -114,22 +112,72 @@ export class BillingWebhookService {
       return;
     }
 
-    await this.prisma.subscription.updateMany({
+    const existing = await this.prisma.subscription.findFirst({
       where: {
         organizationId,
-      },
-      data: {
         provider: 'stripe',
-        providerCustomerId: stripeCustomerId,
         providerSubscriptionId: stripeSubscriptionId,
-        planId: plan.id,
-        status: SubscriptionStatus.ACTIVE,
-        trialStart: null,
-        trialEnd: null,
-        cancelAtPeriodEnd: false,
-        canceledAt: null,
       },
     });
+
+    if (existing) {
+      await this.prisma.subscription.update({
+        where: {
+          id: existing.id,
+        },
+        data: {
+          provider: 'stripe',
+          providerCustomerId: stripeCustomerId,
+          providerSubscriptionId: stripeSubscriptionId,
+          planId: plan.id,
+        },
+      });
+    } else {
+      const latest = await this.prisma.subscription.findFirst({
+        where: {
+          organizationId,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      if (latest) {
+        await this.prisma.subscription.update({
+          where: {
+            id: latest.id,
+          },
+          data: {
+            provider: 'stripe',
+            providerCustomerId: stripeCustomerId,
+            providerSubscriptionId: stripeSubscriptionId,
+            planId: plan.id,
+          },
+        });
+      } else {
+        const now = new Date();
+
+        await this.prisma.subscription.create({
+          data: {
+            organizationId,
+            planId: plan.id,
+            status: session.status === 'complete'
+              ? SubscriptionStatus.ACTIVE
+              : SubscriptionStatus.TRIALING,
+            currentPeriodStart: now,
+            currentPeriodEnd: new Date('2099-12-31T23:59:59.999Z'),
+            trialStart: plan.trialDays > 0 ? now : null,
+            trialEnd: plan.trialDays > 0
+              ? new Date(now.getTime() + plan.trialDays * 24 * 60 * 60 * 1000)
+              : null,
+            cancelAtPeriodEnd: false,
+            provider: 'stripe',
+            providerCustomerId: stripeCustomerId,
+            providerSubscriptionId: stripeSubscriptionId,
+          },
+        });
+      }
+    }
 
     this.logger.log(`Checkout ${session.id} synchronized for organization ${organizationId}`);
   }
@@ -171,19 +219,29 @@ export class BillingWebhookService {
         })
       : null;
 
-    const existing = await this.prisma.subscription.findFirst({
+    const existingByProvider = await this.prisma.subscription.findFirst({
       where: {
-        organizationId,
-      },
-      orderBy: {
-        createdAt: 'desc',
+        provider: 'stripe',
+        providerSubscriptionId: stripeSubscription.id,
       },
     });
 
-    if (!existing) {
-      this.logger.warn(`No local subscription found for organization ${organizationId}`);
-      return;
-    }
+    const existing = existingByProvider
+      ?? await this.prisma.subscription.findFirst({
+        where: {
+          organizationId,
+          status: {
+            in: [
+              SubscriptionStatus.TRIALING,
+              SubscriptionStatus.ACTIVE,
+              SubscriptionStatus.PAST_DUE,
+            ],
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
 
     const customerId =
       typeof stripeSubscription.customer === 'string'
@@ -199,28 +257,49 @@ export class BillingWebhookService {
       return;
     }
 
-    await this.prisma.subscription.update({
-      where: {
-        id: existing.id,
-      },
+    const data = {
+      ...(plan ? { planId: plan.id } : {}),
+      provider: 'stripe',
+      providerCustomerId: customerId,
+      providerSubscriptionId: stripeSubscription.id,
+      status,
+      currentPeriodStart: new Date(subscriptionItem.current_period_start * 1000),
+      currentPeriodEnd: new Date(subscriptionItem.current_period_end * 1000),
+      cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+      canceledAt: stripeSubscription.cancel_at
+        ? new Date(stripeSubscription.cancel_at * 1000)
+        : null,
+      trialStart: stripeSubscription.trial_start
+        ? new Date(stripeSubscription.trial_start * 1000)
+        : null,
+      trialEnd: stripeSubscription.trial_end
+        ? new Date(stripeSubscription.trial_end * 1000)
+        : null,
+    };
+
+    if (existing) {
+      await this.prisma.subscription.update({
+        where: {
+          id: existing.id,
+        },
+        data,
+      });
+
+      return;
+    }
+
+    if (!plan) {
+      this.logger.warn(
+        `Stripe subscription ${stripeSubscription.id} has no valid plan mapping`,
+      );
+      return;
+    }
+
+    await this.prisma.subscription.create({
       data: {
-        ...(plan ? { planId: plan.id } : {}),
-        provider: 'stripe',
-        providerCustomerId: customerId,
-        providerSubscriptionId: stripeSubscription.id,
-        status,
-        currentPeriodStart: new Date(subscriptionItem.current_period_start * 1000),
-        currentPeriodEnd: new Date(subscriptionItem.current_period_end * 1000),
-        cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
-        canceledAt: stripeSubscription.cancel_at
-          ? new Date(stripeSubscription.cancel_at * 1000)
-          : null,
-        trialStart: stripeSubscription.trial_start
-          ? new Date(stripeSubscription.trial_start * 1000)
-          : null,
-        trialEnd: stripeSubscription.trial_end
-          ? new Date(stripeSubscription.trial_end * 1000)
-          : null,
+        organizationId,
+        planId: plan.id,
+        ...data,
       },
     });
   }
