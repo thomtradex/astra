@@ -21,7 +21,7 @@ describe('Remaining resource tenant isolation (integration)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) await app.close();
   });
 
   it('does not allow Alpha to access a Beta maintenance plan', async () => {
@@ -85,7 +85,7 @@ describe('Remaining resource tenant isolation (integration)', () => {
       .expect(200);
 
     expect(
-      bodyOf<{ code: string }[]>(response).some(
+      bodyOf<{ items: { code: string }[] }>(response).items.some(
         (customer) => customer.code === 'BETA-CUSTOMER-001',
       ),
     ).toBe(false);

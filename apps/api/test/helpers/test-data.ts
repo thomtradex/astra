@@ -102,8 +102,6 @@ export async function resetDatabase(prisma: PrismaService): Promise<void> {
   await prisma.organization.deleteMany();
 }
 
-
-
 export async function seedBillingPlans(prisma: PrismaService): Promise<void> {
   await prisma.billingPlan.upsert({
     where: {
@@ -166,6 +164,30 @@ export async function seedIntegrationTestData(prisma: PrismaService): Promise<Te
   const orgB = await prisma.organization.create({
     data: { name: 'Org Beta', slug: 'org-beta' },
   });
+
+    await seedBillingPlans(prisma);
+
+    const starterPlan = await prisma.billingPlan.findUniqueOrThrow({
+      where: { code: 'STARTER' },
+    });
+
+    await prisma.subscription.createMany({
+      data: [
+        {
+          organizationId: orgA.id,
+          planId: starterPlan.id,
+          currentPeriodStart: new Date(),
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        },
+        {
+          organizationId: orgB.id,
+          planId: starterPlan.id,
+          currentPeriodStart: new Date(),
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        },
+      ],
+    });
+
 
   const adminUserId = await createUserWithRole(
     prisma,

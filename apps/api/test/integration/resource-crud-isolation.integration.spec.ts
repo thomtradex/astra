@@ -23,7 +23,7 @@ describe('Resource CRUD tenant isolation (integration)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) await app.close();
   });
 
   it('does not allow Alpha to update or delete Beta assets', async () => {
@@ -104,16 +104,16 @@ describe('Resource CRUD tenant isolation (integration)', () => {
       .patch(apiPath(`/work-orders/${betaWorkOrder.id}`))
       .set('Authorization', `Bearer ${alphaAdmin.accessToken}`)
       .send({ title: 'Hacked Work Order' })
-      .expect([200,404]);
+      .expect([200, 404]);
 
-    expect(bodyOf<CountResponse>(updateResponse).count).toBe(0);
+    expect(updateResponse.status).toBe(404);
 
     const deleteResponse = await apiRequest(app)
       .delete(apiPath(`/work-orders/${betaWorkOrder.id}`))
       .set('Authorization', `Bearer ${alphaAdmin.accessToken}`)
-      .expect([200,404]);
+      .expect([200, 404]);
 
-    expect(bodyOf<CountResponse>(deleteResponse).count).toBe(0);
+    expect(deleteResponse.status).toBe(404);
 
     const unchanged = await prisma.work_orders.findUnique({
       where: { id: betaWorkOrder.id },
