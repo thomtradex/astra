@@ -1,8 +1,8 @@
 import { IsIn, IsString } from 'class-validator';
 
 export class ExecuteCooActionDto {
-  @IsIn(['ASSIGN_WORK_ORDER'])
-  type!: 'ASSIGN_WORK_ORDER';
+  @IsIn(['ASSIGN_WORK_ORDER', 'UPDATE_WORK_ORDER'])
+  type!: 'ASSIGN_WORK_ORDER' | 'UPDATE_WORK_ORDER';
 
   @IsString()
   resourceId!: string;
@@ -10,3 +10,6 @@ export class ExecuteCooActionDto {
   @IsString()
   assignedToId!: string;
 }
+
+
+export {};

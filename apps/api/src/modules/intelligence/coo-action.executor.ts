@@ -28,6 +28,9 @@ export class CooActionExecutorService implements CooActionExecutor {
     switch (action.type) {
       case 'ASSIGN_WORK_ORDER':
         return this.assignWorkOrder(user, action);
+
+      case 'UPDATE_WORK_ORDER':
+        return this.updateWorkOrder(user, action);
     }
   }
 
@@ -103,4 +106,79 @@ export class CooActionExecutorService implements CooActionExecutor {
       };
     }
   }
+
+  private async updateWorkOrder(
+    user: AuthenticatedUser,
+    action: Extract<CooAction, { type: 'UPDATE_WORK_ORDER' }>,
+  ): Promise<CooActionOutcome> {
+    const decision = await this.authorizationService.authorize(
+      CanManageWorkOrders,
+      {
+        user,
+        resource: action.resource,
+        resourceId: action.resourceId,
+        metadata: {
+          actionType: action.type,
+          source: 'coo',
+        },
+      },
+    );
+
+    if (!decision.allowed) {
+      return {
+        action,
+        allowed: false,
+        status: 'DENIED',
+        resourceId: action.resourceId,
+        message: 'Ação não autorizada.',
+      };
+    }
+
+    try {
+      await this.workOrdersService.update(
+        action.resourceId,
+        user.organizationId,
+        {
+          status: action.input.status,
+          priority: action.input.priority,
+        },
+      );
+
+      await this.auditService.log({
+        organizationId: user.organizationId,
+        actorId: user.id,
+        action: AuditAction.UPDATE,
+        resource: action.resource,
+        resourceId: action.resourceId,
+        metadata: {
+          type: 'coo_action',
+          source: 'coo',
+          actionType: action.type,
+          authorizationPolicy: decision.policy,
+          status: action.input.status,
+          priority: action.input.priority,
+        },
+      });
+
+      return {
+        action,
+        allowed: true,
+        status: 'EXECUTED',
+        resourceId: action.resourceId,
+        message: 'Ordem de trabalho atualizada com sucesso.',
+      };
+    } catch (error) {
+      return {
+        action,
+        allowed: true,
+        status: 'FAILED',
+        resourceId: action.resourceId,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Não foi possível atualizar a ordem de trabalho.',
+      };
+    }
+  }
+
 }

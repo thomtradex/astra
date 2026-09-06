@@ -8,6 +8,15 @@ export type CooAction =
       input: {
         assignedToId: string;
       };
+    }
+  | {
+      type: 'UPDATE_WORK_ORDER';
+      resource: 'work_orders';
+      resourceId: string;
+      input: {
+        status?: string;
+        priority?: string;
+      };
     };
 
 export interface CooActionOutcome {
