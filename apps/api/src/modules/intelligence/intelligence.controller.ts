@@ -36,7 +36,9 @@ export class IntelligenceController {
       resourceId: dto.resourceId,
       input: {
         assignedToId: dto.assignedToId,
+        status: dto.status,
+        priority: dto.priority,
       },
-    });
+    } as any);
   }
 }
