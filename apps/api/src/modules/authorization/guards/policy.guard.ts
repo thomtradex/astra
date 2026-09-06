@@ -8,33 +8,19 @@ import { Reflector } from '@nestjs/core';
 import {
   AUTHORIZATION_POLICY_KEY,
 } from '../../../common/decorators/metadata.decorators';
+
 import { AuthorizationService } from '../authorization.service';
+import { PolicyRegistry } from '../policy.registry';
 import { AuthorizationContext } from '../authorization.types';
-import {
-  CanManageCustomers,
-  CanManageProjects,
-  CanManageUsers,
-  CanReadCustomers,
-  CanReadProjects,
-  CanReadUsers,
-} from '../policies/resource.policies';
-import { CanManageWorkOrders } from '../policies/work-order.policies';
 
 @Injectable()
 export class PolicyGuard implements CanActivate {
-  private readonly policies = new Map([
-    [CanReadUsers.name, CanReadUsers],
-    [CanManageUsers.name, CanManageUsers],
-    [CanReadCustomers.name, CanReadCustomers],
-    [CanManageCustomers.name, CanManageCustomers],
-    [CanReadProjects.name, CanReadProjects],
-    [CanManageProjects.name, CanManageProjects],
-    [CanManageWorkOrders.name, CanManageWorkOrders],
-  ]);
+
 
   constructor(
     private readonly reflector: Reflector,
     private readonly authorizationService: AuthorizationService,
+    private readonly policyRegistry: PolicyRegistry,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -47,10 +33,12 @@ export class PolicyGuard implements CanActivate {
       return true;
     }
 
-    const policy = this.policies.get(policyName);
+    const policy = this.policyRegistry.get(policyName);
 
     if (!policy) {
-      return false;
+      throw new Error(
+        `Authorization policy not registered: ${policyName}`,
+      );
     }
 
     const request = context.switchToHttp().getRequest();

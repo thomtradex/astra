@@ -38,6 +38,11 @@ class PermissionBackedPolicy implements AuthorizationPolicy {
   }
 }
 
+export const CanReadWorkOrders = new PermissionBackedPolicy(
+  'CanReadWorkOrders',
+  [PERMISSIONS.WORK_ORDER_READ],
+);
+
 export const CanManageWorkOrders = new PermissionBackedPolicy(
   'CanManageWorkOrders',
   [PERMISSIONS.WORK_ORDER_WRITE],

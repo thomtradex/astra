@@ -45,6 +45,17 @@ export const CanManageUsers = new PermissionBackedPolicy(
   [PERMISSIONS.USER_WRITE],
 );
 
+
+export const CanReadOrganizations = new PermissionBackedPolicy(
+  'CanReadOrganizations',
+  [PERMISSIONS.ORG_READ],
+);
+
+export const CanManageOrganizations = new PermissionBackedPolicy(
+  'CanManageOrganizations',
+  [PERMISSIONS.ORG_WRITE],
+);
+
 export const CanReadCustomers = new PermissionBackedPolicy(
   'CanReadCustomers',
   [PERMISSIONS.CUSTOMER_READ],
@@ -63,4 +74,51 @@ export const CanReadProjects = new PermissionBackedPolicy(
 export const CanManageProjects = new PermissionBackedPolicy(
   'CanManageProjects',
   [PERMISSIONS.PROJECT_WRITE],
+);
+
+
+export const CanReadAssets = new PermissionBackedPolicy(
+  'CanReadAssets',
+  [PERMISSIONS.ASSET_READ],
+);
+
+export const CanManageAssets = new PermissionBackedPolicy(
+  'CanManageAssets',
+  [PERMISSIONS.ASSET_WRITE],
+);
+
+export const CanReadSites = new PermissionBackedPolicy(
+  'CanReadSites',
+  [PERMISSIONS.SITE_READ],
+);
+
+export const CanManageSites = new PermissionBackedPolicy(
+  'CanManageSites',
+  [PERMISSIONS.SITE_WRITE],
+);
+
+export const CanReadWorkOrders = new PermissionBackedPolicy(
+  'CanReadWorkOrders',
+  [PERMISSIONS.WORK_ORDER_READ],
+);
+
+export const CanManageWorkOrders = new PermissionBackedPolicy(
+  'CanManageWorkOrders',
+  [PERMISSIONS.WORK_ORDER_WRITE],
+);
+
+export const CanReadMaintenance = new PermissionBackedPolicy(
+  'CanReadMaintenance',
+  [PERMISSIONS.MAINTENANCE_READ],
+);
+
+export const CanManageMaintenance = new PermissionBackedPolicy(
+  'CanManageMaintenance',
+  [PERMISSIONS.MAINTENANCE_WRITE],
+);
+
+
+export const CanReadAudit = new PermissionBackedPolicy(
+  'CanReadAudit',
+  [PERMISSIONS.AUDIT_READ],
 );
