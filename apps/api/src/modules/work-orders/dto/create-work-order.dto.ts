@@ -1,4 +1,10 @@
-import { IsOptional, IsString } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class CreateWorkOrderDto {
   @IsString()
@@ -23,4 +29,8 @@ export class CreateWorkOrderDto {
   @IsOptional()
   @IsString()
   assignedToId?: string;
+
+  @IsOptional()
+  @IsString()
+  projectId?: string;
 }
