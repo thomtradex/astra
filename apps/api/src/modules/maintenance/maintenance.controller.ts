@@ -1,6 +1,7 @@
 import { PERMISSIONS } from '@astra/shared';
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 
+import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Authenticated, RequirePermissions } from '../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
@@ -9,6 +10,7 @@ import { CreateMaintenancePlanDto } from './dto/create-maintenance-plan.dto';
 import { UpdateMaintenancePlanDto } from './dto/update-maintenance-plan.dto';
 import { MaintenanceService } from './maintenance.service';
 
+@RequireBillingFeature('maintenanceManagement')
 @Controller('maintenance')
 @Authenticated()
 export class MaintenanceController {
@@ -26,7 +28,6 @@ export class MaintenanceController {
     return this.service.findOne(id, user.organizationId);
   }
 
-
   @Patch(':id')
   @RequirePermissions(PERMISSIONS.MAINTENANCE_WRITE)
   update(
@@ -39,10 +40,7 @@ export class MaintenanceController {
 
   @Delete(':id')
   @RequirePermissions(PERMISSIONS.MAINTENANCE_WRITE)
-  remove(
-    @Param('id') id: string,
-    @CurrentUser() user: AuthenticatedUser,
-  ) {
+  remove(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.service.remove(id, user.organizationId);
   }
 

@@ -1,9 +1,11 @@
 import { randomUUID } from 'node:crypto';
 
+
 import { Prisma } from '@astra/database';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import { BillingService } from '../billing/billing.service';
 
 import { CreateMaintenancePlanDto } from './dto/create-maintenance-plan.dto';
 import { UpdateMaintenancePlanDto } from './dto/update-maintenance-plan.dto';
@@ -12,7 +14,10 @@ type MaintenancePlanModel = Prisma.maintenance_plansGetPayload<Record<string, ne
 
 @Injectable()
 export class MaintenanceService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly billingService?: BillingService,
+  ) {}
 
   findAll(organization_id: string): Promise<MaintenancePlanModel[]> {
     return this.prisma.maintenance_plans.findMany({
@@ -40,12 +45,7 @@ export class MaintenanceService {
     return plan;
   }
 
-
-  async update(
-    id: string,
-    dto: UpdateMaintenancePlanDto,
-    organization_id: string,
-  ) {
+  async update(id: string, dto: UpdateMaintenancePlanDto, organization_id: string) {
     const plan = await this.prisma.maintenance_plans.findFirst({
       where: {
         id,
@@ -68,10 +68,7 @@ export class MaintenanceService {
     });
   }
 
-  async remove(
-    id: string,
-    organization_id: string,
-  ) {
+  async remove(id: string, organization_id: string) {
     const plan = await this.prisma.maintenance_plans.findFirst({
       where: {
         id,
@@ -94,6 +91,20 @@ export class MaintenanceService {
     dto: CreateMaintenancePlanDto,
     organization_id: string,
   ): Promise<MaintenancePlanModel> {
+    if (this.billingService) {
+          const currentUsage = await this.prisma.maintenance_plans.count({
+            where: { organization_id: organization_id },
+        });
+
+        await this.billingService.assertLimit(
+            organization_id,
+            'maintenancePlans',
+            currentUsage,
+        );
+
+    }
+
+
     const asset = await this.prisma.assets.findFirst({
       where: {
         id: dto.assetId,

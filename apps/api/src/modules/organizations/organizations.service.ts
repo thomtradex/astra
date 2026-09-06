@@ -2,8 +2,6 @@ import { buildPaginatedResult, normalizePagination, PaginatedResult } from '@ast
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
-import { BillingService } from '../billing/billing.service';
-
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { QueryOrganizationsDto } from './dto/query-organizations.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
@@ -13,7 +11,6 @@ export class OrganizationsService {
   /* istanbul ignore next */
   constructor(
     private readonly prisma: PrismaService,
-    private readonly billingService: BillingService,
   ) {}
 
   async findAll(
@@ -49,6 +46,8 @@ export class OrganizationsService {
           id: true,
           name: true,
           slug: true,
+          employees: true,
+          preference: true,
           is_active: true,
           createdAt: true,
           updatedAt: true,
@@ -70,6 +69,8 @@ export class OrganizationsService {
         id: true,
         name: true,
         slug: true,
+        employees: true,
+        preference: true,
         is_active: true,
         createdAt: true,
         updatedAt: true,
@@ -104,13 +105,13 @@ export class OrganizationsService {
         id: true,
         name: true,
         slug: true,
+        employees: true,
+        preference: true,
         is_active: true,
         createdAt: true,
         updatedAt: true,
       },
     });
-
-    await this.billingService.ensureTrialSubscription(organization.id);
 
     return organization;
   }
@@ -139,11 +140,15 @@ export class OrganizationsService {
       data: {
         ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
         ...(slug !== undefined ? { slug } : {}),
+        ...(dto.employees !== undefined ? { employees: dto.employees } : {}),
+        ...(dto.preference !== undefined ? { preference: dto.preference.trim() } : {}),
       },
       select: {
         id: true,
         name: true,
         slug: true,
+        employees: true,
+        preference: true,
         is_active: true,
         createdAt: true,
         updatedAt: true,

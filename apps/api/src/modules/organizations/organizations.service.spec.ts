@@ -1,7 +1,6 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
-import { BillingService } from '../billing/billing.service';
 
 import { OrganizationsService } from './organizations.service';
 
@@ -23,7 +22,6 @@ describe('OrganizationsService', () => {
 
   const service = new OrganizationsService(
     prisma as unknown as PrismaService,
-    billingService as unknown as BillingService,
   );
 
   beforeEach(() => {
@@ -111,7 +109,6 @@ describe('OrganizationsService', () => {
       }),
     );
 
-    expect(billingService.ensureTrialSubscription).toHaveBeenCalledWith('org-1');
   });
 
   it('updates an organization without changing its slug', async () => {

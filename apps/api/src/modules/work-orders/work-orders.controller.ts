@@ -1,5 +1,4 @@
-import { Prisma } from '@RequireBillingFeature('work_orders')
-@astra/database';
+import { Prisma } from '@astra/database';
 import { PERMISSIONS } from '@astra/shared';
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 

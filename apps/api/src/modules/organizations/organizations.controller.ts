@@ -1,9 +1,11 @@
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { PERMISSIONS } from '@astra/shared';
 import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { RequirePermissions } from '../../common/decorators/metadata.decorators';
+import { Authenticated, RequirePermissions } from '../../common/decorators/metadata.decorators';
 
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { QueryOrganizationsDto } from './dto/query-organizations.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
@@ -22,6 +24,13 @@ export class OrganizationsController {
     return this.organizationsService.findAll(query);
   }
 
+  @Get('current')
+  @Authenticated()
+  @ApiOperation({ summary: 'Get the current authenticated organization' })
+  getCurrent(@CurrentUser() user: AuthenticatedUser) {
+    return this.organizationsService.findOne(user.organizationId);
+  }
+
   @Get(':id')
   @RequirePermissions(PERMISSIONS.ORG_READ)
   @ApiOperation({ summary: 'Get an organization' })
@@ -34,6 +43,13 @@ export class OrganizationsController {
   @ApiOperation({ summary: 'Create an organization' })
   create(@Body() dto: CreateOrganizationDto) {
     return this.organizationsService.create(dto);
+  }
+
+  @Patch('current')
+  @Authenticated()
+  @ApiOperation({ summary: 'Update the current authenticated organization' })
+  updateCurrent(@Body() dto: UpdateOrganizationDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.organizationsService.update(user.organizationId, dto);
   }
 
   @Patch(':id')

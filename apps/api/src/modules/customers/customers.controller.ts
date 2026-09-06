@@ -1,7 +1,8 @@
 import { Prisma } from '@astra/database';
 import { PERMISSIONS } from '@astra/shared';
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Query,  Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 
+import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Authenticated, RequirePermissions } from '../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
@@ -9,9 +10,11 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { QueryCustomersDto } from './dto/query-customers.dto';
 
 type CustomerModel = Prisma.customersGetPayload<Record<string, never>>;
 
+@RequireBillingFeature('customerManagement')
 @Controller('customers')
 @Authenticated()
 export class CustomersController {
@@ -19,8 +22,11 @@ export class CustomersController {
 
   @Get()
   @RequirePermissions(PERMISSIONS.CUSTOMER_READ)
-  findAll(@CurrentUser() user: AuthenticatedUser): Promise<CustomerModel[]> {
-    return this.service.findAll(user.organizationId);
+  findAll(
+    @Query() query: QueryCustomersDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.service.findAll(user.organizationId, query);
   }
 
   @Get(':id')
@@ -44,10 +50,7 @@ export class CustomersController {
 
   @Delete(':id')
   @RequirePermissions(PERMISSIONS.CUSTOMER_WRITE)
-  remove(
-    @Param('id') id: string,
-    @CurrentUser() user: AuthenticatedUser,
-  ): Promise<CustomerModel> {
+  remove(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser): Promise<CustomerModel> {
     return this.service.remove(id, user.organizationId);
   }
 

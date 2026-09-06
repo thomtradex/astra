@@ -2,6 +2,7 @@ import { Prisma } from '@astra/database';
 import { PERMISSIONS } from '@astra/shared';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 
+import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Authenticated, RequirePermissions } from '../../common/decorators/metadata.decorators';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
@@ -13,6 +14,7 @@ import { UpdateAssetDto } from './dto/update-asset.dto';
 
 type AssetModel = Prisma.assetsGetPayload<Record<string, never>>;
 
+@RequireBillingFeature('assetManagement')
 @Controller('assets')
 @Authenticated()
 export class AssetsController {
