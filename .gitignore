@@ -64,3 +64,6 @@ test-cookies*.txt
 deploy/production/.env
 .astra-audit/
 backups/
+
+deploy/production/.env
+apps/api/.env
