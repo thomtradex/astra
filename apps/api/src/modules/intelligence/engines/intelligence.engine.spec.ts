@@ -26,8 +26,9 @@ describe('CooDecisionEngine', () => {
     });
 
     expect(result.signalCount).toBe(1);
-    expect(result.signals[0].type).toBe('HIGH_PRIORITY_WORK_ORDER');
-    expect(result.signals[0].severity).toBe('HIGH');
+    expect(result.signals[0]).toBeDefined();
+    expect(result.signals[0]!.type).toBe('HIGH_PRIORITY_WORK_ORDER');
+    expect(result.signals[0]!.severity).toBe('HIGH');
   });
 
   it('detects overdue maintenance', () => {
@@ -44,11 +45,13 @@ describe('CooDecisionEngine', () => {
         },
       ],
       assets: [],
+      sites: [],
       projects: [],
     });
 
     expect(result.signalCount).toBe(1);
-    expect(result.signals[0].type).toBe('OVERDUE_MAINTENANCE');
+    expect(result.signals[0]).toBeDefined();
+    expect(result.signals[0]!.type).toBe('OVERDUE_MAINTENANCE');
   });
 
   it('adds equipment and related work order context to overdue maintenance', () => {
@@ -101,8 +104,9 @@ describe('CooDecisionEngine', () => {
     );
 
     expect(signal).toBeDefined();
+    if (!signal) throw new Error('Expected overdue maintenance signal');
 
-    expect(signal?.type).toBe('OVERDUE_MAINTENANCE');
+    expect(signal.type).toBe('OVERDUE_MAINTENANCE');
     expect(signal.title).toBe(
       'Manutenção em atraso — Escavadora CAT 320',
     );
@@ -151,10 +155,15 @@ describe('CooDecisionEngine', () => {
     );
 
     expect(signal).toBeDefined();
-    expect(signal?.title).toBe(
+
+    if (!signal) {
+      throw new Error('Expected intelligence signal');
+    }
+
+    expect(signal.title).toBe(
       'Ordem de alta prioridade sem responsável — Urgente',
     );
-    expect(signal?.action).toEqual({
+    expect(signal.action).toEqual({
       type: 'ASSIGN_WORK_ORDER',
       resource: 'work_orders',
       resourceId: 'wo-1',
@@ -181,11 +190,13 @@ describe('CooDecisionEngine', () => {
           end_date: new Date('2026-08-31T10:00:00.000Z'),
         },
       ],
+      sites: [],
     });
 
     expect(result.signals).toHaveLength(1);
-    expect(result.signals[0].type).toBe('OVERDUE_PROJECT');
-    expect(result.signals[0].severity).toBe('HIGH');
+    expect(result.signals[0]).toBeDefined();
+    expect(result.signals[0]!.type).toBe('OVERDUE_PROJECT');
+    expect(result.signals[0]!.severity).toBe('HIGH');
   });
 
   it('adds operational context from project work orders to overdue projects', () => {
@@ -231,6 +242,7 @@ describe('CooDecisionEngine', () => {
           end_date: new Date('2026-08-31T10:00:00.000Z'),
         },
       ],
+      sites: [],
     });
 
     const signal = result.signals.find(
@@ -238,16 +250,21 @@ describe('CooDecisionEngine', () => {
     );
 
     expect(signal).toBeDefined();
-    expect(signal?.evidence).toContain(
+
+    if (!signal) {
+      throw new Error('Expected overdue project intelligence signal');
+    }
+
+    expect(signal.evidence).toContain(
       'Ordens de trabalho abertas associadas: 2',
     );
-    expect(signal?.evidence).toContain(
+    expect(signal.evidence).toContain(
       'Ordens abertas de alta prioridade: 1',
     );
-    expect(signal?.evidence).toContain(
+    expect(signal.evidence).toContain(
       'Ordens de alta prioridade sem responsável: 1',
     );
-    expect(signal?.recommendedAction).toContain(
+    expect(signal.recommendedAction).toContain(
       'sem responsável',
     );
   });
@@ -285,6 +302,7 @@ describe('CooDecisionEngine', () => {
           end_date: new Date('2026-12-01T10:00:00.000Z'),
         },
       ],
+      sites: [],
     });
 
     expect(result.signalCount).toBe(0);
