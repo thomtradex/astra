@@ -5,6 +5,7 @@ import { Request } from 'express';
 
 import {
   AUTHENTICATED_KEY,
+  AUTHORIZATION_POLICY_KEY,
   IS_PUBLIC_KEY,
   PERMISSIONS_KEY,
 } from '../../../common/decorators/metadata.decorators';
@@ -39,6 +40,15 @@ export class PermissionsGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
+
+    const policyName = this.reflector.getAllAndOverride<string>(
+      AUTHORIZATION_POLICY_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (policyName) {
+      return true;
+    }
 
     if (requiredPermissions && requiredPermissions.length > 0) {
       const hasPermission = requiredPermissions.every((permission) =>

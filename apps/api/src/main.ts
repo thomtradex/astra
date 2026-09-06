@@ -52,7 +52,7 @@ async function bootstrap(): Promise<void> {
     SwaggerModule.setup('api/docs', app, document);
   }
 
-  await app.listen(port, configService.get<string>('API_HOST', '0.0.0.0'));
+  await app.listen(port, '0.0.0.0');
 
   console.info(`Astra API running on http://localhost:${port}/api/v1`);
   if (nodeEnv !== 'production') {
