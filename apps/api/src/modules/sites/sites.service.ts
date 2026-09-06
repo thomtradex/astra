@@ -1,9 +1,11 @@
 import { randomUUID } from 'node:crypto';
 
+
 import { Prisma } from '@astra/database';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import { BillingService } from '../billing/billing.service';
 
 import { CreateSiteDto } from './dto/create-site.dto';
 import { UpdateSiteDto } from './dto/update-site.dto';
@@ -12,7 +14,10 @@ type SiteModel = Prisma.sitesGetPayload<Record<string, never>>;
 
 @Injectable()
 export class SitesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly billingService?: BillingService,
+  ) {}
 
   findAll(organization_id: string): Promise<SiteModel[]> {
     return this.prisma.sites.findMany({
@@ -34,7 +39,21 @@ export class SitesService {
     });
   }
 
-  create(dto: CreateSiteDto, organization_id: string): Promise<SiteModel> {
+  async create(dto: CreateSiteDto, organization_id: string): Promise<SiteModel> {
+    if (this.billingService) {
+      const currentUsage = await this.prisma.sites.count({
+        where: {
+          organization_id: organization_id,
+        },
+      });
+
+      await this.billingService.assertLimit(
+        organization_id,
+        'sites',
+        currentUsage,
+      );
+    }
+
     return this.prisma.sites.create({
       data: {
         id: randomUUID(),

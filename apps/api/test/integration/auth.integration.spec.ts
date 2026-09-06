@@ -19,7 +19,7 @@ describe('Auth (integration)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) await app.close();
   });
 
   it('logs in with valid credentials', async () => {

@@ -34,7 +34,7 @@ describe('Dashboard overview (integration)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) await app.close();
   });
 
   it('requires authentication', async () => {

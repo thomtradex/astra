@@ -23,7 +23,7 @@ describe('Tenant isolation (integration)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) await app.close();
   });
 
   it('returns only users from the authenticated organization', async () => {

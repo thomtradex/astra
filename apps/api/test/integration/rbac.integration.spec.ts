@@ -18,7 +18,7 @@ describe('RBAC (integration)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) await app.close();
   });
 
   it('denies access when permission is missing', async () => {

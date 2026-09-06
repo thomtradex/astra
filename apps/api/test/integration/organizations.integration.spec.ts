@@ -18,8 +18,6 @@ import {
 } from '../helpers/test-data';
 
 describe('Organizations integration', () => {
-
-
   let app: INestApplication;
   let prisma: PrismaService;
   let token: string;
@@ -71,7 +69,7 @@ describe('Organizations integration', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) await app.close();
   });
 
   it('lists organizations with pagination', async () => {

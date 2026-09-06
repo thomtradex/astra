@@ -29,11 +29,12 @@ describe('Resources (integration)', () => {
 
     alphaViewerToken = (await login(app, 'viewer@alpha.test')).accessToken;
 
-    _betaAdminToken = (await login(app, 'admin@beta.test', 'TestPassword123!', 'org-beta')).accessToken;
+    _betaAdminToken = (await login(app, 'admin@beta.test', 'TestPassword123!', 'org-beta'))
+      .accessToken;
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) await app.close();
   });
 
   describe('sites', () => {
@@ -169,6 +170,83 @@ describe('Resources (integration)', () => {
           assetId: 'missing',
           frequency: 'MONTHLY',
           nextDue: new Date().toISOString(),
+        })
+        .expect(403);
+    });
+
+    it('allows admin to reschedule a maintenance plan', async () => {
+      const asset = await prisma.assets.create({
+        data: {
+          id: `asset-coo-${Date.now()}`,
+          name: 'COO Test Asset',
+          code: `COO-ASSET-${Date.now()}`,
+          organization_id: orgAlphaId,
+          updated_at: new Date(),
+        },
+      });
+
+      const maintenancePlan = await prisma.maintenance_plans.create({
+        data: {
+          id: `maintenance-coo-${Date.now()}`,
+          plan: 'COO Test Maintenance',
+          assetId: asset.id,
+          frequency: 'MONTHLY',
+          nextDue: new Date(Date.now() - 86400000),
+          organization_id: orgAlphaId,
+          updated_at: new Date(),
+        },
+      });
+
+      const newNextDue = new Date(Date.now() + 7 * 86400000).toISOString();
+
+      const response = await apiRequest(app)
+        .patch(apiPath(`/maintenance/${maintenancePlan.id}`))
+        .set('Authorization', `Bearer ${alphaAdminToken}`)
+        .send({
+          nextDue: newNextDue,
+        })
+        .expect(200);
+
+      expect(bodyOf<TenantResource>(response).organization_id).toBe(
+        orgAlphaId,
+      );
+
+      const stored = await prisma.maintenance_plans.findUnique({
+        where: { id: maintenancePlan.id },
+      });
+
+      expect(stored?.organization_id).toBe(orgAlphaId);
+      expect(stored?.nextDue.toISOString()).toBe(newNextDue);
+    });
+
+    it('denies viewer from rescheduling a maintenance plan', async () => {
+      const asset = await prisma.assets.create({
+        data: {
+          id: `asset-coo-viewer-${Date.now()}`,
+          name: 'COO Viewer Asset',
+          code: `COO-VIEWER-ASSET-${Date.now()}`,
+          organization_id: orgAlphaId,
+          updated_at: new Date(),
+        },
+      });
+
+      const maintenancePlan = await prisma.maintenance_plans.create({
+        data: {
+          id: `maintenance-coo-viewer-${Date.now()}`,
+          plan: 'COO Viewer Maintenance',
+          assetId: asset.id,
+          frequency: 'MONTHLY',
+          nextDue: new Date(Date.now() - 86400000),
+          organization_id: orgAlphaId,
+          updated_at: new Date(),
+        },
+      });
+
+      await apiRequest(app)
+        .patch(apiPath(`/maintenance/${maintenancePlan.id}`))
+        .set('Authorization', `Bearer ${alphaViewerToken}`)
+        .send({
+          nextDue: new Date(Date.now() + 7 * 86400000).toISOString(),
         })
         .expect(403);
     });

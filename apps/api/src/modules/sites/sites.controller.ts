@@ -2,6 +2,7 @@ import { Prisma } from '@astra/database';
 import { PERMISSIONS } from '@astra/shared';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 
+import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Authenticated, RequirePermissions } from '../../common/decorators/metadata.decorators';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
@@ -13,6 +14,7 @@ import { SitesService } from './sites.service';
 
 type SiteModel = Prisma.sitesGetPayload<Record<string, never>>;
 
+@RequireBillingFeature('siteManagement')
 @Controller('sites')
 @Authenticated()
 export class SitesController {
