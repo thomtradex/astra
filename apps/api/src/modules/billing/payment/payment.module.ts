@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { PAYMENT_PROVIDER } from './payment.constants';
 
 import { StripeProvider } from './stripe.provider';
 
@@ -6,10 +7,10 @@ import { StripeProvider } from './stripe.provider';
   providers: [
     StripeProvider,
     {
-      provide: 'PAYMENT_PROVIDER',
+      provide: PAYMENT_PROVIDER,
       useExisting: StripeProvider,
     },
   ],
-  exports: ['PAYMENT_PROVIDER'],
+  exports: [PAYMENT_PROVIDER],
 })
 export class PaymentModule {}
