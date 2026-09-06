@@ -5,6 +5,12 @@ import {
   CanManageOrganizations,
   CanManageProjects,
   CanManageUsers,
+  CanManageAssets,
+  CanReadAssets,
+  CanManageSites,
+  CanReadSites,
+  CanManageMaintenance,
+  CanReadMaintenance,
   CanReadAudit,
   CanReadCustomers,
   CanReadOrganizations,
@@ -35,6 +41,16 @@ export class PolicyRegistry {
     [CanManageProjects.name, CanManageProjects],
 
     [CanReadAudit.name, CanReadAudit],
+
+
+    [CanReadAssets.name, CanReadAssets],
+    [CanManageAssets.name, CanManageAssets],
+
+    [CanReadSites.name, CanReadSites],
+    [CanManageSites.name, CanManageSites],
+
+    [CanReadMaintenance.name, CanReadMaintenance],
+    [CanManageMaintenance.name, CanManageMaintenance],
 
     [CanReadWorkOrders.name, CanReadWorkOrders],
     [CanManageWorkOrders.name, CanManageWorkOrders],

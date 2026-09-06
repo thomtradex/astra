@@ -1,11 +1,11 @@
+import { CanReadAudit } from '../authorization/policies/resource.policies';
 import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
 
-import { PERMISSIONS } from '@astra/shared';
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { RequirePermissions } from '../../common/decorators/metadata.decorators';
+import { RequirePolicy } from '../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 import { AuditService } from './audit.service';
@@ -19,7 +19,7 @@ export class AuditController {
   constructor(private readonly auditService: AuditService) {}
 
   @Get()
-  @RequirePermissions(PERMISSIONS.AUDIT_READ)
+  @RequirePolicy(CanReadAudit.name)
   @ApiOperation({ summary: 'List audit logs for the current organization' })
   async findAll(
     @CurrentUser() user: AuthenticatedUser,

@@ -1,11 +1,11 @@
 import { Prisma } from '@astra/database';
-import { PERMISSIONS } from '@astra/shared';
 import { Query,  Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 
 import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Authenticated, RequirePermissions } from '../../common/decorators/metadata.decorators';
+import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { CanManageCustomers, CanReadCustomers } from '../authorization/policies/resource.policies';
 
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -21,7 +21,7 @@ export class CustomersController {
   constructor(private readonly service: CustomersService) {}
 
   @Get()
-  @RequirePermissions(PERMISSIONS.CUSTOMER_READ)
+  @RequirePolicy(CanReadCustomers.name)
   findAll(
     @Query() query: QueryCustomersDto,
     @CurrentUser() user: AuthenticatedUser,
@@ -30,7 +30,7 @@ export class CustomersController {
   }
 
   @Get(':id')
-  @RequirePermissions(PERMISSIONS.CUSTOMER_READ)
+  @RequirePolicy(CanReadCustomers.name)
   findOne(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
@@ -39,7 +39,7 @@ export class CustomersController {
   }
 
   @Patch(':id')
-  @RequirePermissions(PERMISSIONS.CUSTOMER_WRITE)
+  @RequirePolicy(CanManageCustomers.name)
   update(
     @Param('id') id: string,
     @Body() dto: UpdateCustomerDto,
@@ -49,13 +49,13 @@ export class CustomersController {
   }
 
   @Delete(':id')
-  @RequirePermissions(PERMISSIONS.CUSTOMER_WRITE)
+  @RequirePolicy(CanManageCustomers.name)
   remove(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser): Promise<CustomerModel> {
     return this.service.remove(id, user.organizationId);
   }
 
   @Post()
-  @RequirePermissions(PERMISSIONS.CUSTOMER_WRITE)
+  @RequirePolicy(CanManageCustomers.name)
   create(
     @Body() dto: CreateCustomerDto,
     @CurrentUser() user: AuthenticatedUser,

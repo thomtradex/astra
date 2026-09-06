@@ -11,7 +11,7 @@ import { IntelligenceService } from './intelligence.service';
 
 @Controller('intelligence')
 @Authenticated()
-@RequireBillingFeature('intelligence')
+@RequireBillingFeature('INTELLIGENCE')
 export class IntelligenceController {
   constructor(
     private readonly intelligenceService: IntelligenceService,

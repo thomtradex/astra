@@ -1,11 +1,11 @@
 import { Prisma } from '@astra/database';
-import { PERMISSIONS } from '@astra/shared';
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 
 import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Authenticated, RequirePermissions } from '../../common/decorators/metadata.decorators';
+import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { CanManageWorkOrders, CanReadWorkOrders } from '../authorization/policies/resource.policies';
 
 import { CreateWorkOrderDto } from './dto/create-work-order.dto';
 import { UpdateWorkOrderDto } from './dto/update-work-order.dto';
@@ -13,20 +13,19 @@ import { WorkOrdersService } from './work-orders.service';
 
 type WorkOrderModel = Prisma.work_ordersGetPayload<Record<string, never>>;
 
-@RequireBillingFeature('workOrderManagement')
 @Controller('work-orders')
 @Authenticated()
 export class WorkOrdersController {
   constructor(private readonly service: WorkOrdersService) {}
 
   @Get()
-  @RequirePermissions(PERMISSIONS.WORK_ORDER_READ)
+  @RequirePolicy(CanReadWorkOrders.name)
   findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.service.findAll(user.organizationId);
   }
 
   @Post()
-  @RequirePermissions(PERMISSIONS.WORK_ORDER_WRITE)
+  @RequirePolicy(CanManageWorkOrders.name)
   create(
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: CreateWorkOrderDto,
@@ -35,7 +34,7 @@ export class WorkOrdersController {
   }
 
   @Get(':id')
-  @RequirePermissions(PERMISSIONS.WORK_ORDER_READ)
+  @RequirePolicy(CanReadWorkOrders.name)
   findOne(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
@@ -44,7 +43,7 @@ export class WorkOrdersController {
   }
 
   @Patch(':id')
-  @RequirePermissions(PERMISSIONS.WORK_ORDER_WRITE)
+  @RequirePolicy(CanManageWorkOrders.name)
   update(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
@@ -54,7 +53,7 @@ export class WorkOrdersController {
   }
 
   @Delete(':id')
-  @RequirePermissions(PERMISSIONS.WORK_ORDER_DELETE)
+  @RequirePolicy(CanManageWorkOrders.name)
   remove(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.service.remove(id, user.organizationId);
   }

@@ -7,7 +7,6 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 
 import { DashboardService } from './dashboard.service';
 
-@RequireBillingFeature('dashboard')
 @Controller('dashboard')
 export class DashboardController {
   constructor(private readonly service: DashboardService) {}
