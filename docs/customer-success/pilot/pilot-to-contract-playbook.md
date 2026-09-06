@@ -86,4 +86,3 @@ Cliente precisa de mais tempo.
 
 C:
 Cliente não continua e motivo registado.
-

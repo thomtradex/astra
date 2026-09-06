@@ -82,4 +82,3 @@ Cliente conseguiu:
 - melhor controlo;
 - maior visibilidade;
 - processo operacional mais organizado.
-

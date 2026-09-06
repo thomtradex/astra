@@ -119,4 +119,3 @@ Aprender:
 - qual problema aparece mais;
 - qual mensagem funciona;
 - qual segmento compra mais rápido.
-

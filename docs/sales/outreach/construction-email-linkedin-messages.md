@@ -77,4 +77,3 @@ Cada contacto deve terminar com uma ação:
 - marcar chamada;
 - enviar informação;
 - agendar follow-up.
-

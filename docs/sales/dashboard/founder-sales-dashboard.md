@@ -78,4 +78,3 @@ Todas as semanas responder:
 Medir sempre:
 
 atividade → conversas → demos → pilotos → clientes
-

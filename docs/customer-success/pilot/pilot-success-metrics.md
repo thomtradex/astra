@@ -63,18 +63,22 @@ Validar:
 # Revisões
 
 Semana 1:
+
 - configuração;
 - primeiros dados.
 
 Semana 2:
+
 - utilização inicial;
 - recolha de feedback.
 
 Semana 3:
+
 - melhorias;
 - validação de valor.
 
 Semana 4:
+
 - relatório final;
 - decisão de continuidade.
 
@@ -88,4 +92,3 @@ O piloto deve terminar com:
 - benefícios identificados;
 - proposta comercial apresentada;
 - próximo passo definido.
-

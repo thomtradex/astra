@@ -55,7 +55,7 @@ export async function getSession(): Promise<SessionUser | null> {
 export function buildAuthCookieOptions(maxAgeSeconds: number) {
   return {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.COOKIE_SECURE === 'true',
     sameSite: 'lax' as const,
     path: '/',
     maxAge: maxAgeSeconds,
@@ -63,3 +63,60 @@ export function buildAuthCookieOptions(maxAgeSeconds: number) {
 }
 
 export type { AuthTokens };
+
+
+export async function getSessionUser() {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
+  const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
+
+  if (accessToken) {
+    const user = await apiFetch<SessionUser>('/auth/me', { method: 'GET' }, accessToken);
+
+    if (user) {
+      return user;
+    }
+  }
+
+  if (!refreshToken) {
+    return null;
+  }
+
+  try {
+    const tokens = await apiFetch<{
+      accessToken: string;
+      refreshToken: string;
+      expiresIn: number;
+    }>('/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!tokens?.accessToken) {
+      return null;
+    }
+
+    cookieStore.set(
+      ACCESS_TOKEN_COOKIE,
+      tokens.accessToken,
+      buildAuthCookieOptions(tokens.expiresIn),
+    );
+
+    cookieStore.set(
+      REFRESH_TOKEN_COOKIE,
+      tokens.refreshToken,
+      buildAuthCookieOptions(60 * 60 * 24 * 7),
+    );
+
+    return await apiFetch<SessionUser>(
+      '/auth/me',
+      { method: 'GET' },
+      tokens.accessToken,
+    );
+  } catch {
+    return null;
+  }
+}

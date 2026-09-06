@@ -9,8 +9,8 @@ Contactar as primeiras 10 empresas de construção qualificadas e transformar ap
 # Lista inicial
 
 | Empresa | Contacto | Cargo | Data contacto | Estado |
-|---|---|---|---|---|
-| | | | | |
+| ------- | -------- | ----- | ------------- | ------ |
+|         |          |       |               |        |
 
 ---
 
@@ -81,4 +81,3 @@ Servem para descobrir:
 - mensagem certa;
 - preço certo;
 - processo certo.
-

@@ -1,7 +1,7 @@
 'use client';
 
 export async function login(
-  email: string,
+  identifier: string,
   password: string,
   organizationSlug?: string,
 ): Promise<void> {
@@ -12,7 +12,7 @@ export async function login(
     },
     credentials: 'include',
     body: JSON.stringify({
-      email,
+      identifier,
       password,
       organizationSlug,
     }),
@@ -26,7 +26,7 @@ export async function login(
       'message' in errorBody &&
       typeof errorBody.message === 'string'
         ? errorBody.message
-        : 'Invalid credentials';
+        : 'Credenciais inválidas';
 
     throw new Error(message);
   }
@@ -37,4 +37,30 @@ export async function logout(): Promise<void> {
     method: 'POST',
     credentials: 'include',
   });
+}
+
+export async function getCurrentSubscription() {
+  const response = await fetch('/api/billing/subscription', {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  return response.json();
+}
+
+export async function startTrial() {
+  const response = await fetch('/api/billing/trial', {
+    method: 'POST',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error('Unable to start trial');
+  }
+
+  return response.json();
 }

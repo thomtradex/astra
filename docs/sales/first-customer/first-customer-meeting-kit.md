@@ -80,4 +80,3 @@ A reunião deve terminar com:
 - decisor identificado;
 - piloto possível;
 - próxima ação marcada.
-

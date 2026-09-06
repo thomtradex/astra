@@ -7,6 +7,7 @@ A Astra é uma plataforma inteligente para gestão operacional de empresas de co
 ## Problema
 
 Empresas de construção têm dificuldade em centralizar:
+
 - obras
 - ativos
 - manutenção
@@ -16,6 +17,7 @@ Empresas de construção têm dificuldade em centralizar:
 ## Solução
 
 A Astra fornece:
+
 - gestão multi-obra
 - controlo de ativos
 - dashboards operacionais

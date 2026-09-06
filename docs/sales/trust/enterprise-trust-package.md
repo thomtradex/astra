@@ -67,4 +67,3 @@ Antes de avançar:
 A Astra não vende apenas software.
 
 Ajuda empresas de construção a criar melhor controlo operacional sobre as suas obras.
-

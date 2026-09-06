@@ -83,4 +83,3 @@ Nunca terminar uma chamada sem:
 - próxima ação definida;
 - data marcada;
 - responsável identificado.
-

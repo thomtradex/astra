@@ -4,7 +4,6 @@
 
 Construtora Horizonte SA
 
-
 ## Problemas atuais
 
 - Informação espalhada por vários sistemas
@@ -12,14 +11,12 @@ Construtora Horizonte SA
 - Falta de histórico centralizado
 - Comunicação manual entre equipas
 
-
 ## Como Astra resolve
 
 - Dashboard operacional
 - Gestão centralizada de ativos
 - Alertas de manutenção
 - Auditoria de operações
-
 
 ## Resultado esperado
 

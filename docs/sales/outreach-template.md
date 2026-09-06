@@ -24,7 +24,6 @@ Obrigado.
 
 Equipa Astra
 
-
 ## Mensagem LinkedIn
 
 Olá,

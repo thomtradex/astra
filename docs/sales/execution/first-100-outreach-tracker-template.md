@@ -130,4 +130,3 @@ Todos precisam de:
 - próxima ação;
 - responsável;
 - data.
-

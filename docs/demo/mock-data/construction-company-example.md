@@ -17,7 +17,6 @@ Colaboradores:
 Obras ativas:
 8
 
-
 ## Obras
 
 ### Obra 1
@@ -32,10 +31,10 @@ Localização:
 Porto
 
 Equipamentos:
+
 - Grua torre
 - Escavadora
 - Carrinhas de apoio
-
 
 ### Obra 2
 
@@ -47,7 +46,6 @@ Planeamento
 
 Localização:
 Lisboa
-
 
 ## Ativos
 
@@ -61,7 +59,6 @@ Categorias:
 - Ferramentas
 - Equipamento de segurança
 
-
 ## Manutenção
 
 Indicadores:
@@ -74,7 +71,6 @@ Manutenções concluídas:
 
 Alertas ativos:
 6
-
 
 ## Objetivo da utilização Astra
 

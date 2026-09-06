@@ -9,7 +9,6 @@ Empresas de construção lidam com:
 - manutenção reativa;
 - informação espalhada.
 
-
 ## Slide 2 — A solução Astra
 
 Uma plataforma central para:
@@ -19,7 +18,6 @@ Uma plataforma central para:
 - melhorar manutenção;
 - criar histórico.
 
-
 ## Slide 3 — Como funciona
 
 1. Empresa cria organização
@@ -28,14 +26,12 @@ Uma plataforma central para:
 4. Controla operações
 5. Analisa indicadores
 
-
 ## Slide 4 — Benefícios
 
 - Menos paragens
 - Mais controlo
 - Melhor planeamento
 - Informação centralizada
-
 
 ## Slide 5 — Piloto
 
@@ -44,7 +40,6 @@ Começar com:
 - uma equipa;
 - uma ou duas obras;
 - período inicial definido.
-
 
 ## Slide 6 — Próximo passo
 

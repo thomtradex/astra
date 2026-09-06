@@ -34,7 +34,7 @@ Meta inicial:
 Cada oportunidade deve ter:
 
 Empresa:
-  
+
 Contacto:
 
 Cargo:
@@ -116,4 +116,3 @@ Toda oportunidade precisa de:
 - próxima ação;
 - responsável;
 - data.
-

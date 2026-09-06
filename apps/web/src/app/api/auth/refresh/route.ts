@@ -1,59 +1,79 @@
-import { AuthTokens } from '@astra/shared';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { apiFetch } from '@/lib/api-client';
-import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, buildAuthCookieOptions } from '@/lib/auth';
+import {
+  ACCESS_TOKEN_COOKIE,
+  REFRESH_TOKEN_COOKIE,
+} from '@/lib/auth';
 
-function getSafeRedirect(request: NextRequest): string {
-  const redirectTo = request.nextUrl.searchParams.get('redirect');
+const API_URL = process.env.API_URL ?? 'http://localhost:3001';
 
-  if (!redirectTo) {
-    return '/session';
-  }
-
-  if (!redirectTo.startsWith('/') || redirectTo.startsWith('//')) {
-    return '/session';
-  }
-
-  return redirectTo;
+interface RefreshResponse {
+  accessToken: string;
+  refreshToken?: string;
+  expiresIn?: number;
+  message?: string;
 }
 
-export async function GET(request: NextRequest) {
-  const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE)?.value;
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: 'lax' as const,
+  secure: process.env.NODE_ENV === 'production',
+  path: '/',
+};
 
-  if (!refreshToken) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-
-  const redirectTo = getSafeRedirect(request);
-
+export async function POST(request: NextRequest) {
   try {
-    const tokens = await apiFetch<AuthTokens>('/auth/refresh', {
+    const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE)?.value;
+
+    if (!refreshToken) {
+      return NextResponse.json(
+        { message: 'Refresh token missing' },
+        { status: 401 },
+      );
+    }
+
+    const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ refreshToken }),
+      cache: 'no-store',
     });
 
-    const response = NextResponse.redirect(new URL(redirectTo, request.url));
+    const data = (await response.json()) as RefreshResponse;
 
-    response.cookies.set(
+    if (!response.ok || !data.accessToken) {
+      return NextResponse.json(
+        data,
+        { status: response.status || 401 },
+      );
+    }
+
+    const next = NextResponse.json({
+      success: true,
+      expiresIn: data.expiresIn,
+    });
+
+    next.cookies.set(
       ACCESS_TOKEN_COOKIE,
-      tokens.accessToken,
-      buildAuthCookieOptions(tokens.expiresIn),
+      data.accessToken,
+      cookieOptions,
     );
 
-    response.cookies.set(
-      REFRESH_TOKEN_COOKIE,
-      tokens.refreshToken,
-      buildAuthCookieOptions(60 * 60 * 24 * 7),
-    );
+    if (data.refreshToken) {
+      next.cookies.set(
+        REFRESH_TOKEN_COOKIE,
+        data.refreshToken,
+        cookieOptions,
+      );
+    }
 
-    return response;
+    return next;
   } catch {
-    const response = NextResponse.redirect(new URL('/login', request.url));
-
-    response.cookies.delete(ACCESS_TOKEN_COOKIE);
-    response.cookies.delete(REFRESH_TOKEN_COOKIE);
-
-    return response;
+    return NextResponse.json(
+      { message: 'Authentication service unavailable' },
+      { status: 503 },
+    );
   }
 }

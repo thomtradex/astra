@@ -1,0 +1,9 @@
+import { PlanSelector } from '@/components/billing/plan-selector';
+
+export default function PlansPage() {
+  return (
+    <main className="min-h-screen bg-white">
+      <PlanSelector />
+    </main>
+  );
+}

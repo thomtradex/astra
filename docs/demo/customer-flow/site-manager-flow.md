@@ -1,6 +1,7 @@
 # Astra Site Manager Flow
 
 ## Objetivo
+
 Mostrar como um gestor de obra utiliza a Astra diariamente.
 
 ## Fluxo

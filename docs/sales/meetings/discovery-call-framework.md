@@ -75,4 +75,3 @@ No final da chamada deve existir:
 - problema identificado;
 - pessoa decisora conhecida;
 - próximo passo marcado.
-

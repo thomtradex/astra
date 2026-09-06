@@ -42,6 +42,7 @@ Propor:
 
 - piloto de 30 dias
 - avaliação de resultados
+
 # Astra Demo Script
 
 ## Cenário
@@ -59,11 +60,13 @@ Diretor de Operações
 2. Criar organização
 
 3. Criar obra:
+
 - Nome
 - Localização
 - Estado
 
 4. Adicionar ativos:
+
 - Equipamentos
 - Veículos
 - Máquinas
@@ -71,6 +74,7 @@ Diretor de Operações
 5. Consultar dashboard:
 
 Mostrar:
+
 - obras ativas
 - ativos
 - manutenção

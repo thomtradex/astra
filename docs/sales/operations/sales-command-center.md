@@ -127,4 +127,3 @@ Todas precisam de:
 - próxima ação;
 - responsável;
 - data.
-

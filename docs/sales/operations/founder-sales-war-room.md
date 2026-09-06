@@ -79,4 +79,3 @@ Toda oportunidade precisa de:
 - próxima ação;
 - responsável;
 - prazo.
-

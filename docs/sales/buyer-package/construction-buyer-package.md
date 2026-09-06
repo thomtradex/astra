@@ -44,16 +44,20 @@ Utilizadores:
 Primeiros 30 dias:
 
 Semana 1:
+
 - configuração;
 - onboarding.
 
 Semana 2:
+
 - utilização inicial.
 
 Semana 3:
+
 - recolha de feedback.
 
 Semana 4:
+
 - análise de resultados.
 
 ---
@@ -94,4 +98,3 @@ Enviar sempre:
 - problema;
 - solução;
 - próximo passo.
-

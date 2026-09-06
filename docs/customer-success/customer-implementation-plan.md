@@ -102,4 +102,3 @@ Após 30 dias:
 - processo definido;
 - valor demonstrado;
 - decisão de continuidade.
-

@@ -5,7 +5,9 @@ import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, buildAuthCookieOptions } fro
 const API_URL = process.env.API_URL ?? 'http://api:3001';
 
 interface LoginRequest {
-  email: string;
+  identifier?: string;
+  email?: string;
+  username?: string;
   password: string;
   organizationSlug?: string;
 }
@@ -20,12 +22,23 @@ interface LoginResponse {
 export async function POST(request: NextRequest) {
   const body = (await request.json()) as LoginRequest;
 
+  const identifier = (
+    body.identifier ??
+    body.username ??
+    body.email ??
+    ''
+  ).trim();
+
   const response = await fetch(`${API_URL}/api/v1/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      identifier,
+      password: body.password,
+      organizationSlug: body.organizationSlug,
+    }),
   });
 
   const data = (await response.json()) as LoginResponse;

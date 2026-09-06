@@ -34,6 +34,7 @@ Evolução futura:
 - compliance empresarial
 - certificações
 - auditorias externas
+
 # Astra Security Overview
 
 ## Authentication

@@ -105,4 +105,3 @@ Nenhuma oportunidade pode existir sem:
 Medir:
 
 leads → reuniões → demos → pilotos → contratos.
-

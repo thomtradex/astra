@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 
 import { apiFetch } from './api-client';
+import type { IntelligenceBriefing } from './intelligence-client';
 import { ACCESS_TOKEN_COOKIE } from './auth';
 
 export interface DashboardOverview {
@@ -25,6 +26,7 @@ export interface DashboardOverview {
     createdAt: string;
   }>;
   generatedAt: string;
+  intelligence?: IntelligenceBriefing;
 }
 
 export async function getDashboardOverview(): Promise<DashboardOverview> {
