@@ -1,3 +1,5 @@
+import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
+
 import { PERMISSIONS } from '@astra/shared';
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -11,6 +13,7 @@ import { AuditQueryDto } from './dto/audit-query.dto';
 
 @ApiTags('Audit')
 @ApiBearerAuth()
+@RequireBillingFeature('auditLogs')
 @Controller('audit')
 export class AuditController {
   constructor(private readonly auditService: AuditService) {}

@@ -43,6 +43,7 @@ export class AuditInterceptor implements NestInterceptor {
     }
 
     const resource = this.extractResource(request.path);
+    const resourceId = this.extractResourceId(request);
 
     return next.handle().pipe(
       tap({
@@ -52,6 +53,7 @@ export class AuditInterceptor implements NestInterceptor {
             actorId: request.user?.id,
             action: this.auditService.mapHttpMethodToAction(request.method),
             resource,
+            resourceId,
             method: request.method,
             path: request.url,
             ipAddress: request.ip,
@@ -65,6 +67,7 @@ export class AuditInterceptor implements NestInterceptor {
             actorId: request.user?.id,
             action: this.auditService.mapHttpMethodToAction(request.method),
             resource,
+            resourceId,
             method: request.method,
             path: request.url,
             ipAddress: request.ip,
@@ -82,5 +85,10 @@ export class AuditInterceptor implements NestInterceptor {
     const resourceIndex = segments.findIndex((s) => s === 'v1') + 1;
 
     return segments[resourceIndex] ?? 'unknown';
+  }
+
+  private extractResourceId(request: Request): string | null {
+    const params = request.params as Record<string, string | undefined> | undefined;
+    return params?.id ?? null;
   }
 }

@@ -32,6 +32,7 @@ describe('AuditInterceptor', () => {
     path = '/api/v1/assets',
     url = '/api/v1/assets',
     user,
+    params,
     statusCode = 200,
   }: {
     method?: string;
@@ -39,6 +40,7 @@ describe('AuditInterceptor', () => {
     url?: string;
     user?: AuthenticatedUser;
     statusCode?: number;
+    params?: Record<string, string | undefined>;
   } = {}): ExecutionContext => {
     const request = {
       method,
@@ -47,6 +49,7 @@ describe('AuditInterceptor', () => {
       ip: '127.0.0.1',
       headers: { 'user-agent': 'jest' },
       user,
+      params,
     } as RequestWithUser;
 
     const response = {
@@ -221,4 +224,44 @@ describe('AuditInterceptor', () => {
       }),
     );
   });
+
+    it('includes route resource id when available', () => {
+      reflector.getAllAndOverride.mockReturnValueOnce(false).mockReturnValueOnce(false);
+
+      next.handle = jest.fn().mockReturnValueOnce(of({ ok: true }));
+
+      const result = interceptor.intercept(
+        makeContext({
+          method: 'PATCH',
+          path: '/api/v1/work-orders/work-order-1',
+          url: '/api/v1/work-orders/work-order-1',
+          params: {
+            id: 'work-order-1',
+          },
+          user: {
+            id: 'user-1',
+            email: 'test@example.com',
+            roles: [],
+            organizationId: 'org-1',
+            permissions: [],
+          },
+        }),
+        next,
+      );
+
+      result.subscribe();
+
+      expect(jest.spyOn(auditService, 'log')).toHaveBeenCalledWith(
+        expect.objectContaining({
+          organizationId: 'org-1',
+          actorId: 'user-1',
+          resource: 'work-orders',
+          resourceId: 'work-order-1',
+          method: 'PATCH',
+          path: '/api/v1/work-orders/work-order-1',
+          statusCode: 200,
+        }),
+      );
+    });
+
 });
