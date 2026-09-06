@@ -3,13 +3,13 @@ export function DemoEnvironment() {
     <section>
       <h2>Astra Enterprise Demo</h2>
 
-      <p>Simulated construction intelligence environment.</p>
+      <p>Simulated operational decision environment.</p>
 
       <ul>
         <li>5 Construction Sites Connected</li>
         <li>1,240 Assets Monitored</li>
         <li>€48M Portfolio Value</li>
-        <li>AI Risk Detection Active</li>
+        <li>Operational Signals Active</li>
       </ul>
     </section>
   );

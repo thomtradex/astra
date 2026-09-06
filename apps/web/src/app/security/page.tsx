@@ -7,16 +7,13 @@ export default function SecurityPage() {
       <MarketingHeader />
 
       <section className="mx-auto max-w-5xl px-6 py-24">
-        <h1 className="text-5xl font-light text-astra-950">
-          Segurança enterprise
-        </h1>
+        <h1 className="text-5xl font-light text-astra-950">Segurança enterprise</h1>
 
         <p className="mt-6 text-lg text-astra-600">
-          Arquitetura preparada para organizações, permissões, auditoria e
-          isolamento multi-tenant.
+          Arquitetura preparada para organizações, permissões, auditoria e isolamento multi-tenant.
         </p>
       </section>
-          <MarketingFooter />
+      <MarketingFooter />
     </main>
   );
 }

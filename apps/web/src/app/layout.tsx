@@ -10,8 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Astra | Operational Intelligence Platform',
-  description: 'Astra é uma plataforma enterprise de inteligência operacional para construção, ativos, manutenção e equipas.',
+  title: 'Astra COO | Operational Decision Intelligence',
+  description:
+    'Astra COO transforma dados operacionais em sinais, prioridades, decisões e ações para empresas com operações complexas.',
   robots: {
     index: true,
     follow: true,

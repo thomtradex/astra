@@ -9,7 +9,7 @@ type RiskEngineProps = {
 export function RiskEngine({ risks }: RiskEngineProps) {
   return (
     <section>
-      <h2>AI Risk Engine</h2>
+      <h2>Sinais operacionais</h2>
 
       {risks.map((risk) => (
         <article key={`${risk.asset}-${risk.risk}`}>

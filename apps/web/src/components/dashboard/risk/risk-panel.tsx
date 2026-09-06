@@ -5,7 +5,7 @@ type RiskPanelProps = {
 export function RiskPanel({ risks }: RiskPanelProps) {
   return (
     <section>
-      <h2>AI Risk Detection</h2>
+      <h2>Situações que requerem atenção</h2>
 
       <ul>
         {risks.map((risk) => (

@@ -8,7 +8,7 @@ type ProjectStatusProps = {
 export function ProjectStatus({ projects }: ProjectStatusProps) {
   return (
     <section>
-      <h2>Project Intelligence</h2>
+      <h2>Contexto dos projetos</h2>
 
       <ul>
         {projects.map((project) => (

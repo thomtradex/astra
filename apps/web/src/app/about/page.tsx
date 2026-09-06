@@ -7,16 +7,14 @@ export default function AboutPage() {
       <MarketingHeader />
 
       <section className="mx-auto max-w-5xl px-6 py-24">
-        <h1 className="text-5xl font-light text-astra-950">
-          Sobre a Astra
-        </h1>
+        <h1 className="text-5xl font-light text-astra-950">Sobre a Astra</h1>
 
         <p className="mt-6 text-lg text-astra-600">
-          Construímos tecnologia para tornar operações de construção mais
-          previsíveis, eficientes e inteligentes.
+          Construímos tecnologia para tornar operações de construção mais previsíveis, eficientes e
+          inteligentes.
         </p>
       </section>
-          <MarketingFooter />
+      <MarketingFooter />
     </main>
   );
 }

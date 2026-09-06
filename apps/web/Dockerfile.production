@@ -36,6 +36,8 @@ COPY --from=builder --chown=nextjs:nodejs \
   /app/apps/web/.next/standalone/ \
   /app/
 
+RUN rm -f /app/apps/web/package.json
+
 # Assets estáticos do Next.js
 COPY --from=builder --chown=nextjs:nodejs \
   /app/apps/web/.next/static \

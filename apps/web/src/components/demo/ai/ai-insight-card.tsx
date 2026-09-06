@@ -1,15 +1,12 @@
 export function AiInsightCard() {
   return (
     <section>
-      <h2>Astra AI Insights</h2>
+      <h2>Sinais e recomendações</h2>
 
-      <ul>
-        <li>Probabilidade de atraso: 18%</li>
-
-        <li>Economia potencial: 42 horas/mês</li>
-
-        <li>5 decisões recomendadas hoje</li>
-      </ul>
+      <p>
+        A Astra transforma informação operacional em sinais claros, explica
+        por que razão importam e indica a próxima ação a considerar.
+      </p>
     </section>
   );
 }

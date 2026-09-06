@@ -6,10 +6,15 @@ type AiPanelProps = {
 export function AiPanel({ assets, risks }: AiPanelProps) {
   return (
     <section>
-      <h2>Astra Intelligence AI</h2>
+      <h2>Astra COO</h2>
 
       <p>
-        Sistema analisou {assets} ativos e identificou {risks} potenciais riscos operacionais.
+        O Astra COO organiza os dados operacionais disponíveis e destaca
+        situações que podem exigir atenção.
+      </p>
+
+      <p>
+        {assets} ativos em contexto · {risks} sinais identificados
       </p>
     </section>
   );

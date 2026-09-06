@@ -20,7 +20,7 @@ export const navItems = [
     href: '/documents',
   },
   {
-    label: 'Intelligence AI',
+    label: 'Briefing COO',
     href: '/intelligence',
   },
 ];
