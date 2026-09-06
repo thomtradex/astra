@@ -36,6 +36,8 @@ services:
       - api
     environment:
       NODE_ENV: production
+      COOKIE_SECURE: 'false'
+      API_URL: ${API_URL:?API_URL is required}
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL is required}
     ports:
       - '3000:3000'

@@ -28,14 +28,7 @@ async function main() {
     hashLength: user.passwordHash.length,
   });
 
-  console.log(
-    'PASSWORD CHECK:',
-    await bcrypt.compare(
-      'TestPassword123!',
-      user.passwordHash,
-    ),
-  );
+  console.log('PASSWORD CHECK:', await bcrypt.compare('TestPassword123!', user.passwordHash));
 }
 
-main()
-  .finally(() => prisma.$disconnect());
+main().finally(() => prisma.$disconnect());

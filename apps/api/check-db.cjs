@@ -3,9 +3,7 @@ const { PrismaClient } = require('@astra/database');
 const prisma = new PrismaClient();
 
 async function main() {
-  const result = await prisma.$queryRawUnsafe(
-    'SELECT current_database(), current_schema()'
-  );
+  const result = await prisma.$queryRawUnsafe('SELECT current_database(), current_schema()');
 
   console.log(result);
 
@@ -18,5 +16,4 @@ async function main() {
   console.log('ORGS COUNT:', orgs);
 }
 
-main()
-.finally(() => prisma.$disconnect());
+main().finally(() => prisma.$disconnect());

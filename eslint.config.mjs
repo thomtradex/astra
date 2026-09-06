@@ -6,7 +6,8 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['**/.next/**', 
+    ignores: [
+      '**/.next/**',
       '**/node_modules/**',
       '**/dist/**',
       'packages/database/generated/**',
@@ -49,7 +50,12 @@ export default tseslint.config(
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        projectService: { allowDefaultProject: ['apps/database/src/schema/intelligence/intelligence.ts', 'apps/api/prisma/seeds/demo.ts'] },
+        projectService: {
+          allowDefaultProject: [
+            'apps/database/src/schema/intelligence/intelligence.ts',
+            'apps/api/prisma/seeds/demo.ts',
+          ],
+        },
         tsconfigRootDir: import.meta.dirname,
       },
       globals: {
