@@ -13,6 +13,7 @@ import { WorkOrdersService } from './work-orders.service';
 
 type WorkOrderModel = Prisma.work_ordersGetPayload<Record<string, never>>;
 
+@RequireBillingFeature('workOrderManagement')
 @Controller('work-orders')
 @Authenticated()
 export class WorkOrdersController {

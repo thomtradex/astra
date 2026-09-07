@@ -22,7 +22,6 @@ import { HealthModule } from './modules/health/health.module';
 import { IntelligenceModule } from './modules/intelligence/intelligence.module';
 import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
-import { PermissionsGuard } from './modules/rbac/guards/permissions.guard';
 import { PolicyGuard } from './modules/authorization/guards/policy.guard';
 import { ScoringModule } from './modules/scoring/scoring.module';
 import { SitesModule } from './modules/sites/sites.module';
@@ -72,10 +71,6 @@ import { PrismaModule } from './prisma/prisma.module';
     {
       provide: APP_GUARD,
       useClass: PolicyGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: PermissionsGuard,
     },
     {
       provide: APP_GUARD,

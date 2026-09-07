@@ -1,8 +1,9 @@
+import { CanUseIntelligence } from '../authorization/policies/intelligence.policies';
 import { Body, Controller, Get, Post } from '@nestjs/common';
 
 import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Authenticated } from '../../common/decorators/metadata.decorators';
+import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 import { ExecuteCooActionDto } from './dto/execute-coo-action.dto';
@@ -11,13 +12,14 @@ import { IntelligenceService } from './intelligence.service';
 
 @Controller('intelligence')
 @Authenticated()
-@RequireBillingFeature('INTELLIGENCE')
+@RequireBillingFeature('intelligence')
 export class IntelligenceController {
   constructor(
     private readonly intelligenceService: IntelligenceService,
     private readonly cooActionExecutor: CooActionExecutorService,
   ) {}
 
+  @RequirePolicy(CanUseIntelligence.name)
   @Get('briefing')
   briefing(@CurrentUser() user: AuthenticatedUser) {
     return this.intelligenceService.analyze(
@@ -25,6 +27,7 @@ export class IntelligenceController {
     );
   }
 
+  @RequirePolicy(CanUseIntelligence.name)
   @Post('actions')
   executeAction(
     @CurrentUser() user: AuthenticatedUser,

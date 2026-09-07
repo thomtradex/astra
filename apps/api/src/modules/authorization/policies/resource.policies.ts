@@ -122,3 +122,9 @@ export const CanReadAudit = new PermissionBackedPolicy(
   'CanReadAudit',
   [PERMISSIONS.AUDIT_READ],
 );
+
+
+export const CanManageBilling = new PermissionBackedPolicy(
+  'CanManageBilling',
+  [PERMISSIONS.ORG_WRITE],
+);

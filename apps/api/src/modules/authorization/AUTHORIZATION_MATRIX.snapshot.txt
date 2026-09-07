@@ -1,0 +1,92 @@
+--- CONTROLLERS ---
+
+apps/api/src/modules/ai/ai.controller.ts
+apps/api/src/modules/assets/assets.controller.ts
+apps/api/src/modules/audit/audit.controller.ts
+apps/api/src/modules/auth/auth.controller.ts
+apps/api/src/modules/billing/billing.controller.ts
+apps/api/src/modules/billing/webhooks/billing-webhook.controller.ts
+apps/api/src/modules/customers/customers.controller.ts
+apps/api/src/modules/dashboard/dashboard.controller.ts
+apps/api/src/modules/enterprise-requests/enterprise-requests.controller.ts
+apps/api/src/modules/forecasting/forecasting.controller.ts
+apps/api/src/modules/health/health.controller.ts
+apps/api/src/modules/intelligence/intelligence.controller.ts
+apps/api/src/modules/maintenance/maintenance.controller.ts
+apps/api/src/modules/organizations/organizations.controller.ts
+apps/api/src/modules/projects/projects.controller.ts
+apps/api/src/modules/scoring/scoring.controller.ts
+apps/api/src/modules/sites/sites.controller.ts
+apps/api/src/modules/users/users.controller.ts
+apps/api/src/modules/work-orders/work-orders.controller.ts
+
+--- POLICIES ---
+
+apps/api/src/modules/customers/customers.controller.ts:6:import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
+apps/api/src/modules/customers/customers.controller.ts:24:  @RequirePolicy(CanReadCustomers.name)
+apps/api/src/modules/customers/customers.controller.ts:33:  @RequirePolicy(CanReadCustomers.name)
+apps/api/src/modules/customers/customers.controller.ts:42:  @RequirePolicy(CanManageCustomers.name)
+apps/api/src/modules/customers/customers.controller.ts:52:  @RequirePolicy(CanManageCustomers.name)
+apps/api/src/modules/customers/customers.controller.ts:58:  @RequirePolicy(CanManageCustomers.name)
+apps/api/src/modules/organizations/organizations.controller.ts:5:import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
+apps/api/src/modules/organizations/organizations.controller.ts:21:  @RequirePolicy(CanReadOrganizations.name)
+apps/api/src/modules/organizations/organizations.controller.ts:35:  @RequirePolicy(CanReadOrganizations.name)
+apps/api/src/modules/organizations/organizations.controller.ts:42:  @RequirePolicy(CanManageOrganizations.name)
+apps/api/src/modules/organizations/organizations.controller.ts:56:  @RequirePolicy(CanManageOrganizations.name)
+apps/api/src/modules/organizations/organizations.controller.ts:63:  @RequirePolicy(CanManageOrganizations.name)
+apps/api/src/modules/work-orders/work-orders.controller.ts:6:import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
+apps/api/src/modules/work-orders/work-orders.controller.ts:22:  @RequirePolicy(CanReadWorkOrders.name)
+apps/api/src/modules/work-orders/work-orders.controller.ts:28:  @RequirePolicy(CanManageWorkOrders.name)
+apps/api/src/modules/work-orders/work-orders.controller.ts:37:  @RequirePolicy(CanReadWorkOrders.name)
+apps/api/src/modules/work-orders/work-orders.controller.ts:46:  @RequirePolicy(CanManageWorkOrders.name)
+apps/api/src/modules/work-orders/work-orders.controller.ts:56:  @RequirePolicy(CanManageWorkOrders.name)
+apps/api/src/modules/intelligence/intelligence.controller.ts:6:import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
+apps/api/src/modules/intelligence/intelligence.controller.ts:22:  @RequirePolicy(CanUseIntelligence.name)
+apps/api/src/modules/intelligence/intelligence.controller.ts:30:  @RequirePolicy(CanUseIntelligence.name)
+apps/api/src/modules/projects/projects.controller.ts:12:import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
+apps/api/src/modules/projects/projects.controller.ts:26:  @RequirePolicy(CanReadProjects.name)
+apps/api/src/modules/projects/projects.controller.ts:32:  @RequirePolicy(CanReadProjects.name)
+apps/api/src/modules/projects/projects.controller.ts:41:  @RequirePolicy(CanManageProjects.name)
+apps/api/src/modules/projects/projects.controller.ts:50:  @RequirePolicy(CanManageProjects.name)
+apps/api/src/modules/projects/projects.controller.ts:60:  @RequirePolicy(CanManageProjects.name)
+apps/api/src/modules/dashboard/dashboard.controller.ts:7:import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
+apps/api/src/modules/dashboard/dashboard.controller.ts:16:  @RequirePolicy(CanReadDashboard.name)
+apps/api/src/modules/sites/sites.controller.ts:6:import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
+apps/api/src/modules/sites/sites.controller.ts:24:  @RequirePolicy(CanReadSites.name)
+apps/api/src/modules/sites/sites.controller.ts:33:  @RequirePolicy(CanReadSites.name)
+apps/api/src/modules/sites/sites.controller.ts:43:  @RequirePolicy(CanManageSites.name)
+apps/api/src/modules/sites/sites.controller.ts:53:  @RequirePolicy(CanManageSites.name)
+apps/api/src/modules/sites/sites.controller.ts:64:  @RequirePolicy(CanManageSites.name)
+apps/api/src/modules/audit/audit.controller.ts:8:import { RequirePolicy } from '../../common/decorators/metadata.decorators';
+apps/api/src/modules/audit/audit.controller.ts:22:  @RequirePolicy(CanReadAudit.name)
+apps/api/src/modules/users/users.controller.ts:5:import { RequirePolicy } from '../../common/decorators/metadata.decorators';
+apps/api/src/modules/users/users.controller.ts:19:  @RequirePolicy(CanReadUsers.name)
+apps/api/src/modules/maintenance/maintenance.controller.ts:5:import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
+apps/api/src/modules/maintenance/maintenance.controller.ts:20:  @RequirePolicy(CanReadMaintenance.name)
+apps/api/src/modules/maintenance/maintenance.controller.ts:26:  @RequirePolicy(CanReadMaintenance.name)
+apps/api/src/modules/maintenance/maintenance.controller.ts:32:  @RequirePolicy(CanManageMaintenance.name)
+apps/api/src/modules/maintenance/maintenance.controller.ts:42:  @RequirePolicy(CanManageMaintenance.name)
+apps/api/src/modules/maintenance/maintenance.controller.ts:48:  @RequirePolicy(CanManageMaintenance.name)
+apps/api/src/modules/assets/assets.controller.ts:6:import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
+apps/api/src/modules/assets/assets.controller.ts:24:  @RequirePolicy(CanReadAssets.name)
+apps/api/src/modules/assets/assets.controller.ts:33:  @RequirePolicy(CanReadAssets.name)
+apps/api/src/modules/assets/assets.controller.ts:43:  @RequirePolicy(CanManageAssets.name)
+apps/api/src/modules/assets/assets.controller.ts:53:  @RequirePolicy(CanManageAssets.name)
+apps/api/src/modules/assets/assets.controller.ts:64:  @RequirePolicy(CanManageAssets.name)
+
+--- BILLING FEATURES ---
+
+apps/api/src/modules/customers/customers.controller.ts:4:import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
+apps/api/src/modules/customers/customers.controller.ts:17:@RequireBillingFeature('customerManagement')
+apps/api/src/modules/work-orders/work-orders.controller.ts:4:import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
+apps/api/src/modules/intelligence/intelligence.controller.ts:4:import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
+apps/api/src/modules/intelligence/intelligence.controller.ts:15:@RequireBillingFeature('INTELLIGENCE')
+apps/api/src/modules/dashboard/dashboard.controller.ts:5:import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
+apps/api/src/modules/sites/sites.controller.ts:4:import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
+apps/api/src/modules/sites/sites.controller.ts:17:@RequireBillingFeature('siteManagement')
+apps/api/src/modules/audit/audit.controller.ts:2:import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
+apps/api/src/modules/audit/audit.controller.ts:16:@RequireBillingFeature('auditLogs')
+apps/api/src/modules/maintenance/maintenance.controller.ts:3:import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
+apps/api/src/modules/maintenance/maintenance.controller.ts:13:@RequireBillingFeature('maintenanceManagement')
+apps/api/src/modules/assets/assets.controller.ts:4:import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
+apps/api/src/modules/assets/assets.controller.ts:17:@RequireBillingFeature('assetManagement')

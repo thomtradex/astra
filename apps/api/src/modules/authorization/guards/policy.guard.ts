@@ -1,7 +1,10 @@
+import { ForbiddenException } from '@nestjs/common';
+import { IS_PUBLIC_KEY, AUTHENTICATED_KEY } from '../../../common/decorators/metadata.decorators';
 import {
   CanActivate,
   ExecutionContext,
   Injectable,
+
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
@@ -29,8 +32,28 @@ export class PolicyGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
-    if (!policyName) {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(
+      IS_PUBLIC_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (isPublic) {
       return true;
+    }
+
+    const authenticated = this.reflector.getAllAndOverride<boolean>(
+      AUTHENTICATED_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (authenticated && !policyName) {
+      return true;
+    }
+
+    if (!policyName) {
+      throw new ForbiddenException(
+        'Authorization policy metadata missing',
+      );
     }
 
     const policy = this.policyRegistry.get(policyName);
@@ -45,7 +68,9 @@ export class PolicyGuard implements CanActivate {
     const user = request.user;
 
     if (!user) {
-      return false;
+      throw new Error(
+        'Authorization failed: missing authenticated user',
+      );
     }
 
     const authorizationContext: AuthorizationContext = {

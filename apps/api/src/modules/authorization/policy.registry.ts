@@ -1,3 +1,6 @@
+import { CanUseIntelligence } from './policies/intelligence.policies';
+import { CanReadDashboard } from './policies/dashboard.policies';
+
 import { Injectable } from '@nestjs/common';
 
 import {
@@ -10,6 +13,7 @@ import {
   CanManageSites,
   CanReadSites,
   CanManageMaintenance,
+  CanManageBilling,
   CanReadMaintenance,
   CanReadAudit,
   CanReadCustomers,
@@ -41,6 +45,7 @@ export class PolicyRegistry {
     [CanManageProjects.name, CanManageProjects],
 
     [CanReadAudit.name, CanReadAudit],
+    [CanReadDashboard.name, CanReadDashboard],
 
 
     [CanReadAssets.name, CanReadAssets],
@@ -53,7 +58,9 @@ export class PolicyRegistry {
     [CanManageMaintenance.name, CanManageMaintenance],
 
     [CanReadWorkOrders.name, CanReadWorkOrders],
+    [CanUseIntelligence.name, CanUseIntelligence],
     [CanManageWorkOrders.name, CanManageWorkOrders],
+    [CanManageBilling.name, CanManageBilling],
   ]);
 
   get(name: string): AuthorizationPolicy | undefined {

@@ -6,7 +6,9 @@ import { BillingService } from './billing.service';
 import { UsageService } from './usage/usage.service';
 import { BillingAccessService } from './core/billing-access.service';
 
+import { BillingController } from './billing.controller';
 @Module({
+  controllers: [BillingController],
   imports: [PaymentModule],
   providers: [
     BillingService,
