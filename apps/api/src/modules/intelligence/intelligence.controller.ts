@@ -44,12 +44,23 @@ export class IntelligenceController {
       });
     }
 
+    if (dto.type === 'UPDATE_MAINTENANCE') {
+      return this.cooActionExecutor.execute(user, {
+        type: 'UPDATE_MAINTENANCE',
+        resource: 'maintenance_plans',
+        resourceId: dto.resourceId,
+        input: {
+          nextDue: dto.nextDue!,
+        },
+      });
+    }
+
     return this.cooActionExecutor.execute(user, {
-      type: 'UPDATE_MAINTENANCE',
-      resource: 'maintenance_plans',
+      type: 'SET_PROJECT_STATUS',
+      resource: 'projects',
       resourceId: dto.resourceId,
       input: {
-        nextDue: dto.nextDue!,
+        status: 'ON_HOLD',
       },
     });
   }

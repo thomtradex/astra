@@ -291,6 +291,68 @@ describe('COO intelligence decision loop (integration)', () => {
     ).toBe(false);
   });
 
+    it('executes SET_PROJECT_STATUS through the HTTP COO action endpoint and audits it', async () => {
+      const project = await prisma.projects.create({
+        data: {
+          id: `project-coo-http-${Date.now()}`,
+          name: 'COO HTTP Project',
+          code: `COO-HTTP-${Date.now()}`,
+          organization_id: organizationId,
+          status: 'IN_PROGRESS',
+          progress: 40,
+          end_date: new Date('2026-01-15T10:00:00.000Z'),
+          updated_at: new Date(),
+        },
+      });
+
+      await apiRequest(app)
+        .post(apiPath('/intelligence/actions'))
+        .set('Authorization', `Bearer ${alphaAdminToken}`)
+        .send({
+          type: 'SET_PROJECT_STATUS',
+          resourceId: project.id,
+          status: 'ON_HOLD',
+        })
+        .expect(201)
+        .expect((response) => {
+          expect(response.body).toEqual(
+            expect.objectContaining({
+              allowed: true,
+              status: 'EXECUTED',
+              resourceId: project.id,
+            }),
+          );
+        });
+
+      const updatedProject = await prisma.projects.findUnique({
+        where: { id: project.id },
+      });
+
+      expect(updatedProject?.status).toBe('ON_HOLD');
+
+      const audit = await prisma.auditLog.findFirst({
+        where: {
+          organizationId,
+          resourceId: project.id,
+          action: 'UPDATE',
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      expect(audit).toEqual(
+        expect.objectContaining({
+          organizationId,
+          resourceId: project.id,
+          actorId: expect.any(String),
+          action: 'UPDATE',
+          method: null,
+          statusCode: null,
+        }),
+      );
+    });
+
     it('executes UPDATE_MAINTENANCE through the HTTP COO action endpoint and audits it', async () => {
       const asset = await prisma.assets.create({
         data: {
