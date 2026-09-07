@@ -12,6 +12,7 @@ import {
   type IntelligenceSignal,
 } from '@/lib/intelligence-client';
 import { MaintenanceDecisionAction } from './maintenance-decision-action';
+import { ProjectDecisionAction } from './project-decision-action';
 import { WorkOrderDecisionAction } from './work-order-decision-action';
 
 const severityConfig: Record<
@@ -153,6 +154,14 @@ function SignalCard({ signal }: { signal: IntelligenceSignal }) {
           signal.action.resourceId && (
             <MaintenanceDecisionAction
               maintenancePlanId={signal.action.resourceId}
+            />
+          )}
+
+        {signal.type === 'OVERDUE_PROJECT' &&
+          signal.action?.type === 'SET_PROJECT_STATUS' &&
+          signal.action.resourceId && (
+            <ProjectDecisionAction
+              projectId={signal.action.resourceId}
             />
           )}
 

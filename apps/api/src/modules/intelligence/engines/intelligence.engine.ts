@@ -126,10 +126,10 @@ export class CooDecisionEngine {
         ),
         decision: {
           type: 'REVIEW',
-          label: 'Rever projeto em atraso',
+          label: 'Colocar em pausa',
         },
         action: {
-          type: 'UPDATE_PROJECT',
+          type: 'SET_PROJECT_STATUS',
           resource: 'projects',
           resourceId: project.id,
           requiresAuthorization: true,
@@ -306,11 +306,6 @@ export class CooDecisionEngine {
       decision: {
         type: 'REVIEW',
         label: 'Rever ordens prioritárias',
-      },
-      action: {
-        type: 'UPDATE_WORK_ORDER',
-        resource: 'work_orders',
-        requiresAuthorization: true,
       },
       status: 'OPEN',
       timestamp: now.toISOString(),

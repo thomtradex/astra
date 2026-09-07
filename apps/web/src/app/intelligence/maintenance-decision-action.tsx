@@ -16,6 +16,7 @@ export function MaintenanceDecisionAction({
   const [isPending, startTransition] = useTransition();
   const [nextDue, setNextDue] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

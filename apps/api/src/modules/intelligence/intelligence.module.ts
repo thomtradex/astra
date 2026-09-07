@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 
+import { MaintenanceModule } from '../maintenance/maintenance.module';
 import { WorkOrdersModule } from '../work-orders/work-orders.module';
+import { ProjectsModule } from '../projects/projects.module';
 
 import { CooActionExecutorService } from './coo-action.executor';
 
@@ -10,7 +12,7 @@ import { IntelligenceService } from './intelligence.service';
 
 @Module({
   controllers: [IntelligenceController],
-  imports: [WorkOrdersModule],
+  imports: [MaintenanceModule, WorkOrdersModule, ProjectsModule],
   providers: [IntelligenceService, CooDecisionEngine, CooActionExecutorService],
   exports: [CooActionExecutorService],
 })

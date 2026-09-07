@@ -10,5 +10,6 @@ import { MaintenanceService } from './maintenance.service';
   imports: [BillingModule,PrismaModule],
   controllers: [MaintenanceController],
   providers: [MaintenanceService],
+  exports: [MaintenanceService],
 })
 export class MaintenanceModule {}

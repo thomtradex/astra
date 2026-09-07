@@ -27,11 +27,13 @@ export interface IntelligenceSignal {
   action?: {
     type:
       | 'ASSIGN_WORK_ORDER'
-      | 'UPDATE_WORK_ORDER'
-      | 'UPDATE_PROJECT'
-      | 'UPDATE_MAINTENANCE';
-    resource: string;
-    resourceId?: string;
+      | 'UPDATE_MAINTENANCE'
+      | 'SET_PROJECT_STATUS';
+    resource:
+      | 'work_orders'
+      | 'maintenance_plans'
+      | 'projects';
+    resourceId: string;
     requiresAuthorization: true;
   };
   status: 'OPEN';

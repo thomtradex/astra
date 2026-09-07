@@ -33,12 +33,23 @@ export class IntelligenceController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: ExecuteCooActionDto,
   ) {
+    if (dto.type === 'ASSIGN_WORK_ORDER') {
+      return this.cooActionExecutor.execute(user, {
+        type: 'ASSIGN_WORK_ORDER',
+        resource: 'work_orders',
+        resourceId: dto.resourceId,
+        input: {
+          assignedToId: dto.assignedToId!,
+        },
+      });
+    }
+
     return this.cooActionExecutor.execute(user, {
-      type: dto.type,
-      resource: 'work_orders',
+      type: 'UPDATE_MAINTENANCE',
+      resource: 'maintenance_plans',
       resourceId: dto.resourceId,
       input: {
-        assignedToId: dto.assignedToId,
+        nextDue: dto.nextDue!,
       },
     });
   }

@@ -30,13 +30,9 @@ export interface IntelligenceSignal {
     label: string;
   };
   action?: {
-    type:
-      | 'ASSIGN_WORK_ORDER'
-      | 'UPDATE_WORK_ORDER'
-      | 'UPDATE_PROJECT'
-      | 'UPDATE_MAINTENANCE';
-    resource: string;
-    resourceId?: string;
+    type: 'ASSIGN_WORK_ORDER' | 'UPDATE_MAINTENANCE' | 'SET_PROJECT_STATUS';
+    resource: 'work_orders' | 'maintenance_plans' | 'projects';
+    resourceId: string;
     requiresAuthorization: true;
   };
   status: 'OPEN';
@@ -68,11 +64,22 @@ export async function getIntelligenceBriefing(): Promise<IntelligenceBriefing> {
   );
 }
 
-export interface ExecuteCooActionInput {
-  type: 'ASSIGN_WORK_ORDER';
-  resourceId: string;
-  assignedToId: string;
-}
+export type ExecuteCooActionInput =
+  | {
+      type: 'ASSIGN_WORK_ORDER';
+      resourceId: string;
+      assignedToId: string;
+    }
+  | {
+      type: 'UPDATE_MAINTENANCE';
+      resourceId: string;
+      nextDue: string;
+    }
+  | {
+      type: 'SET_PROJECT_STATUS';
+      resourceId: string;
+      status: 'ON_HOLD';
+    };
 
 export interface CooActionOutcome {
   action: ExecuteCooActionInput;

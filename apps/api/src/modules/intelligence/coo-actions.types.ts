@@ -8,6 +8,22 @@ export type CooAction =
       input: {
         assignedToId: string;
       };
+    }
+  | {
+      type: 'UPDATE_MAINTENANCE';
+      resource: 'maintenance_plans';
+      resourceId: string;
+      input: {
+        nextDue: string;
+      };
+    }
+  | {
+      type: 'SET_PROJECT_STATUS';
+      resource: 'projects';
+      resourceId: string;
+      input: {
+        status: 'ON_HOLD';
+      };
     };
 
 export interface CooActionOutcome {

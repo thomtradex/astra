@@ -307,4 +307,42 @@ describe('CooDecisionEngine', () => {
 
     expect(result.signalCount).toBe(0);
   });
+  it('recommends SET_PROJECT_STATUS for an overdue project', () => {
+    const result = engine.analyze({
+      now,
+      workOrders: [],
+      maintenancePlans: [],
+      assets: [],
+      projects: [
+        {
+          id: 'project-overdue',
+          name: 'Projeto Atrasado',
+          status: 'ACTIVE',
+          progress: 35,
+          end_date: new Date('2026-09-01T00:00:00.000Z'),
+        },
+      ],
+      sites: [],
+    });
+
+    const signal = result.signals.find(
+      (item) =>
+        item.type === 'OVERDUE_PROJECT' &&
+        item.source.resourceId === 'project-overdue',
+    );
+
+    expect(signal).toBeDefined();
+
+    if (!signal) {
+      throw new Error('Expected overdue project intelligence signal');
+    }
+
+    expect(signal.action).toEqual({
+      type: 'SET_PROJECT_STATUS',
+      resource: 'projects',
+      resourceId: 'project-overdue',
+      requiresAuthorization: true,
+    });
+  });
+
 });

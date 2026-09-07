@@ -2,9 +2,15 @@ import { AuditAction } from '@astra/database';
 import { Injectable } from '@nestjs/common';
 
 import { AuthorizationService } from '../authorization/authorization.service';
+import {
+  CanManageMaintenance,
+  CanManageProjects,
+} from '../authorization/policies/resource.policies';
 import { CanManageWorkOrders } from '../authorization/policies/work-order.policies';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { AuditService } from '../audit/audit.service';
+import { MaintenanceService } from '../maintenance/maintenance.service';
+import { ProjectsService } from '../projects/projects.service';
 import { WorkOrdersService } from '../work-orders/work-orders.service';
 
 import {
@@ -19,6 +25,8 @@ export class CooActionExecutorService implements CooActionExecutor {
     private readonly authorizationService: AuthorizationService,
     private readonly auditService: AuditService,
     private readonly workOrdersService: WorkOrdersService,
+    private readonly maintenanceService: MaintenanceService,
+    private readonly projectsService: ProjectsService,
   ) {}
 
   async execute(
@@ -28,6 +36,17 @@ export class CooActionExecutorService implements CooActionExecutor {
     switch (action.type) {
       case 'ASSIGN_WORK_ORDER':
         return this.assignWorkOrder(user, action);
+
+      case 'UPDATE_MAINTENANCE':
+        return this.updateMaintenance(user, action);
+
+      case 'SET_PROJECT_STATUS':
+        return this.setProjectStatus(user, action);
+
+      default: {
+        const exhaustiveCheck: never = action;
+        throw new Error(`Unsupported COO action: ${String(exhaustiveCheck)}`);
+      }
     }
   }
 
@@ -100,6 +119,152 @@ export class CooActionExecutorService implements CooActionExecutor {
           error instanceof Error
             ? error.message
             : 'Não foi possível executar a atribuição.',
+      };
+    }
+  }
+
+  private async updateMaintenance(
+    user: AuthenticatedUser,
+    action: Extract<CooAction, { type: 'UPDATE_MAINTENANCE' }>,
+  ): Promise<CooActionOutcome> {
+    const decision = await this.authorizationService.authorize(
+      CanManageMaintenance,
+      {
+        user,
+        resource: action.resource,
+        resourceId: action.resourceId,
+        metadata: {
+          actionType: action.type,
+          nextDue: action.input.nextDue,
+          source: 'coo',
+        },
+      },
+    );
+
+    if (!decision.allowed) {
+      return {
+        action,
+        allowed: false,
+        status: 'DENIED',
+        resourceId: action.resourceId,
+        message: 'Ação não autorizada.',
+      };
+    }
+
+    try {
+      await this.maintenanceService.update(
+        action.resourceId,
+        {
+          nextDue: action.input.nextDue,
+        },
+        user.organizationId,
+      );
+
+      await this.auditService.log({
+        organizationId: user.organizationId,
+        actorId: user.id,
+        action: AuditAction.UPDATE,
+        resource: action.resource,
+        resourceId: action.resourceId,
+        metadata: {
+          type: 'coo_action',
+          source: 'coo',
+          actionType: action.type,
+          authorizationPolicy: decision.policy,
+          nextDue: action.input.nextDue,
+        },
+      });
+
+      return {
+        action,
+        allowed: true,
+        status: 'EXECUTED',
+        resourceId: action.resourceId,
+        message: 'Manutenção reagendada com sucesso.',
+      };
+    } catch (error) {
+      return {
+        action,
+        allowed: true,
+        status: 'FAILED',
+        resourceId: action.resourceId,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Não foi possível reagendar a manutenção.',
+      };
+    }
+  }
+
+  private async setProjectStatus(
+    user: AuthenticatedUser,
+    action: Extract<CooAction, { type: 'SET_PROJECT_STATUS' }>,
+  ): Promise<CooActionOutcome> {
+    const decision = await this.authorizationService.authorize(
+      CanManageProjects,
+      {
+        user,
+        resource: action.resource,
+        resourceId: action.resourceId,
+        metadata: {
+          actionType: action.type,
+          status: action.input.status,
+          source: 'coo',
+        },
+      },
+    );
+
+    if (!decision.allowed) {
+      return {
+        action,
+        allowed: false,
+        status: 'DENIED',
+        resourceId: action.resourceId,
+        message: 'Ação não autorizada.',
+      };
+    }
+
+    try {
+      await this.projectsService.update(
+        action.resourceId,
+        {
+          status: action.input.status,
+        },
+        user.organizationId,
+      );
+
+      await this.auditService.log({
+        organizationId: user.organizationId,
+        actorId: user.id,
+        action: AuditAction.UPDATE,
+        resource: action.resource,
+        resourceId: action.resourceId,
+        metadata: {
+          type: 'coo_action',
+          source: 'coo',
+          actionType: action.type,
+          authorizationPolicy: decision.policy,
+          status: action.input.status,
+        },
+      });
+
+      return {
+        action,
+        allowed: true,
+        status: 'EXECUTED',
+        resourceId: action.resourceId,
+        message: 'Projeto colocado em pausa com sucesso.',
+      };
+    } catch (error) {
+      return {
+        action,
+        allowed: true,
+        status: 'FAILED',
+        resourceId: action.resourceId,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Não foi possível colocar o projeto em pausa.',
       };
     }
   }
