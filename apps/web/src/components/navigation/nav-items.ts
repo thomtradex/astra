@@ -16,9 +16,6 @@ export const navItems = [
     href: '/maintenance',
   },
   {
-    label: 'Documentos',
-  },
-  {
     label: 'Briefing COO',
     href: '/intelligence',
   },
