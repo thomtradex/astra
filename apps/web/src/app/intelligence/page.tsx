@@ -97,9 +97,14 @@ function SignalCard({ signal }: { signal: IntelligenceSignal }) {
           </div>
         </div>
 
-        <span className="shrink-0 text-xs font-medium text-slate-400">
-          {signal.urgency}
-        </span>
+        <div className="shrink-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 sm:max-w-xs">
+          <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+            Porquê agora?
+          </div>
+          <div className="mt-1 text-xs font-semibold leading-5 text-slate-700">
+            {signal.urgency}
+          </div>
+        </div>
       </div>
 
       {signal.evidence.length > 0 && (

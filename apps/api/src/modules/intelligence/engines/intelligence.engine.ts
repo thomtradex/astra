@@ -119,7 +119,11 @@ export class CooDecisionEngine {
           input.workOrders,
           now,
         ),
-        urgency: 'Requer atenção imediata',
+        urgency: this.buildProjectUrgency(
+          project,
+          input.workOrders,
+          now,
+        ),
         impact: this.buildProjectImpact(
           project,
           input.workOrders,
@@ -165,7 +169,8 @@ export class CooDecisionEngine {
           `Prioridade: ${order.priority}`,
           `Estado: ${order.status}`,
         ],
-        urgency: 'Requer atenção hoje',
+        urgency:
+          'Requer atenção hoje: prioridade alta sem responsável atribuído.',
         impact:
           'Esta ordem de trabalho de alta prioridade permanece sem um responsável atribuído, deixando a responsabilidade operacional por definir.',
         recommendedAction:
@@ -262,6 +267,47 @@ export class CooDecisionEngine {
     return evidence;
   }
 
+  private buildProjectUrgency(
+    project: Project,
+    workOrders: WorkOrder[],
+    now: Date,
+  ): string {
+    if (!project.end_date) {
+      return 'Requer atenção hoje.';
+    }
+
+    const overdueDays = Math.max(
+      1,
+      Math.floor(
+        (now.getTime() - project.end_date.getTime()) /
+          (1000 * 60 * 60 * 24),
+      ),
+    );
+
+    const projectWorkOrders = workOrders.filter(
+      (order) =>
+        order.project_id === project.id &&
+        order.status === 'OPEN',
+    );
+
+    const highPriorityOpen = projectWorkOrders.filter(
+      (order) => order.priority === 'HIGH',
+    );
+
+    let urgency =
+      overdueDays >= 30
+        ? `Requer atenção imediata: o projeto está há ${overdueDays} dia(s) além da data final.`
+        : overdueDays >= 7
+          ? `Requer atenção esta semana: o projeto está há ${overdueDays} dia(s) além da data final.`
+          : 'Requer atenção hoje: a data final já foi ultrapassada.';
+
+    if (highPriorityOpen.length > 0) {
+      urgency += ` Existem ${highPriorityOpen.length} ordem(ns) de alta prioridade aberta(s) associada(s).`;
+    }
+
+    return urgency;
+  }
+
   private buildProjectImpact(
     project: Project,
     workOrders: WorkOrder[],
@@ -345,7 +391,10 @@ export class CooDecisionEngine {
       explanation:
         'Existem trabalhos classificados como alta prioridade que ainda não foram concluídos.',
       evidence: orders.slice(0, 5).map((order) => order.title),
-      urgency: 'Requer acompanhamento hoje',
+      urgency:
+        orders.length >= 5
+          ? `Requer atenção imediata: existem ${orders.length} ordens de alta prioridade abertas.`
+          : `Requer atenção hoje: existem ${orders.length} ordem(ns) de alta prioridade abertas.`,
       impact:
         'Existem ordens de trabalho de alta prioridade que continuam abertas e requerem resolução operacional.',
       recommendedAction:
@@ -453,8 +502,10 @@ export class CooDecisionEngine {
       evidence,
       urgency:
         overdueDays >= 30
-          ? 'Atenção prioritária'
-          : 'Requer acompanhamento',
+          ? `Requer atenção imediata: a manutenção está há ${overdueDays} dia(s) em atraso.`
+          : overdueDays >= 7
+            ? `Requer atenção esta semana: a manutenção está há ${overdueDays} dia(s) em atraso.`
+            : 'Requer atenção hoje: a data prevista de manutenção já foi ultrapassada.',
       impact:
         assetWorkOrders.length > 0
           ? `A manutenção está ${overdueDays} dia(s) em atraso e existem ${assetWorkOrders.length} ordem(ns) de trabalho aberta(s) associada(s) ao ativo.`

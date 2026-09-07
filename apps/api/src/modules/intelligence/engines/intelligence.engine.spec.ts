@@ -31,6 +31,96 @@ describe('CooDecisionEngine', () => {
     expect(result.signals[0]!.severity).toBe('HIGH');
   });
 
+  it('explains why overdue maintenance requires attention today when delay is under 7 days', () => {
+    const result = engine.analyze({
+      now,
+      workOrders: [],
+      maintenancePlans: [
+        {
+          id: 'maintenance-today',
+          plan: 'Revisão diária',
+          status: 'ACTIVE',
+          nextDue: new Date('2026-09-04T10:00:00.000Z'),
+          assetId: 'asset-1',
+        },
+      ],
+      assets: [],
+      sites: [],
+      projects: [],
+    });
+
+    const signal = result.signals.find(
+      (item) =>
+        item.type === 'OVERDUE_MAINTENANCE' &&
+        item.source.resourceId === 'maintenance-today',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal?.urgency).toBe(
+      'Requer atenção hoje: a data prevista de manutenção já foi ultrapassada.',
+    );
+  });
+
+  it('explains why overdue maintenance requires attention this week from 7 days', () => {
+    const result = engine.analyze({
+      now,
+      workOrders: [],
+      maintenancePlans: [
+        {
+          id: 'maintenance-week',
+          plan: 'Revisão semanal',
+          status: 'ACTIVE',
+          nextDue: new Date('2026-08-29T10:00:00.000Z'),
+          assetId: 'asset-1',
+        },
+      ],
+      assets: [],
+      sites: [],
+      projects: [],
+    });
+
+    const signal = result.signals.find(
+      (item) =>
+        item.type === 'OVERDUE_MAINTENANCE' &&
+        item.source.resourceId === 'maintenance-week',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal?.urgency).toBe(
+      'Requer atenção esta semana: a manutenção está há 7 dia(s) em atraso.',
+    );
+  });
+
+  it('explains why overdue maintenance requires immediate attention from 30 days', () => {
+    const result = engine.analyze({
+      now,
+      workOrders: [],
+      maintenancePlans: [
+        {
+          id: 'maintenance-immediate',
+          plan: 'Revisão mensal',
+          status: 'ACTIVE',
+          nextDue: new Date('2026-08-06T10:00:00.000Z'),
+          assetId: 'asset-1',
+        },
+      ],
+      assets: [],
+      sites: [],
+      projects: [],
+    });
+
+    const signal = result.signals.find(
+      (item) =>
+        item.type === 'OVERDUE_MAINTENANCE' &&
+        item.source.resourceId === 'maintenance-immediate',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal?.urgency).toBe(
+      'Requer atenção imediata: a manutenção está há 30 dia(s) em atraso.',
+    );
+  });
+
   it('detects overdue maintenance', () => {
     const result = engine.analyze({
       now,
