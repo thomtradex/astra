@@ -18,7 +18,6 @@ const sections = [
       { href: '/assets', label: 'Ativos', icon: '◈' },
       { href: '/work-orders', label: 'Ordens de trabalho', icon: '✓' },
       { href: '/maintenance', label: 'Manutenção', icon: '↻' },
-      { href: '/documents', label: 'Documentos', icon: '□' },
     ],
   },
   {
@@ -30,8 +29,6 @@ const sections = [
   {
     label: 'Gestão',
     items: [
-      { href: '/reports', label: 'Relatórios', icon: '▤' },
-      { href: '/team', label: 'Equipa', icon: '♙' },
       { href: '/billing', label: 'Subscrição', icon: '◫' },
     ],
   },
@@ -102,25 +99,6 @@ export function Sidebar() {
       </div>
 
       <div className="border-t border-slate-100 p-4">
-        <Link
-          href="/settings"
-          className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-950"
-        >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
-            ⚙
-          </span>
-          <span>Definições</span>
-        </Link>
-
-        <Link
-          href="/help"
-          className="mt-1 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-950"
-        >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
-            ?
-          </span>
-          <span>Ajuda</span>
-        </Link>
       </div>
     </aside>
   );

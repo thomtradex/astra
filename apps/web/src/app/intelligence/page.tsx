@@ -137,6 +137,24 @@ function SignalCard({ signal }: { signal: IntelligenceSignal }) {
         <p className="mt-2 text-sm font-medium leading-6 text-slate-900">
           {signal.recommendedAction}
         </p>
+
+        <div className="mt-4 border-t border-slate-100 pt-4">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+            Impacto
+          </p>
+          <p className="mt-1 text-sm leading-6 text-slate-700">
+            {signal.impact}
+          </p>
+        </div>
+
+        <div className="mt-4 border-t border-slate-100 pt-4">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+            Decisão
+          </p>
+          <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">
+            {signal.decision.label}
+          </p>
+        </div>
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-2">

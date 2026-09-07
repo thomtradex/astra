@@ -17,7 +17,6 @@ export const navItems = [
   },
   {
     label: 'Documentos',
-    href: '/documents',
   },
   {
     label: 'Briefing COO',

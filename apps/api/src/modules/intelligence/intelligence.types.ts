@@ -14,6 +14,7 @@ export interface IntelligenceSignal {
   explanation: string;
   evidence: string[];
   urgency: string;
+  impact: string;
   owner?: {
     type: 'USER' | 'TEAM' | 'ORGANIZATION';
     id?: string;
