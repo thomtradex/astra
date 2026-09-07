@@ -435,4 +435,208 @@ describe('CooDecisionEngine', () => {
     });
   });
 
+
+  it('prioritizes an overdue project with an unassigned high-priority work order', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      now: new Date('2026-01-10T12:00:00.000Z'),
+      workOrders: [
+        {
+          id: 'wo-unassigned',
+          title: 'Intervenção urgente',
+          status: 'OPEN',
+          priority: 'HIGH',
+          assigned_to_id: null,
+          project_id: 'project-late',
+          asset_id: null,
+        },
+        {
+          id: 'wo-open',
+          title: 'Outra intervenção',
+          status: 'OPEN',
+          priority: 'HIGH',
+          assigned_to_id: 'user-1',
+          project_id: null,
+          asset_id: null,
+        },
+      ],
+      maintenancePlans: [],
+      assets: [],
+      sites: [],
+      projects: [
+        {
+          id: 'project-late',
+          name: 'Obra Norte',
+          status: 'ACTIVE',
+          progress: 40,
+          end_date: new Date('2026-01-01T12:00:00.000Z'),
+        },
+      ],
+    });
+
+    expect(result.signals[0]!.type).toBe('OVERDUE_PROJECT');
+    expect(result.signals[0]!.severity).toBe('CRITICAL');
+  });
+
+  it('prioritizes overdue maintenance with a high-priority asset work order over maintenance without operational context', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      now: new Date('2026-01-10T12:00:00.000Z'),
+      workOrders: [
+        {
+          id: 'wo-asset-high',
+          title: 'Falha crítica',
+          status: 'OPEN',
+          priority: 'HIGH',
+          assigned_to_id: 'user-1',
+          project_id: null,
+          asset_id: 'asset-risk',
+        },
+      ],
+      maintenancePlans: [
+        {
+          id: 'maintenance-risk',
+          plan: 'Manutenção urgente',
+          status: 'ACTIVE',
+          nextDue: new Date('2026-01-01T12:00:00.000Z'),
+          assetId: 'asset-risk',
+        },
+        {
+          id: 'maintenance-normal',
+          plan: 'Manutenção preventiva',
+          status: 'ACTIVE',
+          nextDue: new Date('2026-01-02T12:00:00.000Z'),
+          assetId: 'asset-normal',
+        },
+      ],
+      assets: [
+        {
+          id: 'asset-risk',
+          name: 'Gerador principal',
+          code: 'GEN-01',
+          serial_number: 'SN-01',
+          status: 'ACTIVE',
+          site_id: null,
+        },
+        {
+          id: 'asset-normal',
+          name: 'Compressor',
+          code: 'COMP-01',
+          serial_number: 'SN-02',
+          status: 'ACTIVE',
+          site_id: null,
+        },
+      ],
+      sites: [],
+      projects: [],
+    });
+
+    const maintenanceSignals = result.signals.filter(
+      (signal) => signal.type === 'OVERDUE_MAINTENANCE',
+    );
+
+    expect(maintenanceSignals[0]!.source.resourceId).toBe(
+      'maintenance-risk',
+    );
+  });
+
+
+  it('uses operational context to break ties between equally severe overdue projects', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      now: new Date('2026-01-10T12:00:00.000Z'),
+      workOrders: [
+        {
+          id: 'wo-project-context',
+          title: 'Intervenção urgente',
+          status: 'OPEN',
+          priority: 'HIGH',
+          assigned_to_id: null,
+          project_id: 'project-context',
+          asset_id: null,
+        },
+      ],
+      maintenancePlans: [],
+      assets: [],
+      sites: [],
+      projects: [
+        {
+          id: 'project-no-context',
+          name: 'Obra sem contexto',
+          status: 'ACTIVE',
+          progress: 60,
+          end_date: new Date('2026-01-02T12:00:00.000Z'),
+        },
+        {
+          id: 'project-context',
+          name: 'Obra com risco operacional',
+          status: 'ACTIVE',
+          progress: 60,
+          end_date: new Date('2026-01-01T12:00:00.000Z'),
+        },
+      ],
+    });
+
+    const projects = result.signals.filter(
+      (signal) => signal.type === 'OVERDUE_PROJECT',
+    );
+
+    expect(projects).toHaveLength(2);
+    expect(projects[0]!.source.resourceId).toBe('project-context');
+  });
+
+  it('keeps critical severity ahead of lower-severity operational context', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      now: new Date('2026-01-10T12:00:00.000Z'),
+      workOrders: [
+        {
+          id: 'wo-high',
+          title: 'Falha crítica',
+          status: 'OPEN',
+          priority: 'HIGH',
+          assigned_to_id: null,
+          project_id: null,
+          asset_id: 'asset-risk',
+        },
+      ],
+      maintenancePlans: [
+        {
+          id: 'maintenance-risk',
+          plan: 'Manutenção atrasada',
+          status: 'ACTIVE',
+          nextDue: new Date('2026-01-01T12:00:00.000Z'),
+          assetId: 'asset-risk',
+        },
+      ],
+      assets: [
+        {
+          id: 'asset-risk',
+          name: 'Gerador principal',
+          code: 'GEN-01',
+          serial_number: 'SN-01',
+          status: 'ACTIVE',
+          site_id: null,
+        },
+      ],
+      sites: [],
+      projects: [
+        {
+          id: 'project-critical',
+          name: 'Obra crítica',
+          status: 'ACTIVE',
+          progress: 20,
+          end_date: new Date('2026-01-01T12:00:00.000Z'),
+        },
+      ],
+    });
+
+    expect(result.signals[0]!.type).toBe('OVERDUE_PROJECT');
+    expect(result.signals[0]!.severity).toBe('CRITICAL');
+  });
+
 });

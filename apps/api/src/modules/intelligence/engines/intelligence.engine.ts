@@ -198,11 +198,7 @@ export class CooDecisionEngine {
       generatedAt: now.toISOString(),
       signalCount: signals.length,
       signals: signals
-        .sort(
-          (a, b) =>
-            this.severityWeight(b.severity) -
-            this.severityWeight(a.severity),
-        )
+        .sort((a, b) => this.compareSignals(a, b))
         .slice(0, 20),
     };
   }
@@ -528,6 +524,96 @@ export class CooDecisionEngine {
         resourceId: plan.id,
       },
     };
+  }
+
+  private compareSignals(
+    a: IntelligenceSignal,
+    b: IntelligenceSignal,
+  ) {
+    const severityDifference =
+      this.severityWeight(b.severity) -
+      this.severityWeight(a.severity);
+
+    if (severityDifference !== 0) {
+      return severityDifference;
+    }
+
+    const operationalPriorityDifference =
+      this.operationalPriority(b) -
+      this.operationalPriority(a);
+
+    if (operationalPriorityDifference !== 0) {
+      return operationalPriorityDifference;
+    }
+
+    const timestampDifference =
+      new Date(a.timestamp).getTime() -
+      new Date(b.timestamp).getTime();
+
+    if (timestampDifference !== 0) {
+      return timestampDifference;
+    }
+
+    return a.id.localeCompare(b.id);
+  }
+
+  private operationalPriority(signal: IntelligenceSignal) {
+    switch (signal.type) {
+      case 'OVERDUE_PROJECT':
+        if (
+          signal.evidence.some((item) =>
+            item.includes('Ordens de alta prioridade sem responsável:'),
+          )
+        ) {
+          return 30;
+        }
+
+        if (
+          signal.evidence.some((item) =>
+            item.includes('Ordens abertas de alta prioridade:'),
+          )
+        ) {
+          return 25;
+        }
+
+        if (
+          signal.evidence.some((item) =>
+            item.includes('Ordens de trabalho abertas associadas:'),
+          )
+        ) {
+          return 20;
+        }
+
+        return 15;
+
+      case 'OVERDUE_MAINTENANCE':
+        if (
+          signal.evidence.some((item) =>
+            item.includes('alta prioridade'),
+          )
+        ) {
+          return 25;
+        }
+
+        if (
+          signal.evidence.some((item) =>
+            item.includes('ordem(ns) de trabalho aberta(s)'),
+          )
+        ) {
+          return 20;
+        }
+
+        return 10;
+
+      case 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER':
+        return 25;
+
+      case 'HIGH_PRIORITY_WORK_ORDER':
+        return 15;
+
+      default:
+        return 0;
+    }
   }
 
   private severityWeight(severity: IntelligenceSeverity) {
