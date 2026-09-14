@@ -9,8 +9,8 @@ import { CanManageCustomers, CanReadCustomers } from '../authorization/policies/
 
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
-import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { QueryCustomersDto } from './dto/query-customers.dto';
+import { UpdateCustomerDto } from './dto/update-customer.dto';
 
 type CustomerModel = Prisma.customersGetPayload<Record<string, never>>;
 

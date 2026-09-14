@@ -13,6 +13,7 @@ export class DashboardService {
       assets,
       openOrders,
       highPriority,
+      criticalOpen,
       activeAssets,
       overdueMaintenance,
       recentAuditLogs,
@@ -39,7 +40,16 @@ export class DashboardService {
       this.prisma.work_orders.count({
         where: {
           organization_id: orgId,
-          priority: 'HIGH',
+          status: 'OPEN',
+          priority: { in: ['HIGH', 'CRITICAL'] },
+        },
+      }),
+
+      this.prisma.work_orders.count({
+        where: {
+          organization_id: orgId,
+          status: 'OPEN',
+          priority: 'CRITICAL',
         },
       }),
 
@@ -84,6 +94,7 @@ export class DashboardService {
       workOrders: {
         open: openOrders,
         highPriority,
+        criticalOpen,
       },
       assetHealth: {
         active: activeAssets,

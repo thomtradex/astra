@@ -16,10 +16,6 @@ describe('OrganizationsService', () => {
     },
   };
 
-  const billingService = {
-    ensureTrialSubscription: jest.fn().mockResolvedValue(undefined),
-  };
-
   const service = new OrganizationsService(
     prisma as unknown as PrismaService,
   );

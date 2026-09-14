@@ -2,7 +2,6 @@ import { INestApplication } from '@nestjs/common';
 
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { apiRequest } from '../helpers/http-client';
-import { bodyOf, CountResponse } from '../helpers/http-types';
 import { apiPath, createTestApp } from '../helpers/test-app';
 import { login, seedIntegrationTestData } from '../helpers/test-data';
 

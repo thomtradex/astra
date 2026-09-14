@@ -1,11 +1,11 @@
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { CanReadOrganizations, CanManageOrganizations } from '../authorization/policies/resource.policies';
 
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { QueryOrganizationsDto } from './dto/query-organizations.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';

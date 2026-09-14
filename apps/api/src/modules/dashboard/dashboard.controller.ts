@@ -1,10 +1,9 @@
-import { CanReadDashboard } from '../authorization/policies/dashboard.policies';
-
 import { Controller, Get } from '@nestjs/common';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { CanReadDashboard } from '../authorization/policies/dashboard.policies';
 
 import { DashboardService } from './dashboard.service';
 

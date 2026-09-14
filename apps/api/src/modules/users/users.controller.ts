@@ -3,9 +3,9 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { RequirePolicy } from '../../common/decorators/metadata.decorators';
-import { CanReadUsers } from '../authorization/policies/resource.policies';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { CanReadUsers } from '../authorization/policies/resource.policies';
 
 import { UsersService } from './users.service';
 

@@ -76,6 +76,7 @@ describe('DashboardService', () => {
     prisma.sites.count.mockResolvedValue(4);
     prisma.assets.count.mockResolvedValue(25);
     prisma.work_orders.count.mockResolvedValueOnce(8).mockResolvedValueOnce(2);
+    prisma.work_orders.count.mockResolvedValueOnce(1);
     prisma.assets.count.mockResolvedValueOnce(25).mockResolvedValueOnce(20);
     prisma.maintenance_plans.count.mockResolvedValue(3);
     prisma.auditLog.findMany.mockResolvedValue([
@@ -94,6 +95,7 @@ describe('DashboardService', () => {
       workOrders: {
         open: number;
         highPriority: number;
+        criticalOpen: number;
       };
       assetHealth: {
         active: number;
@@ -116,6 +118,7 @@ describe('DashboardService', () => {
     expect(result.assets).toBe(25);
     expect(result.workOrders.open).toBe(8);
     expect(result.workOrders.highPriority).toBe(2);
+    expect(result.workOrders.criticalOpen).toBe(1);
     expect(result.assetHealth.active).toBe(20);
     expect(result.assetHealth.total).toBe(25);
     expect(result.maintenance.overdue).toBe(3);
@@ -143,7 +146,16 @@ describe('DashboardService', () => {
     expect(prisma.work_orders.count).toHaveBeenNthCalledWith(2, {
       where: {
         organization_id: 'org-1',
-        priority: 'HIGH',
+        status: 'OPEN',
+        priority: { in: ['HIGH', 'CRITICAL'] },
+      },
+    });
+
+    expect(prisma.work_orders.count).toHaveBeenNthCalledWith(3, {
+      where: {
+        organization_id: 'org-1',
+        status: 'OPEN',
+        priority: 'CRITICAL',
       },
     });
 
