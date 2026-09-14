@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { DashboardShell } from '@/components/layout/dashboard-shell';
+
 import { EditCustomerForm } from '@/components/customers/edit-customer-form';
+import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { getCustomer } from '@/lib/customers';
 
 export default async function EditCustomerPage({

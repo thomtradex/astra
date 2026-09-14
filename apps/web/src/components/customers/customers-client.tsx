@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+
 import type { Customer } from '@/lib/customers';
 
 type Props = {
@@ -19,6 +21,7 @@ export function CustomersClient({
   totalPages,
   search,
 }: Props) {
+  const router = useRouter();
   const [value, setValue] = useState(search);
 
   useEffect(() => {
@@ -33,11 +36,11 @@ export function CustomersClient({
 
       next.set('page', '1');
 
-      window.location.href = `/customers?${next.toString()}`;
+      router.push(`/customers?${next.toString()}`);
     }, 450);
 
     return () => clearTimeout(timeout);
-  }, [value]);
+  }, [router, value]);
 
   function navigate(nextPage: number) {
     const params = new URLSearchParams();
@@ -48,7 +51,7 @@ export function CustomersClient({
 
     params.set('page', String(nextPage));
 
-    window.location.href = `/customers?${params.toString()}`;
+    router.push(`/customers?${params.toString()}`);
   }
 
   return (

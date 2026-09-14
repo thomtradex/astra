@@ -1,10 +1,12 @@
-import Link from 'next/link';
 import { cookies } from 'next/headers';
+import Link from 'next/link';
 
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { ProjectsClient } from '@/components/projects/projects-client';
-import { ACCESS_TOKEN_COOKIE } from '@/lib/auth';
+import { ACCESS_TOKEN_COOKIE } from '@/lib/auth-constants';
 import { getProjects } from '@/lib/projects';
+
+export const dynamic = 'force-dynamic';
 
 export default async function ProjectsPage() {
   const cookieStore = await cookies();
@@ -21,15 +23,11 @@ export default async function ProjectsPage() {
       <main className="mx-auto w-full max-w-7xl space-y-8 px-4 py-8 md:px-6">
         <header className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
           <div>
-            <p className="text-sm font-medium text-slate-400">
-              Operação / Obras
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
-              Obras
-            </h1>
+            <p className="text-sm font-medium text-slate-400">Operação / Obras</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Obras</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              Centralize a execução das obras, acompanhe o progresso e tenha
-              uma visão operacional de cada projeto.
+              Centralize a execução das obras, acompanhe o progresso e tenha uma visão operacional
+              de cada projeto.
             </p>
           </div>
 

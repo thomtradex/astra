@@ -8,11 +8,7 @@ const labels: Record<ProjectStatus, string> = {
   CANCELLED: 'Cancelada',
 };
 
-export function ProjectStatusBadge({
-  status,
-}: {
-  status: ProjectStatus;
-}) {
+export function ProjectStatusBadge({ status }: { status: ProjectStatus }) {
   return (
     <span className="inline-flex rounded-full border px-2.5 py-1 text-xs font-medium">
       {labels[status]}

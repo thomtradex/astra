@@ -1,7 +1,7 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { FormEvent, useState } from 'react';
 
 type Project = {
   id: string;
@@ -27,9 +27,7 @@ function dateInput(value?: string | null) {
   return value.slice(0, 10);
 }
 
-export function EditProjectForm({
-  project,
-}: EditProjectFormProps) {
+export function EditProjectForm({ project }: EditProjectFormProps) {
   const router = useRouter();
 
   const [form, setForm] = useState({
@@ -38,9 +36,7 @@ export function EditProjectForm({
     description: project.description ?? '',
     status: project.status,
     progress: String(project.progress),
-    budget: project.budget_cents != null
-      ? String(project.budget_cents / 100)
-      : '',
+    budget: project.budget_cents != null ? String(project.budget_cents / 100) : '',
     startDate: dateInput(project.start_date),
     endDate: dateInput(project.end_date),
   });
@@ -72,9 +68,7 @@ export function EditProjectForm({
           description: form.description.trim() || undefined,
           status: form.status,
           progress: Number(form.progress),
-          budgetCents: form.budget
-            ? Math.round(Number(form.budget) * 100)
-            : undefined,
+          budgetCents: form.budget ? Math.round(Number(form.budget) * 100) : undefined,
           startDate: form.startDate || undefined,
           endDate: form.endDate || undefined,
         }),
@@ -82,19 +76,13 @@ export function EditProjectForm({
 
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
-        throw new Error(
-          payload?.message || 'Não foi possível atualizar a obra.',
-        );
+        throw new Error(payload?.message || 'Não foi possível atualizar a obra.');
       }
 
       router.push(`/projects/${project.id}`);
       router.refresh();
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Não foi possível atualizar a obra.',
-      );
+      setError(err instanceof Error ? err.message : 'Não foi possível atualizar a obra.');
       setSaving(false);
     }
   }
@@ -182,9 +170,7 @@ export function EditProjectForm({
         </label>
 
         <label className="space-y-2">
-          <span className="text-sm font-medium">
-            Data prevista de conclusão
-          </span>
+          <span className="text-sm font-medium">Data prevista de conclusão</span>
           <input
             type="date"
             value={form.endDate}

@@ -1,3 +1,8 @@
+import { cookies } from 'next/headers';
+
+import { getApiBaseUrl } from './api-client';
+import { ACCESS_TOKEN_COOKIE } from './auth-constants';
+
 export type CustomerProject = {
   id: string;
   code: string;
@@ -28,6 +33,11 @@ export type CustomersResponse = {
   };
 };
 
+async function getAccessToken(): Promise<string | undefined> {
+  const cookieStore = await cookies();
+  return cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
+}
+
 export async function getCustomers(
   search?: string,
   options?: {
@@ -35,36 +45,69 @@ export async function getCustomers(
     limit?: number;
   },
 ): Promise<CustomersResponse> {
+  const page = options?.page ?? 1;
+  const limit = options?.limit ?? 25;
+
   const params = new URLSearchParams({
-    page: String(options?.page ?? 1),
-    limit: String(options?.limit ?? 25),
+    page: String(page),
+    limit: String(limit),
   });
 
   if (search?.trim()) {
     params.set('search', search.trim());
   }
 
-  const response = await fetch(`/api/customers?${params.toString()}`, {
-    cache: 'no-store',
-  });
+  const accessToken = await getAccessToken();
 
-  if (!response.ok) {
+  if (!accessToken) {
     return {
       items: [],
       pagination: {
-        page: options?.page ?? 1,
-        limit: options?.limit ?? 25,
+        page,
+        limit,
         total: 0,
         totalPages: 1,
       },
     };
   }
 
-  return response.json();
+  const response = await fetch(
+    `${getApiBaseUrl()}/customers?${params.toString()}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      cache: 'no-store',
+    },
+  );
+
+  if (!response.ok) {
+    return {
+      items: [],
+      pagination: {
+        page,
+        limit,
+        total: 0,
+        totalPages: 1,
+      },
+    };
+  }
+
+  const payload: unknown = await response.json();
+  return payload as CustomersResponse;
 }
 
 export async function getCustomer(id: string): Promise<Customer | null> {
-  const response = await fetch(`/api/customers/${id}`, {
+  const accessToken = await getAccessToken();
+
+  if (!accessToken) {
+    return null;
+  }
+
+  const response = await fetch(`${getApiBaseUrl()}/customers/${id}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
     cache: 'no-store',
   });
 
@@ -72,5 +115,6 @@ export async function getCustomer(id: string): Promise<Customer | null> {
     return null;
   }
 
-  return response.json();
+  const payload: unknown = await response.json();
+  return payload as Customer;
 }
