@@ -15,9 +15,7 @@ class PermissionBackedPolicy implements AuthorizationPolicy {
   evaluate(context: AuthorizationContext): AuthorizationDecision {
     const missing = this.requiredPermissions.filter(
       (permission) =>
-        !context.user.permissions.includes(
-          permission as (typeof context.user.permissions)[number],
-        ),
+        !context.user.permissions.includes(permission as (typeof context.user.permissions)[number]),
     );
 
     if (missing.length > 0) {
@@ -38,12 +36,10 @@ class PermissionBackedPolicy implements AuthorizationPolicy {
   }
 }
 
-export const CanReadWorkOrders = new PermissionBackedPolicy(
-  'CanReadWorkOrders',
-  [PERMISSIONS.WORK_ORDER_READ],
-);
+export const CanReadWorkOrders = new PermissionBackedPolicy('CanReadWorkOrders', [
+  PERMISSIONS.WORK_ORDER_READ,
+]);
 
-export const CanManageWorkOrders = new PermissionBackedPolicy(
-  'CanManageWorkOrders',
-  [PERMISSIONS.WORK_ORDER_WRITE],
-);
+export const CanManageWorkOrders = new PermissionBackedPolicy('CanManageWorkOrders', [
+  PERMISSIONS.WORK_ORDER_WRITE,
+]);
