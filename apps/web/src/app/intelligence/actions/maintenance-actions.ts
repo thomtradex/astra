@@ -2,10 +2,7 @@
 
 import { executeCooAction } from '@/lib/intelligence-client';
 
-export async function rescheduleMaintenance(
-  maintenancePlanId: string,
-  nextDue: string,
-) {
+export async function rescheduleMaintenance(maintenancePlanId: string, nextDue: string) {
   if (!maintenancePlanId) {
     throw new Error('Plano de manutenção inválido.');
   }
@@ -20,9 +17,15 @@ export async function rescheduleMaintenance(
     throw new Error('A nova data de manutenção é inválida.');
   }
 
-  return executeCooAction({
+  const outcome = await executeCooAction({
     type: 'UPDATE_MAINTENANCE',
     resourceId: maintenancePlanId,
     nextDue: parsedDate.toISOString(),
   });
+
+  if (!outcome.allowed || outcome.status !== 'EXECUTED') {
+    throw new Error(outcome.message || 'Não foi possível reagendar a manutenção.');
+  }
+
+  return outcome;
 }

@@ -1,12 +1,9 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState, useTransition } from 'react';
 
-import {
-  assignWorkOrder,
-  listAssignableUsers,
-} from './actions/work-order-actions';
+import { assignWorkOrder, listAssignableUsers } from './actions/work-order-actions';
 
 interface AssignableUser {
   id: string;
@@ -15,11 +12,7 @@ interface AssignableUser {
   email: string;
 }
 
-export function WorkOrderDecisionAction({
-  workOrderId,
-}: {
-  workOrderId: string;
-}) {
+export function WorkOrderDecisionAction({ workOrderId }: { workOrderId: string }) {
   const router = useRouter();
   const [users, setUsers] = useState<AssignableUser[]>([]);
   const [selectedUserId, setSelectedUserId] = useState('');
@@ -37,6 +30,9 @@ export function WorkOrderDecisionAction({
 
         if (active) {
           setUsers(result);
+          setError(
+            result.length === 0 ? 'Não existem utilizadores disponíveis para atribuição.' : '',
+          );
         }
       } catch {
         if (active) {
@@ -66,7 +62,8 @@ export function WorkOrderDecisionAction({
 
     startTransition(async () => {
       try {
-        await assignWorkOrder(workOrderId, selectedUserId);
+        const outcome = await assignWorkOrder(workOrderId, selectedUserId);
+        setSuccess(outcome.message);
         router.refresh();
       } catch {
         setError('Não foi possível atribuir a ordem de trabalho.');
@@ -81,6 +78,7 @@ export function WorkOrderDecisionAction({
         onChange={(event) => {
           setSelectedUserId(event.target.value);
           setError('');
+          setSuccess('');
         }}
         disabled={loadingUsers || isPending}
         className="min-w-56 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 outline-none transition focus:border-slate-400"
@@ -106,7 +104,15 @@ export function WorkOrderDecisionAction({
       </button>
 
       {error && (
-        <p className="text-sm text-red-700 sm:ml-1">{error}</p>
+        <p className="text-sm text-red-700 sm:ml-1" role="alert">
+          {error}
+        </p>
+      )}
+
+      {success && (
+        <p className="text-sm font-medium text-emerald-700 sm:ml-1" role="status">
+          {success}
+        </p>
       )}
     </div>
   );
