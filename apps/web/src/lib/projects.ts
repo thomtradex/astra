@@ -1,9 +1,6 @@
-export type ProjectStatus =
-  | 'PLANNING'
-  | 'ACTIVE'
-  | 'ON_HOLD'
-  | 'COMPLETED'
-  | 'CANCELLED';
+import { getApiBaseUrl } from './api-client';
+
+export type ProjectStatus = 'PLANNING' | 'ACTIVE' | 'ON_HOLD' | 'COMPLETED' | 'CANCELLED';
 
 export interface Project {
   id: string;
@@ -32,40 +29,57 @@ export interface Project {
   } | null;
 }
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ??
-  process.env.API_URL ??
-  'http://localhost:3001';
-
 export async function getProjects(accessToken?: string): Promise<Project[]> {
-  const response = await fetch(`${API_URL}/api/v1/projects`, {
-    headers: accessToken
-      ? { Authorization: `Bearer ${accessToken}` }
-      : undefined,
-    cache: 'no-store',
-  });
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/projects`, {
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+      cache: 'no-store',
+    });
 
-  if (!response.ok) {
-    throw new Error('Não foi possível carregar as obras.');
+    if (!response.ok) {
+      return [];
+    }
+
+    const payload: unknown = await response.json();
+
+    if (Array.isArray(payload)) {
+      return payload as Project[];
+    }
+
+    if (payload !== null && typeof payload === 'object') {
+      const record = payload as { data?: unknown; items?: unknown };
+
+      if (Array.isArray(record.data)) {
+        return record.data as Project[];
+      }
+
+      if (Array.isArray(record.items)) {
+        return record.items as Project[];
+      }
+    }
+
+    return [];
+  } catch (error) {
+    console.error('Failed to load projects:', error);
+    return [];
   }
-
-  return response.json();
 }
+export async function getProject(id: string, accessToken?: string): Promise<Project | null> {
+  try {
+    const response = await fetch(getApiBaseUrl() + '/projects/' + id, {
+      headers: accessToken ? { Authorization: 'Bearer ' + accessToken } : undefined,
+      cache: 'no-store',
+    });
 
-export async function getProject(
-  id: string,
-  accessToken?: string,
-): Promise<Project> {
-  const response = await fetch(`${API_URL}/api/v1/projects/${id}`, {
-    headers: accessToken
-      ? { Authorization: `Bearer ${accessToken}` }
-      : undefined,
-    cache: 'no-store',
-  });
+    if (!response.ok) {
+      console.error('Failed to load project:', response.status);
+      return null;
+    }
 
-  if (!response.ok) {
-    throw new Error('Não foi possível carregar a obra.');
+    const payload: unknown = await response.json();
+    return payload as Project;
+  } catch (error) {
+    console.error('Failed to load project:', error);
+    return null;
   }
-
-  return response.json();
 }

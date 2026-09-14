@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 
 import { apiFetch } from './api-client';
-import { ACCESS_TOKEN_COOKIE } from './auth';
+import { ACCESS_TOKEN_COOKIE } from './auth-constants';
 
 export interface OrganizationUser {
   id: string;

@@ -1,0 +1,6 @@
+apps/api/src/modules/assets/assets.controller.ts:17:@RequireBillingFeature('assetManagement')
+apps/api/src/modules/audit/audit.controller.ts:16:@RequireBillingFeature('auditLogs')
+apps/api/src/modules/customers/customers.controller.ts:17:@RequireBillingFeature('customerManagement')
+apps/api/src/modules/intelligence/intelligence.controller.ts:15:@RequireBillingFeature('INTELLIGENCE')
+apps/api/src/modules/maintenance/maintenance.controller.ts:13:@RequireBillingFeature('maintenanceManagement')
+apps/api/src/modules/sites/sites.controller.ts:17:@RequireBillingFeature('siteManagement')

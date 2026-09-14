@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { ACCESS_TOKEN_COOKIE } from '@/lib/auth';
+import { getApiBaseUrl } from '@/lib/api-client';
+import { ACCESS_TOKEN_COOKIE } from '@/lib/auth-constants';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 export async function GET(request: NextRequest) {
   const accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: 'Unauthenticated' }, { status: 401 });
   }
 
-  const response = await fetch(`${API_URL}/api/v1/organizations/current`, {
+  const response = await fetch(`${getApiBaseUrl()}/organizations/current`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -38,7 +38,7 @@ export async function PATCH(request: NextRequest) {
 
   const body = await request.text();
 
-  const response = await fetch(`${API_URL}/api/v1/organizations/current`, {
+  const response = await fetch(`${getApiBaseUrl()}/organizations/current`, {
     method: 'PATCH',
     headers: {
       Authorization: `Bearer ${accessToken}`,

@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { ACCESS_TOKEN_COOKIE } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+
+import { getApiBaseUrl } from '@/lib/api-client';
+import { ACCESS_TOKEN_COOKIE } from '@/lib/auth-constants';
 
 export async function GET(
   request: NextRequest,
@@ -19,7 +21,7 @@ export async function GET(
   const { id } = await context.params;
 
   const response = await fetch(
-    `${process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/api/v1/projects/${id}`,
+    `${getApiBaseUrl()}/projects/${id}`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -60,7 +62,7 @@ async function proxyRequest(
       : undefined;
 
   const response = await fetch(
-    `${process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/api/v1/projects/${id}`,
+    `${getApiBaseUrl()}/projects/${id}`,
     {
       method,
       headers: {

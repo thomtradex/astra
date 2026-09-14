@@ -1,49 +1,72 @@
-import { cookies } from 'next/headers';
+export interface WorkOrder {
+  id: string;
+  title: string;
+  description?: string | null;
+  status: string;
+  priority: string;
+  asset_id?: string | null;
+  assigned_to_id?: string | null;
+  project_id?: string | null;
+  organization_id?: string;
+  updated_at?: string;
+}
 
-import { apiFetch } from './api-client';
-import { ACCESS_TOKEN_COOKIE } from './auth';
+export interface CreateWorkOrderInput {
+  title: string;
+  description?: string;
+  status?: string;
+  priority?: string;
+  asset_id?: string;
+  assigned_to_id?: string;
+  project_id?: string;
+}
 
 export interface UpdateWorkOrderInput {
   title?: string;
   description?: string;
   status?: string;
   priority?: string;
-  assetId?: string;
-  assignedToId?: string;
-  projectId?: string;
+  asset_id?: string;
+  assigned_to_id?: string | null;
+  project_id?: string | null;
 }
 
-export interface WorkOrder {
-  id: string;
-  title: string;
-  description: string | null;
-  status: string;
-  priority: string;
-  organization_id: string;
-  project_id: string | null;
-  asset_id: string | null;
-  assigned_to_id: string | null;
-  created_at: string;
-  updated_at: string;
+async function request<T>(
+  path: string,
+  init: RequestInit,
+): Promise<T> {
+  const response = await fetch(path, {
+    ...init,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(init.headers ?? {}),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Work order request failed: ${response.status}`);
+  }
+
+  const payload: unknown = await response.json();
+  return payload as T;
+}
+
+export async function createWorkOrder(
+  input: CreateWorkOrderInput,
+): Promise<WorkOrder> {
+  return request<WorkOrder>('/api/work-orders', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
 }
 
 export async function updateWorkOrder(
   id: string,
   input: UpdateWorkOrderInput,
 ): Promise<WorkOrder> {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
-
-  if (!accessToken) {
-    throw new Error('Unauthenticated');
-  }
-
-  return apiFetch<WorkOrder>(
-    `/work-orders/${id}`,
-    {
-      method: 'PATCH',
-      body: JSON.stringify(input),
-    },
-    accessToken,
-  );
+  return request<WorkOrder>(`/api/work-orders/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
 }

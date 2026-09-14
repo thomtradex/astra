@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 
 import { rescheduleMaintenance } from './actions/maintenance-actions';
 
@@ -9,52 +9,57 @@ interface MaintenanceDecisionActionProps {
   maintenancePlanId: string;
 }
 
-export function MaintenanceDecisionAction({
-  maintenancePlanId,
-}: MaintenanceDecisionActionProps) {
+export function MaintenanceDecisionAction({ maintenancePlanId }: MaintenanceDecisionActionProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [nextDue, setNextDue] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setSuccess(null);
 
     startTransition(async () => {
       try {
-        await rescheduleMaintenance(maintenancePlanId, nextDue);
+        const outcome = await rescheduleMaintenance(maintenancePlanId, nextDue);
+        setSuccess(outcome.message);
         setOpen(false);
         setNextDue('');
         router.refresh();
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : 'Não foi possível reagendar a manutenção.',
-        );
+        setError(err instanceof Error ? err.message : 'Não foi possível reagendar a manutenção.');
       }
     });
   }
 
   if (!open) {
     return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="inline-flex items-center rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-      >
-        Reagendar manutenção
-      </button>
+      <div className="flex flex-col gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            setError(null);
+            setSuccess(null);
+            setOpen(true);
+          }}
+          className="inline-flex items-center rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+        >
+          Reagendar manutenção
+        </button>
+        {success ? (
+          <p className="text-sm font-medium text-emerald-700" role="status">
+            {success}
+          </p>
+        ) : null}
+      </div>
     );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-xl border border-slate-200 bg-slate-50 p-4"
-    >
+    <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
       <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
         Decisão necessária
       </div>
@@ -77,11 +82,7 @@ export function MaintenanceDecisionAction({
         className="mt-2 block w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
       />
 
-      {error && (
-        <p className="mt-3 text-sm leading-5 text-red-700">
-          {error}
-        </p>
-      )}
+      {error && <p className="mt-3 text-sm leading-5 text-red-700">{error}</p>}
 
       <div className="mt-4 flex flex-wrap gap-2">
         <button
@@ -89,6 +90,7 @@ export function MaintenanceDecisionAction({
           onClick={() => {
             setOpen(false);
             setError(null);
+            setSuccess(null);
           }}
           disabled={isPending}
           className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"

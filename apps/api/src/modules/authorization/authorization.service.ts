@@ -39,10 +39,7 @@ export class AuthorizationService {
     return decision;
   }
 
-  async can(
-    policy: AuthorizationPolicy,
-    context: AuthorizationContext,
-  ): Promise<boolean> {
+  async can(policy: AuthorizationPolicy, context: AuthorizationContext): Promise<boolean> {
     const decision = await this.authorize(policy, context);
 
     return decision.allowed;

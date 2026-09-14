@@ -1,10 +1,8 @@
-import { ACCESS_TOKEN_COOKIE } from '@/lib/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_URL =
-  process.env.API_URL ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  'http://127.0.0.1:3001';
+import { getApiBaseUrl } from '@/lib/api-client';
+import { ACCESS_TOKEN_COOKIE } from '@/lib/auth-constants';
+
 
 function getToken(request: NextRequest) {
   return request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
@@ -31,7 +29,7 @@ export async function GET(request: NextRequest) {
   }
 
   const response = await fetch(
-    `${API_URL}/api/v1/customers?${params.toString()}`,
+    `${getApiBaseUrl()}/customers?${params.toString()}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -54,7 +52,7 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
-  const response = await fetch(`${API_URL}/api/v1/customers`, {
+  const response = await fetch(`${getApiBaseUrl()}/customers`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,

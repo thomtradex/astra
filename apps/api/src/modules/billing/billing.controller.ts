@@ -2,8 +2,9 @@ import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Authenticated, Public } from '../../common/decorators/metadata.decorators';
+import { Authenticated, Public, RequirePolicy } from '../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { CanManageBilling } from '../authorization/policies/resource.policies';
 
 import { BillingService } from './billing.service';
 import { CreateCheckoutSessionDto } from './dto/create-checkout-session.dto';
@@ -40,6 +41,7 @@ export class BillingController {
   @Post('free')
   @Authenticated()
   @ApiOperation({ summary: 'Activate free plan' })
+  @RequirePolicy(CanManageBilling.name)
   startFree(@CurrentUser() user: AuthenticatedUser) {
     return this.billingService.ensureFreeSubscription(user.organizationId);
   }
@@ -47,6 +49,7 @@ export class BillingController {
   @Post('trial')
   @Authenticated()
   @ApiOperation({ summary: 'Start free trial subscription' })
+  @RequirePolicy(CanManageBilling.name)
   startTrial(@CurrentUser() user: AuthenticatedUser) {
     return this.billingService.ensureTrialSubscription(user.organizationId);
   }
@@ -54,6 +57,7 @@ export class BillingController {
   @Post('checkout')
   @Authenticated()
   @ApiOperation({ summary: 'Create Stripe Checkout session' })
+  @RequirePolicy(CanManageBilling.name)
   createCheckout(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateCheckoutSessionDto) {
     return this.billingService.createCheckoutSession(user.organizationId, dto.planCode, user.email);
   }
@@ -61,6 +65,7 @@ export class BillingController {
   @Post('portal')
   @Authenticated()
   @ApiOperation({ summary: 'Create Stripe Billing Portal session' })
+  @RequirePolicy(CanManageBilling.name)
   createPortal(
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: CreateCustomerPortalSessionDto,
@@ -70,6 +75,7 @@ export class BillingController {
 
   @Patch('plan')
   @Authenticated()
+  @RequirePolicy(CanManageBilling.name)
   async changePlan(
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: UpgradePlanDto,
@@ -82,6 +88,7 @@ export class BillingController {
   @ApiOperation({
     summary: 'Cancel subscription at the end of the period',
   })
+  @RequirePolicy(CanManageBilling.name)
   cancel(@CurrentUser() user: AuthenticatedUser) {
     return this.billingService.cancelAtPeriodEnd(user.organizationId);
   }
@@ -91,6 +98,7 @@ export class BillingController {
   @ApiOperation({
     summary: 'Reactivate a scheduled cancellation',
   })
+  @RequirePolicy(CanManageBilling.name)
   reactivate(@CurrentUser() user: AuthenticatedUser) {
     return this.billingService.reactivate(user.organizationId);
   }

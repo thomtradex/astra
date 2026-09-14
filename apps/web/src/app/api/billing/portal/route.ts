@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_URL =
-  process.env.API_URL ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  'http://localhost:3001';
+import { getApiBaseUrl } from '@/lib/api-client';
+
 
 export async function POST(request: NextRequest) {
   const cookie = request.headers.get('cookie') ?? '';
   const body = await request.text();
 
-  const response = await fetch(`${API_URL}/api/v1/billing/portal`, {
+  const response = await fetch(`${getApiBaseUrl()}/billing/portal`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

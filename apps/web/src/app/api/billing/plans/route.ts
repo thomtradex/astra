@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 
-const API_URL = process.env.API_URL || 'http://localhost:3001';
+import { getApiBaseUrl } from '@/lib/api-client';
+
 
 export async function GET() {
-  const response = await fetch(`${API_URL}/api/v1/billing/plans`, {
+  const response = await fetch(`${getApiBaseUrl()}/billing/plans`, {
     method: 'GET',
     cache: 'no-store',
   });

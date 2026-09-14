@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getBillingPlans, type BillingPlan } from '@/lib/billing-client';
+import { useEffect, useMemo, useState } from 'react';
 
 function BackButtonToHome() {
   const router = useRouter();
@@ -158,7 +157,7 @@ export default function PlansPage() {
   const router = useRouter();
   const [plans, setPlans] = useState<Plan[]>(FALLBACK_PLANS);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busy] = useState<string | null>(null);
   const [error, setError] = useState('');
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { FormEvent, useState } from 'react';
 
 export function CompanySetup() {
   const router = useRouter();

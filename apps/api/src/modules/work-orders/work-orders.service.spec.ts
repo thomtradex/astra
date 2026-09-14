@@ -54,8 +54,8 @@ describe('WorkOrdersService', () => {
         },
         data: expect.objectContaining({
           status: 'IN_PROGRESS',
-          updated_at: expect.any(Date),
-        }),
+          updated_at: expect.any(Date) as unknown,
+        }) as unknown,
       });
     });
 
@@ -152,7 +152,7 @@ describe('WorkOrdersService', () => {
         },
         data: expect.objectContaining({
           project_id: 'project-1',
-        }),
+        }) as unknown,
       });
     });
 
@@ -185,7 +185,7 @@ describe('WorkOrdersService', () => {
         },
         data: expect.objectContaining({
           asset_id: 'asset-1',
-        }),
+        }) as unknown,
       });
     });
 
@@ -218,7 +218,7 @@ describe('WorkOrdersService', () => {
         },
         data: expect.objectContaining({
           assigned_to_id: 'user-1',
-        }),
+        }) as unknown,
       });
     });
 

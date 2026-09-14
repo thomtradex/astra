@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { ACCESS_TOKEN_COOKIE } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+
+import { getApiBaseUrl } from '@/lib/api-client';
+import { ACCESS_TOKEN_COOKIE } from '@/lib/auth-constants';
 
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
@@ -15,7 +17,7 @@ export async function GET(request: NextRequest) {
 
   const search = request.nextUrl.search;
   const response = await fetch(
-    `${process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/api/v1/projects${search}`,
+    `${getApiBaseUrl()}/projects${search}`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -49,7 +51,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
 
   const response = await fetch(
-    `${process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/api/v1/projects`,
+    `${getApiBaseUrl()}/projects`,
     {
       method: 'POST',
       headers: {

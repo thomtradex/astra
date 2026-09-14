@@ -1,4 +1,3 @@
-import { BackButton } from '@/components/navigation/back-button';
 
 import { Suspense } from 'react';
 

@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+
+import { DeleteCustomerButton } from '@/components/customers/delete-customer-button';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { getCustomer } from '@/lib/customers';
-import { DeleteCustomerButton } from '@/components/customers/delete-customer-button';
 
 function formatDate(value?: string | null) {
   if (!value) return '—';

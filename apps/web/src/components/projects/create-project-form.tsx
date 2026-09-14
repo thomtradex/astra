@@ -1,17 +1,14 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { FormEvent, useState } from 'react';
 
 type CreateProjectFormProps = {
   customers: Array<{ id: string; name: string }>;
   sites: Array<{ id: string; name: string }>;
 };
 
-export function CreateProjectForm({
-  customers,
-  sites,
-}: CreateProjectFormProps) {
+export function CreateProjectForm({ customers, sites }: CreateProjectFormProps) {
   const router = useRouter();
 
   const [form, setForm] = useState({
@@ -49,9 +46,7 @@ export function CreateProjectForm({
           siteId: form.siteId || undefined,
           status: form.status,
           progress: Number(form.progress),
-          budgetCents: form.budgetCents
-            ? Math.round(Number(form.budgetCents) * 100)
-            : undefined,
+          budgetCents: form.budgetCents ? Math.round(Number(form.budgetCents) * 100) : undefined,
           startDate: form.startDate || undefined,
           endDate: form.endDate || undefined,
         }),
@@ -59,19 +54,13 @@ export function CreateProjectForm({
 
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
-        throw new Error(
-          payload?.message || 'Não foi possível criar a obra.',
-        );
+        throw new Error(payload?.message || 'Não foi possível criar a obra.');
       }
 
       router.push('/projects');
       router.refresh();
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Não foi possível criar a obra.',
-      );
+      setError(err instanceof Error ? err.message : 'Não foi possível criar a obra.');
       setSubmitting(false);
     }
   }

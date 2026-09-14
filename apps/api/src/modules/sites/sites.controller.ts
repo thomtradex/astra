@@ -1,12 +1,12 @@
 import { Prisma } from '@astra/database';
-import { PERMISSIONS } from '@astra/shared';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 
 import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Authenticated, RequirePermissions } from '../../common/decorators/metadata.decorators';
+import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { CanManageSites, CanReadSites } from '../authorization/policies/resource.policies';
 
 import { CreateSiteDto } from './dto/create-site.dto';
 import { UpdateSiteDto } from './dto/update-site.dto';
@@ -21,7 +21,7 @@ export class SitesController {
   constructor(private readonly sitesService: SitesService) {}
 
   @Get()
-  @RequirePermissions(PERMISSIONS.SITE_READ)
+  @RequirePolicy(CanReadSites.name)
   findAll(
     @CurrentUser() user: AuthenticatedUser,
     @Query() _pagination: PaginationQueryDto,
@@ -30,7 +30,7 @@ export class SitesController {
   }
 
   @Get(':id')
-  @RequirePermissions(PERMISSIONS.SITE_READ)
+  @RequirePolicy(CanReadSites.name)
   findOne(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
@@ -40,7 +40,7 @@ export class SitesController {
   }
 
   @Post()
-  @RequirePermissions(PERMISSIONS.SITE_WRITE)
+  @RequirePolicy(CanManageSites.name)
   create(
     @Body() dto: CreateSiteDto,
     @CurrentUser() user: AuthenticatedUser,
@@ -50,7 +50,7 @@ export class SitesController {
   }
 
   @Patch(':id')
-  @RequirePermissions(PERMISSIONS.SITE_WRITE)
+  @RequirePolicy(CanManageSites.name)
   update(
     @Param('id') id: string,
     @Body() dto: UpdateSiteDto,
@@ -61,7 +61,7 @@ export class SitesController {
   }
 
   @Delete(':id')
-  @RequirePermissions(PERMISSIONS.SITE_WRITE)
+  @RequirePolicy(CanManageSites.name)
   remove(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,

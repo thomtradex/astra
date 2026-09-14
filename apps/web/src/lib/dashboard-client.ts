@@ -1,8 +1,8 @@
 import { cookies } from 'next/headers';
 
 import { apiFetch } from './api-client';
+import { ACCESS_TOKEN_COOKIE } from './auth-constants';
 import type { IntelligenceBriefing } from './intelligence-client';
-import { ACCESS_TOKEN_COOKIE } from './auth';
 
 export interface DashboardOverview {
   customers: number;
@@ -11,6 +11,7 @@ export interface DashboardOverview {
   workOrders: {
     open: number;
     highPriority: number;
+    criticalOpen: number;
   };
   assetHealth: {
     active: number;

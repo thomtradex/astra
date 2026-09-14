@@ -2,11 +2,12 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 
 import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Authenticated } from '../../common/decorators/metadata.decorators';
+import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { CanUseIntelligence } from '../authorization/policies/intelligence.policies';
 
-import { ExecuteCooActionDto } from './dto/execute-coo-action.dto';
 import { CooActionExecutorService } from './coo-action.executor';
+import { ExecuteCooActionDto } from './dto/execute-coo-action.dto';
 import { IntelligenceService } from './intelligence.service';
 
 @Controller('intelligence')
@@ -18,24 +19,43 @@ export class IntelligenceController {
     private readonly cooActionExecutor: CooActionExecutorService,
   ) {}
 
+  @RequirePolicy(CanUseIntelligence.name)
   @Get('briefing')
   briefing(@CurrentUser() user: AuthenticatedUser) {
-    return this.intelligenceService.analyze(
-      user.organizationId,
-    );
+    return this.intelligenceService.analyze(user.organizationId);
   }
 
+  @RequirePolicy(CanUseIntelligence.name)
   @Post('actions')
-  executeAction(
-    @CurrentUser() user: AuthenticatedUser,
-    @Body() dto: ExecuteCooActionDto,
-  ) {
+  executeAction(@CurrentUser() user: AuthenticatedUser, @Body() dto: ExecuteCooActionDto) {
+    if (dto.type === 'ASSIGN_WORK_ORDER') {
+      return this.cooActionExecutor.execute(user, {
+        type: 'ASSIGN_WORK_ORDER',
+        resource: 'work_orders',
+        resourceId: dto.resourceId,
+        input: {
+          assignedToId: dto.assignedToId!,
+        },
+      });
+    }
+
+    if (dto.type === 'UPDATE_MAINTENANCE') {
+      return this.cooActionExecutor.execute(user, {
+        type: 'UPDATE_MAINTENANCE',
+        resource: 'maintenance_plans',
+        resourceId: dto.resourceId,
+        input: {
+          nextDue: dto.nextDue!,
+        },
+      });
+    }
+
     return this.cooActionExecutor.execute(user, {
-      type: dto.type,
-      resource: 'work_orders',
+      type: 'SET_PROJECT_STATUS',
+      resource: 'projects',
       resourceId: dto.resourceId,
       input: {
-        assignedToId: dto.assignedToId,
+        status: 'ON_HOLD',
       },
     });
   }

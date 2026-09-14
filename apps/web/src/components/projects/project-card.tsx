@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 
+import { ProjectStatusBadge } from './project-status-badge';
+
 import type { Project } from '@/lib/projects';
 
-import { ProjectStatusBadge } from './project-status-badge';
 
 function formatBudget(cents: number | null) {
   if (cents === null) return '—';
@@ -38,9 +39,7 @@ export function ProjectCard({ project }: { project: Project }) {
       <div className="mt-5">
         <div className="flex items-center justify-between text-sm">
           <span className="text-slate-500">Progresso</span>
-          <span className="font-semibold text-slate-900">
-            {project.progress}%
-          </span>
+          <span className="font-semibold text-slate-900">{project.progress}%</span>
         </div>
 
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">

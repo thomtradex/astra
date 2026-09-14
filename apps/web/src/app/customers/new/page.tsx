@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { DashboardShell } from '@/components/layout/dashboard-shell';
+
 import { CreateCustomerForm } from '@/components/customers/create-customer-form';
+import { DashboardShell } from '@/components/layout/dashboard-shell';
 
 export default function NewCustomerPage() {
   return (

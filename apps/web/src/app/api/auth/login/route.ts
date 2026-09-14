@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, buildAuthCookieOptions } from '@/lib/auth';
+import { getApiBaseUrl } from '@/lib/api-client';
+import { buildAuthCookieOptions } from '@/lib/auth';
+import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from '@/lib/auth-constants';
 
-const API_URL = process.env.API_URL ?? 'http://api:3001';
 
 interface LoginRequest {
   identifier?: string;
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     ''
   ).trim();
 
-  const response = await fetch(`${API_URL}/api/v1/auth/login`, {
+  const response = await fetch(`${getApiBaseUrl()}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -1,12 +1,12 @@
 import { Prisma } from '@astra/database';
-import { PERMISSIONS } from '@astra/shared';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 
 import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Authenticated, RequirePermissions } from '../../common/decorators/metadata.decorators';
+import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { CanManageAssets, CanReadAssets } from '../authorization/policies/resource.policies';
 
 import { AssetsService } from './assets.service';
 import { CreateAssetDto } from './dto/create-asset.dto';
@@ -21,7 +21,7 @@ export class AssetsController {
   constructor(private readonly assetsService: AssetsService) {}
 
   @Get()
-  @RequirePermissions(PERMISSIONS.ASSET_READ)
+  @RequirePolicy(CanReadAssets.name)
   findAll(
     @CurrentUser() user: AuthenticatedUser,
     @Query() _pagination: PaginationQueryDto,
@@ -30,7 +30,7 @@ export class AssetsController {
   }
 
   @Get(':id')
-  @RequirePermissions(PERMISSIONS.ASSET_READ)
+  @RequirePolicy(CanReadAssets.name)
   findOne(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
@@ -40,7 +40,7 @@ export class AssetsController {
   }
 
   @Post()
-  @RequirePermissions(PERMISSIONS.ASSET_WRITE)
+  @RequirePolicy(CanManageAssets.name)
   create(
     @Body() dto: CreateAssetDto,
     @CurrentUser() user: AuthenticatedUser,
@@ -50,7 +50,7 @@ export class AssetsController {
   }
 
   @Patch(':id')
-  @RequirePermissions(PERMISSIONS.ASSET_WRITE)
+  @RequirePolicy(CanManageAssets.name)
   update(
     @Param('id') id: string,
     @Body() dto: UpdateAssetDto,
@@ -61,7 +61,7 @@ export class AssetsController {
   }
 
   @Delete(':id')
-  @RequirePermissions(PERMISSIONS.ASSET_WRITE)
+  @RequirePolicy(CanManageAssets.name)
   remove(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,

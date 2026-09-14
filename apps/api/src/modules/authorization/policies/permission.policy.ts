@@ -14,9 +14,7 @@ export class PermissionPolicy implements AuthorizationPolicy {
   evaluate(context: AuthorizationContext): AuthorizationDecision {
     const missingPermissions = this.requiredPermissions.filter(
       (permission) =>
-        !context.user.permissions.includes(
-          permission as (typeof context.user.permissions)[number],
-        ),
+        !context.user.permissions.includes(permission as (typeof context.user.permissions)[number]),
     );
 
     if (missingPermissions.length > 0) {

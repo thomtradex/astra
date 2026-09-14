@@ -1,18 +1,13 @@
 'use server';
 
-import {
-  executeCooAction,
-} from '@/lib/intelligence-client';
+import { executeCooAction } from '@/lib/intelligence-client';
 import { listOrganizationUsers } from '@/lib/users-client';
 
 export async function listAssignableUsers() {
   return listOrganizationUsers();
 }
 
-export async function assignWorkOrder(
-  workOrderId: string,
-  assignedToId: string,
-) {
+export async function assignWorkOrder(workOrderId: string, assignedToId: string) {
   if (!workOrderId) {
     throw new Error('Ordem de trabalho inválida.');
   }

@@ -35,8 +35,12 @@ export const PERMISSIONS = {
   // Audit
   AUDIT_READ: 'audit:read',
 
+  // Dashboard
+  DASHBOARD_READ: 'dashboard:read',
+
   // Organization
   ORG_READ: 'org:read',
+  INTELLIGENCE_READ: 'intelligence:read',
   ORG_WRITE: 'org:write',
 } as const;
 
@@ -53,6 +57,7 @@ export const ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     PERMISSIONS.MAINTENANCE_WRITE,
     PERMISSIONS.ROLE_READ,
     PERMISSIONS.AUDIT_READ,
+    PERMISSIONS.DASHBOARD_READ,
     PERMISSIONS.ORG_READ,
     PERMISSIONS.ORG_WRITE,
   ],

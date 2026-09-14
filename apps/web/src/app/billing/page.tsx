@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 
 import {
   changePlan,
@@ -116,7 +116,35 @@ export default function BillingPage() {
   }
 
   useEffect(() => {
-    void load();
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const [current, availablePlans] = await Promise.all([
+          getCurrentSubscription(),
+          getBillingPlans(),
+        ]);
+
+        if (cancelled) return;
+
+        setSubscription(current as Subscription);
+        setPlans(availablePlans);
+      } catch (err) {
+        if (cancelled) return;
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Não foi possível carregar a subscrição.',
+        );
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const paidPlans = useMemo(

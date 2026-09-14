@@ -8,8 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 
 import { PrismaService } from '../../prisma/prisma.service';
-import { BillingService } from '../billing/billing.service';
 import { AuditService } from '../audit/audit.service';
+import { BillingService } from '../billing/billing.service';
 
 import { LoginDto } from './dto/auth.dto';
 import { RegisterDto } from './dto/register.dto';

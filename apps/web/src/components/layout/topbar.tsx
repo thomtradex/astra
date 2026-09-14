@@ -54,20 +54,6 @@ export function Topbar() {
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
           Subscrição
         </Link>
-
-        <Link
-          href="/settings"
-          className="flex items-center gap-2 rounded-xl p-1.5 pr-2 transition hover:bg-slate-50"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 text-xs font-bold text-white">
-            A
-          </span>
-          <span className="hidden text-left sm:block">
-            <span className="block text-xs font-semibold text-slate-900">Administrador</span>
-            <span className="block text-[10px] text-slate-400">Conta</span>
-          </span>
-          <span className="hidden text-slate-400 sm:block">⌄</span>
-        </Link>
       </div>
     </header>
   );

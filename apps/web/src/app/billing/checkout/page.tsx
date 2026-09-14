@@ -1,9 +1,9 @@
 'use client';
 
-import { BackButton } from '@/components/navigation/back-button';
-import {Suspense, useEffect, useState} from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import {Suspense, useEffect, useState} from 'react';
 
+import { BackButton } from '@/components/navigation/back-button';
 import {
   activateFreePlan,
   createCheckout,

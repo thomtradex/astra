@@ -1,17 +1,14 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 type DeleteProjectButtonProps = {
   projectId: string;
   projectName: string;
 };
 
-export function DeleteProjectButton({
-  projectId,
-  projectName,
-}: DeleteProjectButtonProps) {
+export function DeleteProjectButton({ projectId, projectName }: DeleteProjectButtonProps) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -29,19 +26,13 @@ export function DeleteProjectButton({
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
 
-        throw new Error(
-          payload?.message || 'Não foi possível eliminar a obra.',
-        );
+        throw new Error(payload?.message || 'Não foi possível eliminar a obra.');
       }
 
       router.push('/projects');
       router.refresh();
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Não foi possível eliminar a obra.',
-      );
+      setError(err instanceof Error ? err.message : 'Não foi possível eliminar a obra.');
       setDeleting(false);
       setConfirming(false);
     }
@@ -61,19 +52,13 @@ export function DeleteProjectButton({
 
   return (
     <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
-      <p className="text-sm font-semibold text-red-800">
-        Eliminar “{projectName}”?
-      </p>
+      <p className="text-sm font-semibold text-red-800">Eliminar “{projectName}”?</p>
 
       <p className="mt-1 text-xs leading-5 text-red-700">
         Esta ação remove a obra e não pode ser desfeita.
       </p>
 
-      {error ? (
-        <p className="mt-3 text-sm text-red-700">
-          {error}
-        </p>
-      ) : null}
+      {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
 
       <div className="mt-4 flex gap-3">
         <button

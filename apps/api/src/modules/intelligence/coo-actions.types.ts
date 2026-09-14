@@ -8,6 +8,22 @@ export type CooAction =
       input: {
         assignedToId: string;
       };
+    }
+  | {
+      type: 'UPDATE_MAINTENANCE';
+      resource: 'maintenance_plans';
+      resourceId: string;
+      input: {
+        nextDue: string;
+      };
+    }
+  | {
+      type: 'SET_PROJECT_STATUS';
+      resource: 'projects';
+      resourceId: string;
+      input: {
+        status: 'ON_HOLD';
+      };
     };
 
 export interface CooActionOutcome {
@@ -19,8 +35,5 @@ export interface CooActionOutcome {
 }
 
 export interface CooActionExecutor {
-  execute(
-    user: AuthenticatedUser,
-    action: CooAction,
-  ): Promise<CooActionOutcome>;
+  execute(user: AuthenticatedUser, action: CooAction): Promise<CooActionOutcome>;
 }

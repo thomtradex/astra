@@ -1,5 +1,5 @@
-import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { CustomersClient } from '@/components/customers/customers-client';
+import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { getCustomers } from '@/lib/customers';
 
 export default async function CustomersPage({

@@ -2,6 +2,7 @@ import { buildPaginatedResult, normalizePagination, PaginatedResult } from '@ast
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
+
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { QueryOrganizationsDto } from './dto/query-organizations.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';

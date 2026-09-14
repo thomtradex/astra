@@ -1,5 +1,5 @@
-import { CompanySetup } from '@/components/onboarding/company-setup';
 import { BackButton } from '@/components/navigation/back-button';
+import { CompanySetup } from '@/components/onboarding/company-setup';
 
 export default function OnboardingPage() {
   return (

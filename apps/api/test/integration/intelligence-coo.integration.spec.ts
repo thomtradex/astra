@@ -2,8 +2,8 @@ import { INestApplication } from '@nestjs/common';
 
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { apiRequest } from '../helpers/http-client';
-import { apiPath, createTestApp } from '../helpers/test-app';
 import { bodyOf } from '../helpers/http-types';
+import { apiPath, createTestApp } from '../helpers/test-app';
 import {
   login,
   seedIntegrationTestData,
@@ -291,6 +291,174 @@ describe('COO intelligence decision loop (integration)', () => {
     ).toBe(false);
   });
 
+    it('executes SET_PROJECT_STATUS through the HTTP COO action endpoint and audits it', async () => {
+      const project = await prisma.projects.create({
+        data: {
+          id: `project-coo-http-${Date.now()}`,
+          name: 'COO HTTP Project',
+          code: `COO-HTTP-${Date.now()}`,
+          organization_id: organizationId,
+          status: 'IN_PROGRESS',
+          progress: 40,
+          end_date: new Date('2026-01-15T10:00:00.000Z'),
+          updated_at: new Date(),
+        },
+      });
+
+      await apiRequest(app)
+        .post(apiPath('/intelligence/actions'))
+        .set('Authorization', `Bearer ${alphaAdminToken}`)
+        .send({
+          type: 'SET_PROJECT_STATUS',
+          resourceId: project.id,
+          status: 'ON_HOLD',
+        })
+        .expect(201)
+        .expect((response) => {
+          expect(response.body).toEqual(
+            expect.objectContaining({
+              allowed: true,
+              status: 'EXECUTED',
+              resourceId: project.id,
+            }),
+          );
+        });
+
+      const updatedProject = await prisma.projects.findUnique({
+        where: { id: project.id },
+      });
+
+      expect(updatedProject?.status).toBe('ON_HOLD');
+
+      const audit = await prisma.auditLog.findFirst({
+        where: {
+          organizationId,
+          resourceId: project.id,
+          action: 'UPDATE',
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      expect(audit).toEqual(
+        expect.objectContaining({
+          organizationId,
+          resourceId: project.id,
+          actorId: expect.any(String) as unknown,
+          action: 'UPDATE',
+          method: null,
+          statusCode: null,
+        }),
+      );
+    });
+
+    it('executes UPDATE_MAINTENANCE through the HTTP COO action endpoint and audits it', async () => {
+      const asset = await prisma.assets.create({
+        data: {
+          id: `asset-coo-http-${Date.now()}`,
+          name: 'COO HTTP Test Asset',
+          code: `COO-HTTP-${Date.now()}`,
+          organization_id: organizationId,
+          updated_at: new Date(),
+        },
+      });
+
+      const maintenancePlan = await prisma.maintenance_plans.create({
+        data: {
+          id: `maintenance-coo-http-${Date.now()}`,
+          plan: 'COO HTTP Maintenance',
+          assetId: asset.id,
+          frequency: 'MONTHLY',
+          nextDue: new Date(Date.now() - 86400000),
+          organization_id: organizationId,
+          updated_at: new Date(),
+        },
+      });
+
+      const nextDue = new Date('2099-06-15T10:00:00.000Z');
+
+      await apiRequest(app)
+        .post(apiPath('/intelligence/actions'))
+        .set('Authorization', `Bearer ${alphaAdminToken}`)
+        .send({
+          type: 'UPDATE_MAINTENANCE',
+          resourceId: maintenancePlan.id,
+          nextDue: nextDue.toISOString(),
+        })
+        .expect(201);
+
+      const updatedPlan = await prisma.maintenance_plans.findUnique({
+        where: {
+          id: maintenancePlan.id,
+        },
+      });
+
+      expect(updatedPlan).toBeDefined();
+      expect(updatedPlan!.organization_id).toBe(organizationId);
+      expect(updatedPlan!.nextDue.toISOString()).toBe(nextDue.toISOString());
+
+      const audit = await prisma.auditLog.findFirst({
+        where: {
+          organizationId,
+          actorId: alphaAdminId,
+          action: 'UPDATE',
+          resource: 'maintenance_plans',
+          resourceId: maintenancePlan.id,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      expect(audit).toBeDefined();
+
+      expect(audit!.metadata).toMatchObject({
+        type: 'coo_action',
+        source: 'coo',
+        actionType: 'UPDATE_MAINTENANCE',
+        authorizationPolicy: 'CanManageMaintenance',
+        nextDue: nextDue.toISOString(),
+      });
+    });
+
+    it('rejects invalid COO action payloads at the HTTP boundary', async () => {
+    const invalidPayloads = [
+      {
+        type: 'UPDATE_MAINTENANCE',
+        resourceId: crypto.randomUUID(),
+      },
+      {
+        type: 'ASSIGN_WORK_ORDER',
+        resourceId: crypto.randomUUID(),
+      },
+      {
+        type: 'UNSUPPORTED_ACTION',
+        resourceId: crypto.randomUUID(),
+      },
+      {
+        type: 'UPDATE_MAINTENANCE',
+        resourceId: crypto.randomUUID(),
+        nextDue: 'not-a-date',
+      },
+      {
+        type: 'ASSIGN_WORK_ORDER',
+        resourceId: crypto.randomUUID(),
+        assignedToId: '',
+      },
+    ];
+
+    for (const payload of invalidPayloads) {
+      await apiRequest(app)
+        .post(apiPath('/intelligence/actions'))
+        .set('Authorization', `Bearer ${alphaAdminToken}`)
+        .send(payload)
+        .expect(400);
+    }
+    });
+
+
+
   it('does not allow Alpha to assign a Beta user to an Alpha work order', async () => {
     const workOrder = await prisma.work_orders.create({
       data: {
@@ -327,5 +495,6 @@ describe('COO intelligence decision loop (integration)', () => {
       assigned_to_id: null,
       organization_id: organizationId,
     });
+
   });
 });

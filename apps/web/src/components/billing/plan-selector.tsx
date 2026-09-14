@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 import {
   activateFreePlan,
@@ -136,7 +136,7 @@ export default function PlanSelector() {
       const checkout = await createCheckout(code);
 
       if (checkout?.url) {
-        window.location.href = checkout.url;
+        window.location.assign(checkout.url);
         return;
       }
 
