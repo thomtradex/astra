@@ -87,11 +87,14 @@ export async function proxy(request: NextRequest) {
   if (refreshToken && shouldRefreshAccessToken(accessToken)) {
     const API_URL =
       process.env.API_URL ??
-      process.env.NEXT_PUBLIC_API_URL ??
       'http://localhost:3001';
 
+    const API_BASE_URL = API_URL.replace(/\/$/, '').endsWith('/api/v1')
+      ? API_URL.replace(/\/$/, '')
+      : `${API_URL.replace(/\/$/, '')}/api/v1`;
+
     try {
-      const refreshResponse = await fetch(`${API_URL}/api/v1/auth/refresh`, {
+      const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

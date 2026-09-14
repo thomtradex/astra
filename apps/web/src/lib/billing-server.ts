@@ -1,8 +1,32 @@
 import { cookies } from 'next/headers';
 
-import { ACCESS_TOKEN_COOKIE } from './auth';
+import { ACCESS_TOKEN_COOKIE } from './auth-constants';
 
-export async function getCurrentSubscriptionServer() {
+const API_URL =
+  process.env.API_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  'http://localhost:3001';
+
+function getApiBaseUrl(): string {
+  const normalized = API_URL.replace(/\/$/, '');
+  return normalized.endsWith('/api/v1')
+    ? normalized
+    : `${normalized}/api/v1`;
+}
+
+export interface CurrentSubscriptionServer {
+  status: string;
+  planCode?: string | null;
+  plan?: { name?: string | null } | null;
+}
+
+export interface CurrentEntitlementsServer {
+  plan?: { code?: string | null; name?: string | null } | null;
+  limits?: Record<string, number> | null;
+  features?: { intelligence?: boolean } | null;
+}
+
+export async function getCurrentSubscriptionServer(): Promise<CurrentSubscriptionServer | null> {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
 
@@ -11,7 +35,7 @@ export async function getCurrentSubscriptionServer() {
   }
 
   const response = await fetch(
-    `${process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/api/v1/billing/subscription`,
+    `${getApiBaseUrl()}/billing/subscription`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -24,11 +48,12 @@ export async function getCurrentSubscriptionServer() {
     return null;
   }
 
-  return response.json();
+  const payload: unknown = await response.json();
+  return payload as CurrentSubscriptionServer;
 }
 
 
-export async function getCurrentEntitlementsServer() {
+export async function getCurrentEntitlementsServer(): Promise<CurrentEntitlementsServer | null> {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
 
@@ -37,7 +62,7 @@ export async function getCurrentEntitlementsServer() {
   }
 
   const response = await fetch(
-    `${process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/api/v1/billing/entitlements`,
+    `${getApiBaseUrl()}/billing/entitlements`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -50,5 +75,6 @@ export async function getCurrentEntitlementsServer() {
     return null;
   }
 
-  return response.json();
+  const payload: unknown = await response.json();
+  return payload as CurrentEntitlementsServer;
 }

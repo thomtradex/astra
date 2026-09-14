@@ -1,7 +1,8 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+const API_URL = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 export function getApiBaseUrl(): string {
-  return `${API_URL}/api/v1`;
+  const normalized = API_URL.replace(/\/$/, '');
+  return normalized.endsWith('/api/v1') ? normalized : `${normalized}/api/v1`;
 }
 
 export async function apiFetch<T>(
@@ -34,5 +35,6 @@ export async function apiFetch<T>(
     return undefined as T;
   }
 
-  return response.json() as Promise<T>;
+  const payload: unknown = await response.json();
+  return payload as T;
 }

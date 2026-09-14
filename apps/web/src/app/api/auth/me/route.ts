@@ -1,11 +1,10 @@
-import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, buildAuthCookieOptions } from '@/lib/auth';
+import { NextResponse } from 'next/server';
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.API_URL ||
-  'http://127.0.0.1:3001';
+import { getApiBaseUrl } from '@/lib/api-client';
+import { buildAuthCookieOptions } from '@/lib/auth';
+import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from '@/lib/auth-constants';
+
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -17,7 +16,7 @@ export async function GET() {
   }
 
   const callMe = async (token: string) =>
-    fetch(`${API_URL}/api/v1/auth/me`, {
+    fetch(`${getApiBaseUrl()}/auth/me`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -25,10 +24,10 @@ export async function GET() {
       cache: 'no-store',
     });
 
-  let response = accessToken ? await callMe(accessToken) : null;
+  const response = accessToken ? await callMe(accessToken) : null;
 
   if (!response?.ok && refreshToken) {
-    const refreshResponse = await fetch(`${API_URL}/api/v1/auth/refresh`, {
+    const refreshResponse = await fetch(`${getApiBaseUrl()}/auth/refresh`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

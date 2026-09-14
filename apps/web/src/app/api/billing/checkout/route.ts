@@ -1,9 +1,9 @@
 import { cookies } from 'next/headers';
-
-import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, buildAuthCookieOptions } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
-const API_URL = process.env.API_URL || 'http://localhost:3001';
+import { getApiBaseUrl } from '@/lib/api-client';
+import { ACCESS_TOKEN_COOKIE } from '@/lib/auth-constants';
+
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const response = await fetch(`${API_URL}/api/v1/billing/checkout`, {
+  const response = await fetch(`${getApiBaseUrl()}/billing/checkout`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

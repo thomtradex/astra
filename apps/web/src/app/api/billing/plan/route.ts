@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_URL =
-  process.env.API_URL ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  'http://localhost:3001';
+import { getApiBaseUrl } from '@/lib/api-client';
+
 
 export async function PATCH(request: NextRequest) {
   const cookie = request.headers.get('cookie') ?? '';
 
-  const response = await fetch(`${API_URL}/api/v1/billing/plan`, {
+  const response = await fetch(`${getApiBaseUrl()}/billing/plan`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',

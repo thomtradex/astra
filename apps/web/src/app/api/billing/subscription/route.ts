@@ -1,9 +1,9 @@
 import { cookies } from 'next/headers';
-
-import { ACCESS_TOKEN_COOKIE } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
-const API_URL = process.env.API_URL || 'http://localhost:3001';
+import { getApiBaseUrl } from '@/lib/api-client';
+import { ACCESS_TOKEN_COOKIE } from '@/lib/auth-constants';
+
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -13,7 +13,7 @@ export async function GET() {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const response = await fetch(`${API_URL}/api/v1/billing/subscription`, {
+  const response = await fetch(`${getApiBaseUrl()}/billing/subscription`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${accessToken}`,
