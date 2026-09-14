@@ -35,8 +35,5 @@ export interface CooActionOutcome {
 }
 
 export interface CooActionExecutor {
-  execute(
-    user: AuthenticatedUser,
-    action: CooAction,
-  ): Promise<CooActionOutcome>;
+  execute(user: AuthenticatedUser, action: CooAction): Promise<CooActionOutcome>;
 }

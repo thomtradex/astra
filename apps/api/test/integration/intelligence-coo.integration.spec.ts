@@ -2,8 +2,8 @@ import { INestApplication } from '@nestjs/common';
 
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { apiRequest } from '../helpers/http-client';
-import { apiPath, createTestApp } from '../helpers/test-app';
 import { bodyOf } from '../helpers/http-types';
+import { apiPath, createTestApp } from '../helpers/test-app';
 import {
   login,
   seedIntegrationTestData,
@@ -345,7 +345,7 @@ describe('COO intelligence decision loop (integration)', () => {
         expect.objectContaining({
           organizationId,
           resourceId: project.id,
-          actorId: expect.any(String),
+          actorId: expect.any(String) as unknown,
           action: 'UPDATE',
           method: null,
           statusCode: null,

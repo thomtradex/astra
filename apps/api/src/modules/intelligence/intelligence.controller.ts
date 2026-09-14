@@ -1,13 +1,13 @@
-import { CanUseIntelligence } from '../authorization/policies/intelligence.policies';
 import { Body, Controller, Get, Post } from '@nestjs/common';
 
 import { RequireBillingFeature } from '../../common/decorators/billing-entitlement.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.decorators';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { CanUseIntelligence } from '../authorization/policies/intelligence.policies';
 
-import { ExecuteCooActionDto } from './dto/execute-coo-action.dto';
 import { CooActionExecutorService } from './coo-action.executor';
+import { ExecuteCooActionDto } from './dto/execute-coo-action.dto';
 import { IntelligenceService } from './intelligence.service';
 
 @Controller('intelligence')
@@ -22,17 +22,12 @@ export class IntelligenceController {
   @RequirePolicy(CanUseIntelligence.name)
   @Get('briefing')
   briefing(@CurrentUser() user: AuthenticatedUser) {
-    return this.intelligenceService.analyze(
-      user.organizationId,
-    );
+    return this.intelligenceService.analyze(user.organizationId);
   }
 
   @RequirePolicy(CanUseIntelligence.name)
   @Post('actions')
-  executeAction(
-    @CurrentUser() user: AuthenticatedUser,
-    @Body() dto: ExecuteCooActionDto,
-  ) {
+  executeAction(@CurrentUser() user: AuthenticatedUser, @Body() dto: ExecuteCooActionDto) {
     if (dto.type === 'ASSIGN_WORK_ORDER') {
       return this.cooActionExecutor.execute(user, {
         type: 'ASSIGN_WORK_ORDER',

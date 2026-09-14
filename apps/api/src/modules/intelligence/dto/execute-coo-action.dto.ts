@@ -5,19 +5,20 @@ export class ExecuteCooActionDto {
   type!: 'ASSIGN_WORK_ORDER' | 'UPDATE_MAINTENANCE' | 'SET_PROJECT_STATUS';
 
   @IsString()
+  @IsNotEmpty()
   resourceId!: string;
 
-  @ValidateIf((dto) => dto.type === 'ASSIGN_WORK_ORDER')
+  @ValidateIf((dto: ExecuteCooActionDto) => dto.type === 'ASSIGN_WORK_ORDER')
   @IsString()
   @IsNotEmpty()
   assignedToId?: string;
 
-  @ValidateIf((dto) => dto.type === 'UPDATE_MAINTENANCE')
+  @ValidateIf((dto: ExecuteCooActionDto) => dto.type === 'UPDATE_MAINTENANCE')
   @IsISO8601()
   @IsNotEmpty()
   nextDue?: string;
 
-  @ValidateIf((dto) => dto.type === 'SET_PROJECT_STATUS')
+  @ValidateIf((dto: ExecuteCooActionDto) => dto.type === 'SET_PROJECT_STATUS')
   @IsIn(['ON_HOLD'])
   status?: 'ON_HOLD';
 }
