@@ -1,6 +1,6 @@
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { MaintenanceClient } from '@/components/maintenance/maintenance-client';
-import { getMaintenancePlans } from '@/lib/maintenance-client';
+import { getMaintenancePlans } from '@/lib/maintenance-server';
 
 export default async function MaintenancePage() {
   const plans = await getMaintenancePlans();

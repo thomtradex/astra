@@ -64,8 +64,10 @@ function statusClass(status: string) {
 
 export function WorkOrdersClient({
   workOrders: initialWorkOrders,
+  initialMode = 'list',
 }: {
   workOrders: WorkOrder[];
+  initialMode?: 'list' | 'create';
 }) {
   const [workOrders, setWorkOrders] = useState(initialWorkOrders);
   const [query, setQuery] = useState('');
@@ -73,7 +75,7 @@ export function WorkOrdersClient({
   const [priority, setPriority] = useState('ALL');
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(initialMode === 'create');
   const [newTitle, setNewTitle] = useState('');
   const [newPriority, setNewPriority] = useState('MEDIUM');
 

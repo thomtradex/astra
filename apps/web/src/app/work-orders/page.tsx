@@ -1,6 +1,8 @@
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { WorkOrdersClient } from '@/components/work-orders/work-orders-client';
-import { getWorkOrders } from '@/lib/work-orders-client';
+import { getWorkOrders } from '@/lib/work-orders-server';
+
+export const dynamic = "force-dynamic";
 
 export default async function WorkOrdersPage() {
   const workOrders = await getWorkOrders();
