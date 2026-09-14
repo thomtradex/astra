@@ -1,23 +1,19 @@
 import { AuditAction } from '@astra/database';
 import { Injectable } from '@nestjs/common';
 
+import { AuditService } from '../audit/audit.service';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { AuthorizationService } from '../authorization/authorization.service';
 import {
   CanManageMaintenance,
   CanManageProjects,
 } from '../authorization/policies/resource.policies';
 import { CanManageWorkOrders } from '../authorization/policies/work-order.policies';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { AuditService } from '../audit/audit.service';
 import { MaintenanceService } from '../maintenance/maintenance.service';
 import { ProjectsService } from '../projects/projects.service';
 import { WorkOrdersService } from '../work-orders/work-orders.service';
 
-import {
-  CooAction,
-  CooActionExecutor,
-  CooActionOutcome,
-} from './coo-actions.types';
+import { CooAction, CooActionExecutor, CooActionOutcome } from './coo-actions.types';
 
 @Injectable()
 export class CooActionExecutorService implements CooActionExecutor {
@@ -29,10 +25,7 @@ export class CooActionExecutorService implements CooActionExecutor {
     private readonly projectsService: ProjectsService,
   ) {}
 
-  async execute(
-    user: AuthenticatedUser,
-    action: CooAction,
-  ): Promise<CooActionOutcome> {
+  async execute(user: AuthenticatedUser, action: CooAction): Promise<CooActionOutcome> {
     switch (action.type) {
       case 'ASSIGN_WORK_ORDER':
         return this.assignWorkOrder(user, action);
@@ -54,21 +47,35 @@ export class CooActionExecutorService implements CooActionExecutor {
     user: AuthenticatedUser,
     action: Extract<CooAction, { type: 'ASSIGN_WORK_ORDER' }>,
   ): Promise<CooActionOutcome> {
-    const decision = await this.authorizationService.authorize(
-      CanManageWorkOrders,
-      {
-        user,
+    const decision = await this.authorizationService.authorize(CanManageWorkOrders, {
+      user,
+      resource: action.resource,
+      resourceId: action.resourceId,
+      metadata: {
+        actionType: action.type,
+        assignedToId: action.input.assignedToId,
+        source: 'coo',
+      },
+    });
+
+    if (!decision.allowed) {
+      await this.auditService.log({
+        organizationId: user.organizationId,
+        actorId: user.id,
+        action: AuditAction.ACCESS_DENIED,
         resource: action.resource,
         resourceId: action.resourceId,
         metadata: {
-          actionType: action.type,
-          assignedToId: action.input.assignedToId,
+          type: 'coo_action',
           source: 'coo',
+          outcomeStatus: 'DENIED',
+          actionType: action.type,
+          authorizationPolicy: decision.policy,
+          reason: decision.reason,
+          assignedToId: action.input.assignedToId,
         },
-      },
-    );
+      });
 
-    if (!decision.allowed) {
       return {
         action,
         allowed: false,
@@ -79,13 +86,9 @@ export class CooActionExecutorService implements CooActionExecutor {
     }
 
     try {
-      await this.workOrdersService.update(
-        action.resourceId,
-        user.organizationId,
-        {
-          assignedToId: action.input.assignedToId,
-        },
-      );
+      await this.workOrdersService.update(action.resourceId, user.organizationId, {
+        assignedToId: action.input.assignedToId,
+      });
 
       await this.auditService.log({
         organizationId: user.organizationId,
@@ -97,6 +100,7 @@ export class CooActionExecutorService implements CooActionExecutor {
           type: 'coo_action',
           source: 'coo',
           actionType: action.type,
+          outcomeStatus: 'EXECUTED',
           authorizationPolicy: decision.policy,
           assignedToId: action.input.assignedToId,
         },
@@ -110,15 +114,32 @@ export class CooActionExecutorService implements CooActionExecutor {
         message: 'Ordem de trabalho atribuída com sucesso.',
       };
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Não foi possível executar a atribuição.';
+
+      await this.auditService.log({
+        organizationId: user.organizationId,
+        actorId: user.id,
+        action: AuditAction.UPDATE,
+        resource: action.resource,
+        resourceId: action.resourceId,
+        metadata: {
+          type: 'coo_action',
+          source: 'coo',
+          outcomeStatus: 'FAILED',
+          actionType: action.type,
+          authorizationPolicy: decision.policy,
+          assignedToId: action.input.assignedToId,
+          message,
+        },
+      });
+
       return {
         action,
-        allowed: true,
+        allowed: false,
         status: 'FAILED',
         resourceId: action.resourceId,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Não foi possível executar a atribuição.',
+        message,
       };
     }
   }
@@ -127,21 +148,35 @@ export class CooActionExecutorService implements CooActionExecutor {
     user: AuthenticatedUser,
     action: Extract<CooAction, { type: 'UPDATE_MAINTENANCE' }>,
   ): Promise<CooActionOutcome> {
-    const decision = await this.authorizationService.authorize(
-      CanManageMaintenance,
-      {
-        user,
+    const decision = await this.authorizationService.authorize(CanManageMaintenance, {
+      user,
+      resource: action.resource,
+      resourceId: action.resourceId,
+      metadata: {
+        actionType: action.type,
+        nextDue: action.input.nextDue,
+        source: 'coo',
+      },
+    });
+
+    if (!decision.allowed) {
+      await this.auditService.log({
+        organizationId: user.organizationId,
+        actorId: user.id,
+        action: AuditAction.ACCESS_DENIED,
         resource: action.resource,
         resourceId: action.resourceId,
         metadata: {
-          actionType: action.type,
-          nextDue: action.input.nextDue,
+          type: 'coo_action',
           source: 'coo',
+          outcomeStatus: 'DENIED',
+          actionType: action.type,
+          authorizationPolicy: decision.policy,
+          reason: decision.reason,
+          nextDue: action.input.nextDue,
         },
-      },
-    );
+      });
 
-    if (!decision.allowed) {
       return {
         action,
         allowed: false,
@@ -170,6 +205,7 @@ export class CooActionExecutorService implements CooActionExecutor {
           type: 'coo_action',
           source: 'coo',
           actionType: action.type,
+          outcomeStatus: 'EXECUTED',
           authorizationPolicy: decision.policy,
           nextDue: action.input.nextDue,
         },
@@ -183,15 +219,32 @@ export class CooActionExecutorService implements CooActionExecutor {
         message: 'Manutenção reagendada com sucesso.',
       };
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Não foi possível reagendar a manutenção.';
+
+      await this.auditService.log({
+        organizationId: user.organizationId,
+        actorId: user.id,
+        action: AuditAction.UPDATE,
+        resource: action.resource,
+        resourceId: action.resourceId,
+        metadata: {
+          type: 'coo_action',
+          source: 'coo',
+          outcomeStatus: 'FAILED',
+          actionType: action.type,
+          authorizationPolicy: decision.policy,
+          nextDue: action.input.nextDue,
+          message,
+        },
+      });
+
       return {
         action,
-        allowed: true,
+        allowed: false,
         status: 'FAILED',
         resourceId: action.resourceId,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Não foi possível reagendar a manutenção.',
+        message,
       };
     }
   }
@@ -200,21 +253,35 @@ export class CooActionExecutorService implements CooActionExecutor {
     user: AuthenticatedUser,
     action: Extract<CooAction, { type: 'SET_PROJECT_STATUS' }>,
   ): Promise<CooActionOutcome> {
-    const decision = await this.authorizationService.authorize(
-      CanManageProjects,
-      {
-        user,
+    const decision = await this.authorizationService.authorize(CanManageProjects, {
+      user,
+      resource: action.resource,
+      resourceId: action.resourceId,
+      metadata: {
+        actionType: action.type,
+        status: action.input.status,
+        source: 'coo',
+      },
+    });
+
+    if (!decision.allowed) {
+      await this.auditService.log({
+        organizationId: user.organizationId,
+        actorId: user.id,
+        action: AuditAction.ACCESS_DENIED,
         resource: action.resource,
         resourceId: action.resourceId,
         metadata: {
-          actionType: action.type,
-          status: action.input.status,
+          type: 'coo_action',
           source: 'coo',
+          outcomeStatus: 'DENIED',
+          actionType: action.type,
+          authorizationPolicy: decision.policy,
+          reason: decision.reason,
+          status: action.input.status,
         },
-      },
-    );
+      });
 
-    if (!decision.allowed) {
       return {
         action,
         allowed: false,
@@ -243,6 +310,7 @@ export class CooActionExecutorService implements CooActionExecutor {
           type: 'coo_action',
           source: 'coo',
           actionType: action.type,
+          outcomeStatus: 'EXECUTED',
           authorizationPolicy: decision.policy,
           status: action.input.status,
         },
@@ -256,15 +324,32 @@ export class CooActionExecutorService implements CooActionExecutor {
         message: 'Projeto colocado em pausa com sucesso.',
       };
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Não foi possível colocar o projeto em pausa.';
+
+      await this.auditService.log({
+        organizationId: user.organizationId,
+        actorId: user.id,
+        action: AuditAction.UPDATE,
+        resource: action.resource,
+        resourceId: action.resourceId,
+        metadata: {
+          type: 'coo_action',
+          source: 'coo',
+          outcomeStatus: 'FAILED',
+          actionType: action.type,
+          authorizationPolicy: decision.policy,
+          status: action.input.status,
+          message,
+        },
+      });
+
       return {
         action,
-        allowed: true,
+        allowed: false,
         status: 'FAILED',
         resourceId: action.resourceId,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Não foi possível colocar o projeto em pausa.',
+        message,
       };
     }
   }
