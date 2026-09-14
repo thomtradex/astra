@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { SubscriptionService } from '../subscriptions/subscription.service';
+
 import { EntitlementFeature } from '../entitlements/entitlement.types';
+import { SubscriptionService } from '../subscriptions/subscription.service';
 
 @Injectable()
 export class BillingAccessService {
@@ -12,7 +13,7 @@ export class BillingAccessService {
 
   canAccess(
     organizationId: string,
-    feature: EntitlementFeature,
+    _feature: EntitlementFeature,
   ): boolean {
 
     const subscription =

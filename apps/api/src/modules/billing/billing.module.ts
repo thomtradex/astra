@@ -1,12 +1,11 @@
-import { PaymentModule } from './payment/payment.module';
-
 import { Module } from '@nestjs/common';
-import { SubscriptionService } from './subscriptions/subscription.service';
-import { BillingService } from './billing.service';
-import { UsageService } from './usage/usage.service';
-import { BillingAccessService } from './core/billing-access.service';
 
 import { BillingController } from './billing.controller';
+import { BillingService } from './billing.service';
+import { BillingAccessService } from './core/billing-access.service';
+import { PaymentModule } from './payment/payment.module';
+import { SubscriptionService } from './subscriptions/subscription.service';
+import { UsageService } from './usage/usage.service';
 @Module({
   controllers: [BillingController],
   imports: [PaymentModule],

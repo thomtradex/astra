@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 
 import {
+  AstraPlan,
+} from '../plans/plan.types';
+
+import {
   OrganizationSubscription,
 } from './subscription.types';
 
-import {
-  AstraPlan,
-} from '../plans/plan.types';
 
 
 @Injectable()

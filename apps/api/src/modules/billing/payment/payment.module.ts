@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { PAYMENT_PROVIDER } from './payment.constants';
 
+import { PAYMENT_PROVIDER } from './payment.constants';
 import { StripeProvider } from './stripe.provider';
 
 @Module({

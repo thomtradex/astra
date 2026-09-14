@@ -6,6 +6,12 @@ import {
 } from '@nestjs/common';
 
 import { PlanService } from '../plans/plan.service';
+import type { AstraPlan } from '../plans/plan.types';
+
+type EntitlementRequest = {
+  user?: { organization?: { plan?: AstraPlan } };
+  requiredFeature?: string;
+};
 
 @Injectable()
 export class EntitlementGuard implements CanActivate {
@@ -16,7 +22,7 @@ export class EntitlementGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<EntitlementRequest>();
 
     const organization = request.user?.organization;
 

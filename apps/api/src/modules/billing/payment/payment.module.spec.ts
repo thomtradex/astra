@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
-import { PaymentModule } from './payment.module';
+
 import { PAYMENT_PROVIDER } from './payment.constants';
+import { PaymentModule } from './payment.module';
 
 describe('PaymentModule', () => {
   it('exports payment provider', async () => {
