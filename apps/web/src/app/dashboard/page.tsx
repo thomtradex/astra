@@ -1,11 +1,15 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { MaintenanceDecisionAction } from '@/app/intelligence/maintenance-decision-action';
+import { ProjectDecisionAction } from '@/app/intelligence/project-decision-action';
+import { WorkOrderDecisionAction } from '@/app/intelligence/work-order-decision-action';
 import { ActivityFeed } from '@/components/dashboard/activity/activity-feed';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { deriveAstraState } from '@/lib/astra-state';
 import { getCurrentEntitlementsServer, getCurrentSubscriptionServer } from '@/lib/billing-server';
 import { getDashboardOverview } from '@/lib/dashboard-client';
-import { getIntelligenceBriefing } from '@/lib/intelligence-client';
+import { getIntelligenceBriefing, type IntelligenceSignal } from '@/lib/intelligence-client';
 
 function StatCard({
   label,
@@ -32,9 +36,7 @@ function StatCard({
         <span className="text-slate-300 transition group-hover:text-slate-700">↗</span>
       </div>
 
-      <div className="mt-6 text-3xl font-semibold tracking-tight text-slate-950">
-        {value}
-      </div>
+      <div className="mt-6 text-3xl font-semibold tracking-tight text-slate-950">{value}</div>
 
       <div className="mt-1 text-sm font-medium text-slate-800">{label}</div>
       <div className="mt-1 text-xs leading-5 text-slate-400">{detail}</div>
@@ -47,32 +49,53 @@ function Signal({
   description,
   href,
   tone,
+  signal,
 }: {
   title: string;
   description: string;
   href: string;
   tone: 'attention' | 'neutral' | 'positive';
+  signal?: IntelligenceSignal;
 }) {
-  const styles = {
-    attention: 'border-amber-200 bg-amber-50 text-amber-950',
-    neutral: 'border-slate-200 bg-slate-50 text-slate-900',
-    positive: 'border-emerald-200 bg-emerald-50 text-emerald-950',
-  };
-
   return (
-    <Link
-      href={href}
-      className={`group rounded-xl border p-4 transition hover:-translate-y-0.5 hover:shadow-sm ${styles[tone]}`}
-    >
-      <div className="flex items-start gap-3">
-        <span className="mt-0.5 text-sm">{tone === 'attention' ? '!' : tone === 'positive' ? '✓' : '•'}</span>
-        <div className="min-w-0">
-          <div className="text-sm font-semibold">{title}</div>
-          <p className="mt-1 text-xs leading-5 opacity-70">{description}</p>
+    <div>
+      <Link
+        href={href}
+        className={`group block rounded-xl border p-4 transition hover:-translate-y-0.5 hover:shadow-sm `}
+      >
+        <div className="flex items-start gap-3">
+          <span className="mt-0.5 text-sm">
+            {tone === 'attention' ? '!' : tone === 'positive' ? '✓' : '•'}
+          </span>
+          <div className="min-w-0">
+            <div className="text-sm font-semibold">{title}</div>
+            <p className="mt-1 text-xs leading-5 opacity-70">{description}</p>
+          </div>
+          <span className="ml-auto text-xs opacity-40 transition group-hover:opacity-80">→</span>
         </div>
-        <span className="ml-auto text-xs opacity-40 transition group-hover:opacity-80">→</span>
-      </div>
-    </Link>
+      </Link>
+
+      {signal?.action ? (
+        <div className="mt-3 rounded-xl border border-slate-200 bg-white/80 p-3">
+          <div className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+            Próxima ação
+          </div>
+          <div className="mb-3 text-xs font-semibold leading-5 text-slate-800">
+            {signal.recommendedAction}
+          </div>
+          {signal.action.type === 'ASSIGN_WORK_ORDER' &&
+          signal.action.resource === 'work_orders' ? (
+            <WorkOrderDecisionAction workOrderId={signal.action.resourceId} />
+          ) : signal.action.type === 'UPDATE_MAINTENANCE' &&
+            signal.action.resource === 'maintenance_plans' ? (
+            <MaintenanceDecisionAction maintenancePlanId={signal.action.resourceId} />
+          ) : signal.action.type === 'SET_PROJECT_STATUS' &&
+            signal.action.resource === 'projects' ? (
+            <ProjectDecisionAction projectId={signal.action.resourceId} />
+          ) : null}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -87,8 +110,7 @@ function CapacityBar({
   limit?: number;
   href: string;
 }) {
-  const percentage =
-    limit && limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+  const percentage = limit && limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
 
   const status =
     percentage >= 100
@@ -130,17 +152,13 @@ export default async function DashboardPage() {
   if (!subscription || ['EXPIRED', 'CANCELED'].includes(subscription.status)) {
     redirect('/plans');
   }
-
-  const planCode = entitlements?.plan?.code ?? subscription.planCode ?? 'FREE';
   const planName = entitlements?.plan?.name ?? subscription.plan?.name ?? 'Plano atual';
   const limits = entitlements?.limits ?? {};
   const hasIntelligence = entitlements?.features?.intelligence === true;
 
   const [overview, intelligence] = await Promise.all([
     getDashboardOverview(),
-    hasIntelligence
-      ? getIntelligenceBriefing().catch(() => null)
-      : Promise.resolve(null),
+    hasIntelligence ? getIntelligenceBriefing().catch(() => null) : Promise.resolve(null),
   ]);
 
   const dashboardOverview = {
@@ -182,8 +200,18 @@ export default async function DashboardPage() {
     dashboardOverview.workOrders.open > 0;
 
   const intelligenceSignals = dashboardOverview.intelligence?.signals ?? [];
-  const attentionCount = intelligenceSignals.length;
-  const hasAttention = attentionCount > 0;
+  const astraState = deriveAstraState({
+    briefing: dashboardOverview.intelligence,
+    sites: dashboardOverview.sites,
+    customers: dashboardOverview.customers,
+    assets: dashboardOverview.assets,
+    openWorkOrders: dashboardOverview.workOrders.open,
+    highPriorityWorkOrders: dashboardOverview.workOrders.highPriority,
+    criticalOpenWorkOrders: dashboardOverview.workOrders.criticalOpen,
+  });
+  const attentionCount =
+    astraState.signalCount +
+    (astraState.signalCount === 0 ? dashboardOverview.workOrders.highPriority : 0);
 
   return (
     <DashboardShell>
@@ -196,13 +224,11 @@ export default async function DashboardPage() {
                 Operação ativa
               </div>
 
-              <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-                Command Center
-              </h1>
+              <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">Command Center</h1>
 
               <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55 md:text-base">
-                O centro de controlo da sua operação. Veja o que está a acontecer,
-                identifique o que precisa de atenção e passe diretamente à ação.
+                O centro de controlo da sua operação. Veja o que está a acontecer, identifique o que
+                precisa de atenção e passe diretamente à ação.
               </p>
             </div>
 
@@ -214,7 +240,7 @@ export default async function DashboardPage() {
                 + Nova obra
               </Link>
               <Link
-                href="/work-orders"
+                href="/work-orders/new"
                 className="rounded-xl border border-white/15 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10"
               >
                 + Nova ordem
@@ -225,11 +251,10 @@ export default async function DashboardPage() {
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
               <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/35">
-                Estado
+                Estado da Astra
               </div>
-              <div className="mt-2 text-sm font-semibold text-emerald-300">
-                {hasAttention ? 'Requer atenção' : 'Operação estável'}
-              </div>
+              <div className="mt-2 text-sm font-semibold text-emerald-300">{astraState.label}</div>
+              <p className="mt-1 text-xs leading-5 text-white/45">{astraState.summary}</p>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
@@ -244,9 +269,43 @@ export default async function DashboardPage() {
                 Dados
               </div>
               <div className="mt-2 text-sm font-semibold">
-                {dashboardOverview.generatedAt
-                  ? 'Atualizados agora'
-                  : 'Dados operacionais'}
+                {dashboardOverview.generatedAt ? 'Atualizados agora' : 'Dados operacionais'}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-7">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+                Porque este é o estado da Astra
+              </p>
+              <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">
+                {astraState.summary}
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">{astraState.reason}</p>
+            </div>
+            <div className="grid grid-cols-3 gap-2 sm:min-w-[300px]">
+              <div className="rounded-xl bg-slate-50 px-3 py-2 text-center">
+                <div className="text-lg font-semibold text-slate-950">
+                  {astraState.criticalCount}
+                </div>
+                <div className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                  críticos
+                </div>
+              </div>
+              <div className="rounded-xl bg-slate-50 px-3 py-2 text-center">
+                <div className="text-lg font-semibold text-slate-950">{astraState.highCount}</div>
+                <div className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                  alta prioridade
+                </div>
+              </div>
+              <div className="rounded-xl bg-slate-50 px-3 py-2 text-center">
+                <div className="text-lg font-semibold text-slate-950">{astraState.mediumCount}</div>
+                <div className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                  monitorização
+                </div>
               </div>
             </div>
           </div>
@@ -262,9 +321,7 @@ export default async function DashboardPage() {
                 A sua operação agora
               </h2>
             </div>
-            <span className="hidden text-xs text-slate-400 sm:block">
-              Dados reais da empresa
-            </span>
+            <span className="hidden text-xs text-slate-400 sm:block">Dados reais da empresa</span>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -300,7 +357,7 @@ export default async function DashboardPage() {
                   ? `${dashboardOverview.workOrders.highPriority} de alta prioridade`
                   : 'Nenhuma prioridade alta'
               }
-              href="/work-orders"
+              href="/work-orders/new"
               icon="✓"
             />
           </div>
@@ -311,13 +368,13 @@ export default async function DashboardPage() {
             <div className="flex items-start justify-between gap-5">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                  Atenção
+                  Decisões prioritárias
                 </p>
                 <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">
-                  O que precisa de atenção
+                  O que a Astra quer que a equipa veja agora
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-slate-500">
-                  Situações identificadas diretamente nos dados da operação.
+                  Decisões priorizadas pela Astra a partir dos dados reais da operação.
                 </p>
               </div>
 
@@ -342,18 +399,22 @@ export default async function DashboardPage() {
                       ? '/work-orders'
                       : signal.source.resource === 'maintenance_plans'
                         ? '/maintenance'
-                        : signal.source.resource === 'projects' &&
-                            signal.source.resourceId
+                        : signal.source.resource === 'projects' && signal.source.resourceId
                           ? `/projects/${signal.source.resourceId}`
                           : '/intelligence';
 
                   return (
                     <Signal
                       key={signal.id}
-                      title={signal.title}
-                      description={signal.recommendedAction}
+                      title={
+                        signal.source.resource === 'work_orders'
+                          ? `Ordem de trabalho: ${signal.title}`
+                          : signal.title
+                      }
+                      description={`${signal.impact} Próxima ação: ${signal.recommendedAction}`}
                       href={href}
                       tone={tone}
+                      signal={signal}
                     />
                   );
                 })
@@ -389,9 +450,7 @@ export default async function DashboardPage() {
               Estado da operação
             </p>
 
-            <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">
-              Preparação
-            </h2>
+            <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Preparação</h2>
 
             <p className="mt-1 text-sm leading-6 text-slate-500">
               Acompanhe os elementos essenciais para ter a operação centralizada.
@@ -423,9 +482,7 @@ export default async function DashboardPage() {
                   <span
                     className={[
                       'text-xs',
-                      complete
-                        ? 'text-slate-500'
-                        : 'font-medium text-slate-800',
+                      complete ? 'text-slate-500' : 'font-medium text-slate-800',
                     ].join(' ')}
                   >
                     {String(label)}
@@ -484,8 +541,8 @@ export default async function DashboardPage() {
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-white/55">
-              O Astra COO utiliza os dados operacionais disponíveis para
-              identificar padrões, riscos e oportunidades.
+              O Astra COO utiliza os dados operacionais disponíveis para identificar padrões, riscos
+              e oportunidades.
             </p>
 
             <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4">
@@ -493,23 +550,21 @@ export default async function DashboardPage() {
               dashboardOverview.assets === 0 &&
               dashboardOverview.workOrders.open === 0 ? (
                 <>
-                  <div className="text-sm font-semibold">
-                    Briefing COO pronto para começar
-                  </div>
+                  <div className="text-sm font-semibold">Briefing COO pronto para começar</div>
                   <p className="mt-1 text-xs leading-5 text-white/45">
-                    Registe atividade operacional para que a Astra possa começar
-                    a produzir sinais úteis.
+                    Registe atividade operacional para que a Astra possa começar a produzir sinais
+                    úteis.
                   </p>
                 </>
               ) : (
                 <>
                   <div className="text-sm font-semibold">
-                    {hasAttention
+                    {astraState.signalCount > 0
                       ? 'Existem sinais para analisar'
-                      : 'Operação sem sinais críticos'}
+                      : 'Operação sem sinais prioritários'}
                   </div>
                   <p className="mt-1 text-xs leading-5 text-white/45">
-                    {hasAttention
+                    {astraState.signalCount > 0
                       ? 'Abra o Briefing COO para aprofundar os sinais disponíveis.'
                       : 'Continue a alimentar a operação para aumentar a qualidade da análise.'}
                   </p>
@@ -525,6 +580,70 @@ export default async function DashboardPage() {
             </Link>
           </div>
         </section>
+
+        {hasIntelligence && (dashboardOverview.intelligence?.changes?.length ?? 0) > 0 && (
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-7">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+                  Memória operacional
+                </p>
+                <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">
+                  O que mudou desde ontem
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-slate-500">
+                  Alterações recentes que podem mudar prioridades, responsabilidades ou próximos
+                  passos.
+                </p>
+              </div>
+              <Link
+                href="/intelligence"
+                className="text-xs font-semibold text-slate-700 hover:underline"
+              >
+                Ver tudo →
+              </Link>
+            </div>
+
+            <div className="mt-6 divide-y divide-slate-100">
+              {dashboardOverview.intelligence?.changes?.slice(0, 5).map((change) => (
+                <Link
+                  key={change.id}
+                  href={
+                    change.source.resource === 'projects'
+                      ? `/projects/${change.source.resourceId}`
+                      : change.source.resource === 'work-orders'
+                        ? '/work-orders'
+                        : '/maintenance'
+                  }
+                  className="group flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`h-2 w-2 shrink-0 rounded-full ${
+                          change.severity === 'CRITICAL'
+                            ? 'bg-red-500'
+                            : change.severity === 'HIGH'
+                              ? 'bg-amber-500'
+                              : 'bg-slate-300'
+                        }`}
+                      />
+                      <p className="truncate text-sm font-semibold text-slate-950 group-hover:underline">
+                        {change.title}
+                      </p>
+                    </div>
+                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
+                      {change.explanation}
+                    </p>
+                  </div>
+                  <span className="shrink-0 pt-0.5 text-xs font-semibold text-slate-400 group-hover:text-slate-700">
+                    Rever →
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         <ActivityFeed activities={dashboardOverview.recentActivity ?? []} />
 
