@@ -100,6 +100,7 @@ describe('COO intelligence decision loop (integration)', () => {
         features: {
           intelligence: true,
           workOrderManagement: true,
+          cooActions: true,
         },
         limits: {},
       },
@@ -115,6 +116,7 @@ describe('COO intelligence decision loop (integration)', () => {
         features: {
           intelligence: true,
           workOrderManagement: true,
+          cooActions: true,
         },
         limits: {},
       },

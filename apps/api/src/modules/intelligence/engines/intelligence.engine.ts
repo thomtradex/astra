@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { IntelligenceSeverity, IntelligenceSignal } from '../intelligence.types';
 import { OperationalChain } from '../operational-chain.types';
 
+import { OperationalRiskEngine } from './operational-risk.engine';
+
 type WorkOrder = {
   id: string;
   title: string;
@@ -61,6 +63,53 @@ type CooDecisionInput = {
 
 @Injectable()
 export class CooDecisionEngine {
+  private readonly riskEngine = new OperationalRiskEngine();
+
+  calculateWorkOrderRisk(
+    order: WorkOrder,
+    input: CooDecisionInput,
+    now = new Date(),
+  ) {
+    const relatedOpenWorkOrders = order.asset_id
+      ? input.workOrders.filter(
+          (candidate) =>
+            candidate.id !== order.id &&
+            candidate.asset_id === order.asset_id &&
+            candidate.status === 'OPEN',
+        ).length
+      : 0;
+
+    const project = order.project_id
+      ? (input.projects ?? []).find((candidate) => candidate.id === order.project_id)
+      : undefined;
+
+    const projectOverdueDays =
+      project?.end_date && project.end_date.getTime() < now.getTime()
+        ? Math.max(
+            1,
+            Math.floor(
+              (now.getTime() - project.end_date.getTime()) /
+                (24 * 60 * 60 * 1000),
+            ),
+          )
+        : 0;
+
+    return this.riskEngine.calculate({
+      priority: order.priority,
+      status: order.status,
+      assigned: Boolean(order.assigned_to_id),
+      ageDays: Math.max(
+        0,
+        Math.floor(
+          (now.getTime() - order.updated_at.getTime()) /
+            (24 * 60 * 60 * 1000),
+        ),
+      ),
+      relatedOpenWorkOrders,
+      projectOverdueDays,
+    });
+  }
+
   analyze(input: CooDecisionInput) {
     const now = input.now ?? new Date();
 
@@ -72,7 +121,7 @@ export class CooDecisionEngine {
     );
 
     if (highPriorityOpen.length > 0) {
-      signals.push(this.createHighPriorityWorkOrderSignal(highPriorityOpen, now));
+      signals.push(this.createHighPriorityWorkOrderSignal(highPriorityOpen, input, now));
     }
 
     const overdueMaintenance = input.maintenancePlans.filter(
@@ -188,8 +237,12 @@ export class CooDecisionEngine {
           )
         : 0;
 
+      const risk = this.calculateWorkOrderRisk(order, input, now);
+
       const contextualEvidence = [
         `Ordem de trabalho: ${order.title}`,
+        `Risco operacional: ${risk.score}/100 (${risk.level}).`,
+        ...risk.factors.map((factor) => `Fator de risco: ${factor}.`),
         `Prioridade: ${order.priority}`,
         `Estado: ${order.status}`,
         ...(context.project
@@ -230,6 +283,9 @@ export class CooDecisionEngine {
               : isHighPriority
                 ? 'Requer atenção hoje: prioridade alta sem responsável atribuído.'
                 : 'Requer atenção: ordem aberta sem responsável atribuído.',
+        riskScore: risk.score,
+        riskLevel: risk.level,
+        riskFactors: risk.factors,
         impact:
           context.project && projectOverdueDays > 0
             ? `A ordem permanece sem responsável numa obra que já está atrasada ${projectOverdueDays} dia(s), aumentando o risco de prolongar o atraso.`
@@ -574,7 +630,47 @@ export class CooDecisionEngine {
     return 'Rever o plano do projeto e definir a ação necessária para recuperar o prazo.';
   }
 
-  private createHighPriorityWorkOrderSignal(orders: WorkOrder[], now: Date): IntelligenceSignal {
+  private createHighPriorityWorkOrderSignal(
+    orders: WorkOrder[],
+    input: CooDecisionInput,
+    now: Date,
+  ): IntelligenceSignal {
+    const rankedOrders = orders
+      .map((order) => ({
+        order,
+        risk: this.calculateWorkOrderRisk(order, input, now),
+      }))
+      .sort((a, b) => {
+        if (b.risk.score !== a.risk.score) {
+          return b.risk.score - a.risk.score;
+        }
+
+        if (a.order.priority === 'CRITICAL' && b.order.priority !== 'CRITICAL') {
+          return -1;
+        }
+
+        if (b.order.priority === 'CRITICAL' && a.order.priority !== 'CRITICAL') {
+          return 1;
+        }
+
+        return b.order.updated_at.getTime() - a.order.updated_at.getTime();
+      });
+
+    const highestRisk = rankedOrders[0]?.risk;
+    const criticalCount = orders.filter((order) => order.priority === 'CRITICAL').length;
+    const highCount = orders.filter((order) => order.priority === 'HIGH').length;
+
+    const evidence = rankedOrders.slice(0, 5).map(
+      ({ order, risk }) =>
+        `${order.title} — ${order.priority} — risco ${risk.score}/100 (${risk.level})`,
+    );
+
+    if (criticalCount > 0) {
+      evidence.push(`Ordens CRITICAL abertas: ${criticalCount}.`);
+    }
+
+    evidence.push(`Ordens HIGH abertas: ${highCount}.`);
+
     return {
       id: `high-priority-work-orders-${orders.length}`,
       type: 'HIGH_PRIORITY_WORK_ORDER',
@@ -585,15 +681,22 @@ export class CooDecisionEngine {
       title: `${orders.length} ordem(ns) de alta prioridade continuam abertas`,
       explanation:
         'Existem trabalhos classificados como alta prioridade que ainda não foram concluídos.',
-      evidence: orders.slice(0, 5).map((order) => order.title),
+      evidence,
       urgency:
-        orders.length >= 5
-          ? `Requer atenção imediata: existem ${orders.length} ordens de alta prioridade abertas.`
-          : `Requer atenção hoje: existem ${orders.length} ordem(ns) de alta prioridade abertas.`,
+        highestRisk && highestRisk.score >= 85
+          ? `Requer atenção imediata: a ordem de maior risco está em ${highestRisk.score}/100.`
+          : orders.length >= 5
+            ? `Requer atenção imediata: existem ${orders.length} ordens de alta prioridade abertas.`
+            : `Requer atenção hoje: existem ${orders.length} ordens de alta prioridade abertas.`,
+      riskScore: highestRisk?.score,
+      riskLevel: highestRisk?.level,
+      riskFactors: highestRisk?.factors,
       impact:
-        'Existem ordens de trabalho de alta prioridade que continuam abertas e requerem resolução operacional.',
+        'Existem ordens de trabalho de alta prioridade abertas. O risco agregado é determinado pela ordem com maior risco operacional.',
       recommendedAction:
-        'Rever as ordens de alta prioridade e confirmar responsável, estado e próxima ação.',
+        highestRisk
+          ? `Priorizar a ordem com maior risco operacional (${highestRisk.score}/100) e confirmar a próxima ação.`
+          : 'Rever as ordens de alta prioridade e confirmar responsável, estado e próxima ação.',
       decision: {
         type: 'REVIEW',
         label: 'Rever ordens prioritárias',

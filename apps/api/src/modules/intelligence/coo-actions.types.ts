@@ -1,5 +1,7 @@
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
+import { CooActionVerification } from './intelligence.types';
+
 export type CooAction =
   | {
       type: 'ASSIGN_WORK_ORDER';
@@ -32,6 +34,7 @@ export interface CooActionOutcome {
   status: 'EXECUTED' | 'DENIED' | 'FAILED';
   resourceId: string;
   message: string;
+  verification?: CooActionVerification;
 }
 
 export interface CooActionExecutor {
