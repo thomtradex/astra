@@ -41,7 +41,7 @@ describe('BillingEntitlementGuard', () => {
   }
 
   it('allows routes without billing metadata', async () => {
-    reflector.get.mockReturnValue(undefined);
+    reflector.getAllAndOverride.mockReturnValue(undefined);
 
     await expect(
       guard.canActivate(context()),
@@ -51,7 +51,7 @@ describe('BillingEntitlementGuard', () => {
   });
 
   it('checks billing feature entitlement when metadata exists', async () => {
-    reflector.get.mockReturnValue('cooActions');
+    reflector.getAllAndOverride.mockReturnValue('cooActions');
 
     await expect(
       guard.canActivate(context()),
