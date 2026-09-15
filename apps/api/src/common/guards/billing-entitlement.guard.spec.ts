@@ -10,7 +10,7 @@ describe('BillingEntitlementGuard', () => {
     assertFeature: jest.Mock;
   };
   let reflector: {
-    get: jest.Mock;
+    getAllAndOverride: jest.Mock;
   };
 
   beforeEach(() => {
@@ -19,12 +19,12 @@ describe('BillingEntitlementGuard', () => {
     };
 
     reflector = {
-      get: jest.fn(),
+      getAllAndOverride: jest.fn(),
     };
 
     guard = new BillingEntitlementGuard(
-      reflector as unknown as Reflector,
       billingService as unknown as BillingService,
+      reflector as unknown as Reflector,
     );
   });
 
