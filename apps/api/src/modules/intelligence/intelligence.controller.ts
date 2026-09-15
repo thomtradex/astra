@@ -23,6 +23,7 @@ export class IntelligenceController {
     return this.intelligenceService.analyze(user.organizationId);
   }
 
+  @RequireBillingFeature('cooActions')
   @RequirePolicy(CanUseIntelligence.name)
   @Post('actions')
   executeAction(
