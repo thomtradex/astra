@@ -1,8 +1,12 @@
+import { PrismaService } from '../../prisma/prisma.service';
+
+import { CooActionExecutorService } from './coo-action.executor';
+import { CooDecisionEngine } from './engines/intelligence.engine';
 import { IntelligenceService } from './intelligence.service';
 
 describe('IntelligenceService', () => {
   it('passes organization-scoped project work order context to the COO engine', async () => {
-    const prisma: any = {
+    const prisma = {
       work_orders: {
         findMany: jest.fn().mockResolvedValue([
           {
@@ -39,7 +43,7 @@ describe('IntelligenceService', () => {
       auditLog: { findMany: jest.fn().mockResolvedValue([]) },
     };
 
-    const engine: any = {
+    const engine = {
       analyze: jest.fn().mockReturnValue({
         generatedAt: '2026-09-05T10:00:00.000Z',
         signalCount: 0,
@@ -47,7 +51,13 @@ describe('IntelligenceService', () => {
       }),
     };
 
-    const service = new IntelligenceService(prisma, engine);
+    const cooActionExecutor = {} as CooActionExecutorService;
+
+    const service = new IntelligenceService(
+      prisma as unknown as PrismaService,
+      engine as unknown as CooDecisionEngine,
+      cooActionExecutor,
+    );
 
     await service.analyze('org-1');
 
@@ -110,7 +120,7 @@ describe('IntelligenceService', () => {
     );
   });
   it('measures COO decision outcomes', async () => {
-    const prisma: any = {
+    const prisma = {
       projects: { findMany: jest.fn().mockResolvedValue([]) },
       work_orders: { findMany: jest.fn().mockResolvedValue([]) },
       maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
@@ -160,7 +170,7 @@ describe('IntelligenceService', () => {
         ]),
       },
     };
-    const engine: any = {
+    const engine = {
       analyze: jest.fn().mockReturnValue({
         generatedAt: '2026-09-05T12:00:00.000Z',
         signalCount: 1,
@@ -189,8 +199,14 @@ describe('IntelligenceService', () => {
         ],
       }),
     };
-    const result = await new IntelligenceService(prisma, engine).analyze('org-1');
+    const cooActionExecutor = {} as CooActionExecutorService;
+
+    const result = await new IntelligenceService(
+      prisma as unknown as PrismaService,
+      engine as unknown as CooDecisionEngine,
+      cooActionExecutor,
+    ).analyze('org-1');
     expect(result.decisionMetrics).toEqual({ executed: 1, denied: 1, failed: 1 });
-    expect(result.signals[0].lastAction?.status).toBe('EXECUTED');
+    expect(result.signals[0]?.lastAction?.status).toBe('EXECUTED');
   });
 });

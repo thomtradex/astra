@@ -16,6 +16,12 @@ describe('DashboardService', () => {
     work_orders: {
       count: jest.Mock<Promise<number>>;
     };
+    projects: {
+      count: jest.Mock<Promise<number>>;
+    };
+    user: {
+      count: jest.Mock<Promise<number>>;
+    };
     maintenance_plans: {
       count: jest.Mock<Promise<number>>;
     };
@@ -44,6 +50,12 @@ describe('DashboardService', () => {
       count: jest.fn<Promise<number>, []>(),
     },
     work_orders: {
+      count: jest.fn<Promise<number>, []>(),
+    },
+    projects: {
+      count: jest.fn<Promise<number>, []>(),
+    },
+    user: {
       count: jest.fn<Promise<number>, []>(),
     },
     maintenance_plans: {
@@ -78,6 +90,8 @@ describe('DashboardService', () => {
     prisma.work_orders.count.mockResolvedValueOnce(8).mockResolvedValueOnce(2);
     prisma.work_orders.count.mockResolvedValueOnce(1);
     prisma.assets.count.mockResolvedValueOnce(25).mockResolvedValueOnce(20);
+    prisma.projects.count.mockResolvedValue(0);
+    prisma.user.count.mockResolvedValue(2);
     prisma.maintenance_plans.count.mockResolvedValue(3);
     prisma.auditLog.findMany.mockResolvedValue([
       {
@@ -101,6 +115,8 @@ describe('DashboardService', () => {
         active: number;
         total: number;
       };
+      projects: number;
+      users: number;
       maintenance: {
         overdue: number;
       };
@@ -121,6 +137,8 @@ describe('DashboardService', () => {
     expect(result.workOrders.criticalOpen).toBe(1);
     expect(result.assetHealth.active).toBe(20);
     expect(result.assetHealth.total).toBe(25);
+    expect(result.projects).toBe(0);
+    expect(result.users).toBe(2);
     expect(result.maintenance.overdue).toBe(3);
     expect(result.recentActivity).toHaveLength(1);
 

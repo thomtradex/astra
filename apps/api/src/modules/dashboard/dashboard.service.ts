@@ -16,6 +16,8 @@ export class DashboardService {
       criticalOpen,
       activeAssets,
       overdueMaintenance,
+      projects,
+      users,
       recentAuditLogs,
     ] = await Promise.all([
       this.prisma.customers.count({
@@ -70,6 +72,18 @@ export class DashboardService {
         },
       }),
 
+      this.prisma.projects.count({
+        where: {
+          organization_id: orgId,
+        },
+      }),
+
+      this.prisma.user.count({
+        where: {
+          organizationId: orgId,
+        },
+      }),
+
       this.prisma.auditLog.findMany({
         where: {
           organizationId: orgId,
@@ -103,6 +117,8 @@ export class DashboardService {
       maintenance: {
         overdue: overdueMaintenance,
       },
+      projects,
+      users,
       recentActivity: recentAuditLogs,
 
       generatedAt: new Date(),

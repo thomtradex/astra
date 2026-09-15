@@ -6,13 +6,19 @@ import { WorkOrdersModule } from '../work-orders/work-orders.module';
 
 import { CooActionExecutorService } from './coo-action.executor';
 import { CooDecisionEngine } from './engines/intelligence.engine';
+import { OperationalRiskEngine } from './engines/operational-risk.engine';
 import { IntelligenceController } from './intelligence.controller';
 import { IntelligenceService } from './intelligence.service';
 
 @Module({
   controllers: [IntelligenceController],
   imports: [MaintenanceModule, WorkOrdersModule, ProjectsModule],
-  providers: [IntelligenceService, CooDecisionEngine, CooActionExecutorService],
+  providers: [
+    IntelligenceService,
+    CooDecisionEngine,
+    OperationalRiskEngine,
+    CooActionExecutorService,
+  ],
   exports: [CooActionExecutorService],
 })
 export class IntelligenceModule {}

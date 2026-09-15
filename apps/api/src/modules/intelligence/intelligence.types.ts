@@ -35,6 +35,9 @@ export interface IntelligenceSignal {
   evidence: string[];
   urgency: string;
   impact: string;
+  riskScore?: number;
+  riskLevel?: IntelligenceSeverity;
+  riskFactors?: string[];
   owner?: {
     type: 'USER' | 'TEAM' | 'ORGANIZATION';
     id?: string;
@@ -64,4 +67,16 @@ export interface IntelligenceSignal {
     resource: string;
     resourceId?: string;
   };
+}
+
+export type CooVerificationStatus =
+  | 'RESOLVED'
+  | 'IMPROVED'
+  | 'STILL_AT_RISK';
+
+export interface CooActionVerification {
+  status: CooVerificationStatus;
+  riskBefore: number;
+  riskAfter: number;
+  riskDelta: number;
 }

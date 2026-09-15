@@ -6,7 +6,6 @@ import { Authenticated, RequirePolicy } from '../../common/decorators/metadata.d
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { CanUseIntelligence } from '../authorization/policies/intelligence.policies';
 
-import { CooActionExecutorService } from './coo-action.executor';
 import { ExecuteCooActionDto } from './dto/execute-coo-action.dto';
 import { IntelligenceService } from './intelligence.service';
 
@@ -16,7 +15,6 @@ import { IntelligenceService } from './intelligence.service';
 export class IntelligenceController {
   constructor(
     private readonly intelligenceService: IntelligenceService,
-    private readonly cooActionExecutor: CooActionExecutorService,
   ) {}
 
   @RequirePolicy(CanUseIntelligence.name)
@@ -27,9 +25,12 @@ export class IntelligenceController {
 
   @RequirePolicy(CanUseIntelligence.name)
   @Post('actions')
-  executeAction(@CurrentUser() user: AuthenticatedUser, @Body() dto: ExecuteCooActionDto) {
+  executeAction(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: ExecuteCooActionDto,
+  ) {
     if (dto.type === 'ASSIGN_WORK_ORDER') {
-      return this.cooActionExecutor.execute(user, {
+      return this.intelligenceService.executeCooAction(user, {
         type: 'ASSIGN_WORK_ORDER',
         resource: 'work_orders',
         resourceId: dto.resourceId,
@@ -40,7 +41,7 @@ export class IntelligenceController {
     }
 
     if (dto.type === 'UPDATE_MAINTENANCE') {
-      return this.cooActionExecutor.execute(user, {
+      return this.intelligenceService.executeCooAction(user, {
         type: 'UPDATE_MAINTENANCE',
         resource: 'maintenance_plans',
         resourceId: dto.resourceId,
@@ -50,7 +51,7 @@ export class IntelligenceController {
       });
     }
 
-    return this.cooActionExecutor.execute(user, {
+    return this.intelligenceService.executeCooAction(user, {
       type: 'SET_PROJECT_STATUS',
       resource: 'projects',
       resourceId: dto.resourceId,

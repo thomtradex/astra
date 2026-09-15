@@ -2,9 +2,16 @@ import { AuditAction } from '@astra/database';
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
+import { CooActionExecutorService } from './coo-action.executor';
+import { CooAction, CooActionOutcome } from './coo-actions.types';
 import { CooDecisionEngine } from './engines/intelligence.engine';
-import { IntelligenceChange } from './intelligence.types';
+import {
+  CooActionVerification,
+  IntelligenceChange,
+} from './intelligence.types';
+
 
 const CHANGE_WINDOW_HOURS = 24;
 const CHANGE_LIMIT = 20;
@@ -14,7 +21,131 @@ export class IntelligenceService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly engine: CooDecisionEngine,
+    private readonly cooActionExecutor: CooActionExecutorService,
   ) {}
+
+  async executeCooAction(
+    user: AuthenticatedUser,
+    action: CooAction,
+  ): Promise<CooActionOutcome> {
+    const before = await this.getWorkOrderRiskSnapshot(
+      user.organizationId,
+      action,
+    );
+
+    const outcome = await this.cooActionExecutor.execute(user, action);
+
+    if (outcome.status !== 'EXECUTED' || !before) {
+      return outcome;
+    }
+
+    const after = await this.getWorkOrderRiskSnapshot(
+      user.organizationId,
+      action,
+    );
+
+    if (!after) {
+      return outcome;
+    }
+
+    const verification = this.verifyRiskChange(before, after);
+
+    return {
+      ...outcome,
+      verification,
+    };
+  }
+
+  private async getWorkOrderRiskSnapshot(
+    organizationId: string,
+    action: CooAction,
+  ) {
+    if (action.type !== 'ASSIGN_WORK_ORDER') {
+      return null;
+    }
+
+    const order = await this.prisma.work_orders.findFirst({
+      where: {
+        id: action.resourceId,
+        organization_id: organizationId,
+      },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        priority: true,
+        assigned_to_id: true,
+        project_id: true,
+        asset_id: true,
+        updated_at: true,
+      },
+    });
+
+    if (!order) {
+      return null;
+    }
+
+    const [workOrders, projects] = await Promise.all([
+      this.prisma.work_orders.findMany({
+        where: {
+          organization_id: organizationId,
+        },
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          priority: true,
+          assigned_to_id: true,
+          project_id: true,
+          asset_id: true,
+          updated_at: true,
+        },
+      }),
+      this.prisma.projects.findMany({
+        where: {
+          organization_id: organizationId,
+        },
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          progress: true,
+          end_date: true,
+        },
+      }),
+    ]);
+
+    return this.engine.calculateWorkOrderRisk(
+      order,
+      {
+        workOrders,
+        maintenancePlans: [],
+        assets: [],
+        sites: [],
+        projects,
+      },
+      new Date(),
+    );
+  }
+
+  private verifyRiskChange(
+    before: { score: number },
+    after: { score: number },
+  ): CooActionVerification {
+    const riskDelta = after.score - before.score;
+
+    return {
+      status:
+        after.score === 0
+          ? 'RESOLVED'
+          : after.score < before.score
+            ? 'IMPROVED'
+            : 'STILL_AT_RISK',
+      riskBefore: before.score,
+      riskAfter: after.score,
+      riskDelta,
+    };
+  }
 
   async analyze(organizationId: string) {
     const [workOrders, maintenancePlans, assets, sites, projects, recentAuditLogs] =
