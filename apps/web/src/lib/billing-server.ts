@@ -23,7 +23,10 @@ export interface CurrentSubscriptionServer {
 export interface CurrentEntitlementsServer {
   plan?: { code?: string | null; name?: string | null } | null;
   limits?: Record<string, number> | null;
-  features?: { intelligence?: boolean } | null;
+  features?: {
+    intelligence?: boolean;
+    cooActions?: boolean;
+  } | null;
 }
 
 export async function getCurrentSubscriptionServer(): Promise<CurrentSubscriptionServer | null> {

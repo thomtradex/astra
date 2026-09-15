@@ -196,6 +196,22 @@ describe('IntelligenceController', () => {
     ).toBe(CanUseIntelligence.name);
   });
 
+  it('requires the COO actions billing entitlement on the action handler', () => {
+    expect(
+      Reflect.getMetadata(
+        'billing_feature',
+        IntelligenceController.prototype.executeAction,
+      ),
+    ).toBe('cooActions');
+
+    expect(
+      Reflect.getMetadata(
+        'billing_feature',
+        IntelligenceController.prototype.briefing,
+      ),
+    ).toBeUndefined();
+  });
+
   it('keeps audit action values outside the controller contract', () => {
     expect(AuditAction.UPDATE).toBe('UPDATE');
   });

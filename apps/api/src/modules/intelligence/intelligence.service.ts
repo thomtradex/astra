@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 import { CooDecisionEngine } from './engines/intelligence.engine';
+import { DailyBriefingService } from './daily-briefing.service';
 import { IntelligenceChange } from './intelligence.types';
 
 const CHANGE_WINDOW_HOURS = 24;
@@ -14,6 +15,7 @@ export class IntelligenceService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly engine: CooDecisionEngine,
+    private readonly dailyBriefingService: DailyBriefingService,
   ) {}
 
   async analyze(organizationId: string) {
@@ -164,16 +166,19 @@ export class IntelligenceService {
       lastAction: signal.action ? lastCooActions.get(signal.action.resourceId) : undefined,
     }));
 
+    const changes = this.buildChanges(
+      recentAuditLogs.filter((log) => !this.isCooAction(log.metadata)).slice(0, CHANGE_LIMIT),
+      projects,
+      workOrders,
+      maintenancePlans,
+    );
+
     return {
       ...briefing,
       signals,
       decisionMetrics,
-      changes: this.buildChanges(
-        recentAuditLogs.filter((log) => !this.isCooAction(log.metadata)).slice(0, CHANGE_LIMIT),
-        projects,
-        workOrders,
-        maintenancePlans,
-      ),
+      changes,
+      daily: this.dailyBriefingService.build(signals, new Date(briefing.generatedAt)),
     };
   }
 

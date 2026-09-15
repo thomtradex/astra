@@ -20,6 +20,7 @@ export interface BillingFeatures {
   forecasting?: boolean;
   basicReports?: boolean;
   intelligence?: boolean;
+  cooActions?: boolean;
   siteManagement?: boolean;
   assetManagement?: boolean;
   prioritySupport?: boolean;

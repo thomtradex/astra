@@ -95,11 +95,43 @@ export interface IntelligenceChange {
   };
 }
 
+export interface DailyBriefingSummary {
+  headline: string;
+  explanation: string;
+  critical: number;
+  high: number;
+  medium: number;
+  total: number;
+}
+
+export interface DailyBriefingPriority {
+  rank: number;
+  severity: IntelligenceSeverity;
+  title: string;
+  why: string;
+  impact: string;
+  recommendedAction: string;
+  source: {
+    resource: string;
+    resourceId?: string;
+  };
+  action?: IntelligenceSignal['action'];
+}
+
+export interface DailyBriefing {
+  date: string;
+  generatedAt: string;
+  summary: DailyBriefingSummary;
+  priorities: DailyBriefingPriority[];
+  nextStep: string;
+}
+
 export interface IntelligenceBriefing {
   generatedAt: string;
   signalCount: number;
   signals: IntelligenceSignal[];
   changes: IntelligenceChange[];
+  daily: DailyBriefing;
   decisionMetrics: { executed: number; denied: number; failed: number };
 }
 

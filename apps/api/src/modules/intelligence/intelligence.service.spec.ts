@@ -1,3 +1,4 @@
+import { DailyBriefingService } from './daily-briefing.service';
 import { IntelligenceService } from './intelligence.service';
 
 describe('IntelligenceService', () => {
@@ -47,7 +48,8 @@ describe('IntelligenceService', () => {
       }),
     };
 
-    const service = new IntelligenceService(prisma, engine);
+    const dailyBriefingService = new DailyBriefingService();
+    const service = new IntelligenceService(prisma, engine, dailyBriefingService);
 
     await service.analyze('org-1');
 
@@ -189,8 +191,13 @@ describe('IntelligenceService', () => {
         ],
       }),
     };
-    const result = await new IntelligenceService(prisma, engine).analyze('org-1');
+    const dailyBriefingService = new DailyBriefingService();
+    const result = await new IntelligenceService(prisma, engine, dailyBriefingService).analyze(
+      'org-1',
+    );
     expect(result.decisionMetrics).toEqual({ executed: 1, denied: 1, failed: 1 });
-    expect(result.signals[0].lastAction?.status).toBe('EXECUTED');
+    const firstSignal = result.signals[0];
+    expect(firstSignal).toBeDefined();
+    expect(firstSignal?.lastAction?.status).toBe('EXECUTED');
   });
 });

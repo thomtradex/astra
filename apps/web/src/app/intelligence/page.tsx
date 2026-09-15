@@ -9,6 +9,7 @@ import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { getCurrentEntitlementsServer, getCurrentSubscriptionServer } from '@/lib/billing-server';
 import {
   getIntelligenceBriefing,
+  type IntelligenceBriefing,
   type IntelligenceSeverity,
   type IntelligenceChange,
   type IntelligenceSignal,
@@ -243,9 +244,7 @@ function DecisionChain({ signal }: { signal: IntelligenceSignal }) {
   );
 }
 
-function SignalAction({ signal }: { signal: IntelligenceSignal }) {
-  const action = signal.action;
-
+function SignalAction({ action }: { action: IntelligenceSignal['action'] }) {
   if (!action) {
     return null;
   }
@@ -265,7 +264,223 @@ function SignalAction({ signal }: { signal: IntelligenceSignal }) {
   return null;
 }
 
-function SignalCard({ signal }: { signal: IntelligenceSignal }) {
+function DailyBriefingCard({
+  briefing,
+  canExecuteActions,
+}: {
+  briefing: IntelligenceBriefing['daily'];
+  canExecuteActions: boolean;
+}) {
+  const summary = briefing.summary;
+  const topPriority = briefing.priorities[0];
+
+  return (
+    <section className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-200 bg-slate-950 p-6 text-white">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-3xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                Briefing diário
+              </span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                {briefing.date}
+              </span>
+            </div>
+
+            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white">
+              {summary.headline}
+            </h2>
+
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+              {summary.explanation}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:min-w-[360px]">
+            <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-red-300">
+                Críticas
+              </p>
+              <p className="mt-1 text-2xl font-semibold text-white">{summary.critical}</p>
+            </div>
+
+            <div className="rounded-2xl border border-orange-400/20 bg-orange-400/10 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-orange-300">
+                Altas
+              </p>
+              <p className="mt-1 text-2xl font-semibold text-white">{summary.high}</p>
+            </div>
+
+            <div className="rounded-2xl border border-amber-400/20 bg-amber-400/10 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-300">
+                Médias
+              </p>
+              <p className="mt-1 text-2xl font-semibold text-white">{summary.medium}</p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                Total
+              </p>
+              <p className="mt-1 text-2xl font-semibold text-white">{summary.total}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-6">
+        {briefing.priorities.length === 0 ? (
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+            <p className="text-sm font-semibold text-emerald-950">
+              A operação está estável.
+            </p>
+            <p className="mt-1 text-sm leading-6 text-emerald-900/70">
+              {briefing.nextStep}
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Top prioridades
+                </p>
+                <p className="mt-1 text-sm text-slate-500">
+                  As situações que merecem atenção primeiro hoje.
+                </p>
+              </div>
+
+              <p className="text-xs font-medium text-slate-400">
+                {briefing.priorities.length} de {summary.total} sinais destacados
+              </p>
+            </div>
+
+            <div className="mt-5 space-y-3">
+              {briefing.priorities.map((priority) => {
+                const severity = severityConfig[priority.severity];
+
+                return (
+                  <article
+                    key={`${priority.rank}-${priority.source.resource}-${priority.source.resourceId ?? 'unknown'}`}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                  >
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="flex min-w-0 items-start gap-3">
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-xs font-semibold text-white">
+                          {priority.rank}
+                        </div>
+
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span
+                              className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${severity.className}`}
+                            >
+                              {severity.label}
+                            </span>
+
+                            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                              {priority.source.resource.replace('_', ' ')}
+                            </span>
+                          </div>
+
+                          <h3 className="mt-2 text-base font-semibold tracking-tight text-slate-950">
+                            {priority.title}
+                          </h3>
+                        </div>
+                      </div>
+
+                      {priority.action ? (
+                        <div className="shrink-0 text-xs font-semibold text-slate-500">
+                          {canExecuteActions
+                            ? 'Ação disponível'
+                            : 'Execução disponível no Professional'}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className="mt-4 grid gap-3 md:grid-cols-3">
+                      <div className="rounded-xl border border-slate-200 bg-white p-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                          Porquê agora
+                        </p>
+                        <p className="mt-1.5 text-xs leading-5 text-slate-700">
+                          {priority.why}
+                        </p>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-200 bg-white p-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                          Impacto
+                        </p>
+                        <p className="mt-1.5 text-xs leading-5 text-slate-700">
+                          {priority.impact}
+                        </p>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-200 bg-white p-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                          Astra recomenda
+                        </p>
+                        <p className="mt-1.5 text-xs font-semibold leading-5 text-slate-900">
+                          {priority.recommendedAction}
+                        </p>
+                      </div>
+                    </div>
+
+                    {priority.action &&
+                    topPriority?.rank === priority.rank ? (
+                      <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
+                        <div className="mb-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                            Próxima ação
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-slate-900">
+                            {canExecuteActions
+                              ? 'Executar a decisão recomendada para esta prioridade.'
+                              : 'A Astra recomenda esta ação. A execução direta está disponível no plano Professional.'}
+                          </p>
+                        </div>
+
+                        {canExecuteActions ? (
+                          <SignalAction action={priority.action} />
+                        ) : (
+                          <Link
+                            href="/plans"
+                            className="inline-flex rounded-xl bg-slate-950 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-slate-800"
+                          >
+                            Ver Professional
+                          </Link>
+                        )}
+                      </div>
+                    ) : null}
+                  </article>
+                );
+              })}
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-950 p-4 text-white">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                Próximo passo
+              </p>
+              <p className="mt-1.5 text-sm font-semibold leading-6 text-white">
+                {briefing.nextStep}
+              </p>
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function SignalCard({
+  signal,
+  canExecuteActions,
+}: {
+  signal: IntelligenceSignal;
+  canExecuteActions: boolean;
+}) {
   const severity = severityConfig[signal.severity];
 
   return (
@@ -344,7 +559,9 @@ function SignalCard({ signal }: { signal: IntelligenceSignal }) {
               </p>
             ) : null}
           </div>
-          <SignalAction signal={signal} />
+          {canExecuteActions ? (
+            <SignalAction action={signal.action} />
+          ) : null}
         </div>
       ) : null}
 
@@ -410,6 +627,7 @@ export default async function IntelligencePage() {
   const planCode = entitlements?.plan?.code ?? subscription.planCode ?? 'FREE';
 
   const hasIntelligence = entitlements?.features?.intelligence === true;
+  const hasCooActions = entitlements?.features?.cooActions === true;
 
   if (!hasIntelligence) {
     return (
@@ -454,28 +672,6 @@ export default async function IntelligencePage() {
     );
   }
 
-  const criticalCount = briefing.signals.filter((signal) => signal.severity === 'CRITICAL').length;
-
-  const highCount = briefing.signals.filter((signal) => signal.severity === 'HIGH').length;
-
-  const attentionNow = briefing.signals.filter((signal) => signal.severity === 'CRITICAL');
-
-  const riskSignals = briefing.signals.filter(
-    (signal) =>
-      signal.severity === 'HIGH' ||
-      signal.type === 'OVERDUE_PROJECT' ||
-      signal.type === 'OVERDUE_MAINTENANCE',
-  );
-
-  const blockedSignals = briefing.signals.filter(
-    (signal) => signal.type === 'STALE_OPEN_WORK_ORDER',
-  );
-
-  const unassignedSignals = briefing.signals.filter(
-    (signal) =>
-      signal.type === 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER' ||
-      signal.type === 'UNASSIGNED_WORK_ORDER',
-  );
   const decisionMetrics = briefing.decisionMetrics;
   const totalDecisions = decisionMetrics.executed + decisionMetrics.denied + decisionMetrics.failed;
 
@@ -490,165 +686,46 @@ export default async function IntelligencePage() {
               </p>
 
               <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
-                O que precisa da sua atenção?
+                O que precisa da sua atenção hoje?
               </h1>
 
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-                O briefing COO reúne os sinais detetados nos dados da sua organização e indica a
-                próxima ação recomendada.
+                O briefing diário transforma os sinais operacionais em prioridades claras,
+                explica o impacto e indica a próxima ação recomendada.
               </p>
             </div>
 
-            <div className="flex gap-2">
-              <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-                <div className="text-2xl font-semibold text-slate-950">{briefing.signalCount}</div>
-                <div className="text-xs text-slate-400">sinais em aberto</div>
+            <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+              <div className="text-2xl font-semibold text-slate-950">
+                {briefing.daily.summary.total}
               </div>
-
-              {criticalCount > 0 && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
-                  <div className="text-2xl font-semibold text-red-950">{criticalCount}</div>
-                  <div className="text-xs text-red-800/60">críticos</div>
-                </div>
-              )}
-
-              {highCount > 0 && (
-                <div className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-3">
-                  <div className="text-2xl font-semibold text-orange-950">{highCount}</div>
-                  <div className="text-xs text-orange-800/60">prioridade alta</div>
-                </div>
-              )}
+              <div className="text-xs text-slate-400">sinais em aberto</div>
             </div>
           </div>
         </header>
 
-        <section className="mt-6 rounded-3xl border border-slate-200 bg-slate-950 p-5 text-white">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                Controlo COO
-              </p>
-              <h2 className="mt-1 text-xl font-semibold tracking-tight">
-                O que exige decisão agora?
-              </h2>
-            </div>
+        <DailyBriefingCard
+          briefing={briefing.daily}
+          canExecuteActions={hasCooActions}
+        />
 
-            <p className="text-xs text-slate-400">Derivado dos sinais já priorizados pela Astra.</p>
-          </div>
-
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-red-300">
-                Decisão agora
-              </p>
-              <p className="mt-2 text-3xl font-semibold text-white">{attentionNow.length}</p>
-              <p className="mt-1 text-xs leading-5 text-red-100/70">
-                Situações críticas que não devem esperar.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-orange-400/20 bg-orange-400/10 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-orange-300">
-                Risco / atraso
-              </p>
-              <p className="mt-2 text-3xl font-semibold text-white">{riskSignals.length}</p>
-              <p className="mt-1 text-xs leading-5 text-orange-100/70">
-                Sinais com impacto operacional relevante.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-yellow-300">
-                Bloqueio / paragem
-              </p>
-              <p className="mt-2 text-3xl font-semibold text-white">{blockedSignals.length}</p>
-              <p className="mt-1 text-xs leading-5 text-yellow-100/70">
-                Ordens abertas sem atualização suficiente.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-blue-400/20 bg-blue-400/10 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-blue-300">
-                Sem responsável
-              </p>
-              <p className="mt-2 text-3xl font-semibold text-white">{unassignedSignals.length}</p>
-              <p className="mt-1 text-xs leading-5 text-blue-100/70">
-                Trabalho aberto que precisa de dono.
-              </p>
-            </div>
-          </div>
-
-          {briefing.signals[0] && (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                    Decisão prioritária
-                  </p>
-                  <p className="mt-1 text-base font-semibold text-white">
-                    {briefing.signals[0].title}
-                  </p>
-                </div>
-
-                <span className="shrink-0 rounded-full border border-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-300">
-                  {briefing.signals[0].severity}
-                </span>
-              </div>
-
-              <div className="mt-4 grid gap-3 md:grid-cols-3">
-                <div className="rounded-xl border border-white/10 bg-black/10 p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                    Porquê agora
-                  </p>
-                  <p className="mt-1 text-sm leading-5 text-slate-200">
-                    {briefing.signals[0].urgency}
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-white/10 bg-black/10 p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                    Impacto
-                  </p>
-                  <p className="mt-1 text-sm leading-5 text-slate-200">
-                    {briefing.signals[0].impact}
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-white/10 bg-black/10 p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                    Ação recomendada
-                  </p>
-                  <p className="mt-1 text-sm leading-5 text-slate-200">
-                    {briefing.signals[0].recommendedAction}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </section>
-
-        {briefing.signals.length === 0 ? (
-          <section className="mt-8 rounded-3xl border border-emerald-200 bg-emerald-50 p-8">
-            <div className="flex items-start gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                ✓
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold text-emerald-950">
-                  Nenhum sinal prioritário identificado
-                </h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-emerald-900/70">
-                  Os dados operacionais disponíveis não apresentam situações que cumpram atualmente
-                  os critérios de atenção do briefing.
-                </p>
-              </div>
-            </div>
-          </section>
-        ) : (
+        {briefing.signals.length > 0 && (
           <section className="mt-8 space-y-4">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Detalhe dos sinais
+              </p>
+              <p className="mt-1 text-sm text-slate-500">
+                Evidência e contexto operacional por situação identificada.
+              </p>
+            </div>
+
             {briefing.signals.map((signal) => (
-              <SignalCard key={signal.id} signal={signal} />
+              <SignalCard
+                key={signal.id}
+                signal={signal}
+                canExecuteActions={hasCooActions}
+              />
             ))}
           </section>
         )}

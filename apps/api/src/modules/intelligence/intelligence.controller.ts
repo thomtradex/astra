@@ -26,6 +26,7 @@ export class IntelligenceController {
   }
 
   @RequirePolicy(CanUseIntelligence.name)
+  @RequireBillingFeature('cooActions')
   @Post('actions')
   executeAction(@CurrentUser() user: AuthenticatedUser, @Body() dto: ExecuteCooActionDto) {
     if (dto.type === 'ASSIGN_WORK_ORDER') {
