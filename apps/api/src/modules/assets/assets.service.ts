@@ -24,6 +24,10 @@ export class AssetsService {
       where: {
         organization_id,
       },
+      include: {
+        maintenance_plans: true,
+        work_orders: true,
+      },
       orderBy: {
         created_at: 'desc',
       },
