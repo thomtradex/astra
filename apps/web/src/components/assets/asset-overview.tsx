@@ -34,28 +34,41 @@ export function AssetOverview({
         : 'Available',
 
     health:
-      asset.work_orders.some(
-        (order) =>
-          order.status !== 'COMPLETED' &&
-          order.status !== 'CLOSED',
+      asset.maintenance_plans.some(
+        (plan) =>
+          new Date(plan.nextDue) < new Date(),
       )
         ? 'Attention'
-        : asset.status === 'ACTIVE'
-          ? 'Healthy'
-          : 'Attention',
+        : asset.work_orders.some(
+            (order) =>
+              order.status !== 'COMPLETED' &&
+              order.status !== 'CLOSED',
+          )
+          ? 'Attention'
+          : asset.status === 'ACTIVE'
+            ? 'Healthy'
+            : 'Attention',
 
     risk:
-      asset.work_orders.some(
-        (order) =>
-          order.priority === 'HIGH' ||
-          order.priority === 'CRITICAL',
+      asset.maintenance_plans.some(
+        (plan) =>
+          new Date(plan.nextDue) < new Date(),
       )
         ? 'High'
-        : asset.work_orders.length > 0
-          ? 'Medium'
-          : 'Low',
+        : asset.work_orders.some(
+            (order) =>
+              order.priority === 'HIGH' ||
+              order.priority === 'CRITICAL',
+          )
+          ? 'High'
+          : asset.work_orders.length > 0
+            ? 'Medium'
+            : 'Low',
 
     location: asset.site_id ?? 'No site assigned',
+
+    work_orders: asset.work_orders,
+    maintenance_plans: asset.maintenance_plans,
 
     action:
       asset.work_orders.length > 0
@@ -66,18 +79,31 @@ export function AssetOverview({
   }));
 
   const stats = [
-    ['Total Assets', String(assets.length)],
     [
-      'Operational',
-      String(assets.filter((asset) => asset.status === 'ACTIVE').length),
+      'Total Assets',
+      String(assets.length),
     ],
     [
-      'Attention',
-      String(assets.filter((asset) => asset.status !== 'ACTIVE').length),
+      'High Risk',
+      String(
+        assets.filter((asset) => asset.risk === 'High').length,
+      ),
     ],
     [
-      'Tracked Health',
-      assets.length > 0 ? 'Live' : 'No data',
+      'Needs Attention',
+      String(
+        assets.filter((asset) => asset.health === 'Attention').length,
+      ),
+    ],
+    [
+      'Maintenance Signals',
+      String(
+        assets.filter(
+          (asset) =>
+            asset.maintenance_plans.length > 0 ||
+            asset.work_orders.length > 0,
+        ).length,
+      ),
     ],
   ];
 
