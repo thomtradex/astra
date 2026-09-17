@@ -273,15 +273,16 @@ function DailyBriefingCard({
 }) {
   const summary = briefing.summary;
   const topPriority = briefing.priorities[0];
+  const remainingPriorities = briefing.priorities.slice(1);
 
   return (
     <section className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-200 bg-slate-950 p-6 text-white">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-3xl">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-2xl">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                Briefing diário
+                Astra COO
               </span>
               <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                 {briefing.date}
@@ -292,7 +293,7 @@ function DailyBriefingCard({
               {summary.headline}
             </h2>
 
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+            <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">
               {summary.explanation}
             </p>
           </div>
@@ -300,28 +301,28 @@ function DailyBriefingCard({
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:min-w-[360px]">
             <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-3">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-red-300">
-                Críticas
+                Críticos
               </p>
               <p className="mt-1 text-2xl font-semibold text-white">{summary.critical}</p>
             </div>
 
             <div className="rounded-2xl border border-orange-400/20 bg-orange-400/10 p-3">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-orange-300">
-                Altas
+                Alta prioridade
               </p>
               <p className="mt-1 text-2xl font-semibold text-white">{summary.high}</p>
             </div>
 
             <div className="rounded-2xl border border-amber-400/20 bg-amber-400/10 p-3">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-300">
-                Médias
+                Prioridade média
               </p>
               <p className="mt-1 text-2xl font-semibold text-white">{summary.medium}</p>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                Total
+                Sinais abertos
               </p>
               <p className="mt-1 text-2xl font-semibold text-white">{summary.total}</p>
             </div>
@@ -330,136 +331,150 @@ function DailyBriefingCard({
       </div>
 
       <div className="p-6">
-        {briefing.priorities.length === 0 ? (
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-            <p className="text-sm font-semibold text-emerald-950">
-              A operação está estável.
-            </p>
-            <p className="mt-1 text-sm leading-6 text-emerald-900/70">
-              {briefing.nextStep}
-            </p>
-          </div>
-        ) : (
+        {topPriority ? (
           <>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  Top prioridades
-                </p>
-                <p className="mt-1 text-sm text-slate-500">
-                  As situações que merecem atenção primeiro hoje.
-                </p>
-              </div>
-
-              <p className="text-xs font-medium text-slate-400">
-                {briefing.priorities.length} de {summary.total} sinais destacados
+            <div className="flex flex-col gap-1">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Decisão prioritária
+              </p>
+              <p className="text-sm text-slate-500">
+                A situação que deve ser revista primeiro.
               </p>
             </div>
 
-            <div className="mt-5 space-y-3">
-              {briefing.priorities.map((priority) => {
-                const severity = severityConfig[priority.severity];
+            <article className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${severityConfig[topPriority.severity].className}`}
+                    >
+                      {severityConfig[topPriority.severity].label}
+                    </span>
+                    <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                      Em aberto
+                    </span>
+                  </div>
 
-                return (
-                  <article
-                    key={`${priority.rank}-${priority.source.resource}-${priority.source.resourceId ?? 'unknown'}`}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
-                  >
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="flex min-w-0 items-start gap-3">
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-xs font-semibold text-white">
-                          {priority.rank}
-                        </div>
+                  <h3 className="mt-3 text-xl font-semibold tracking-tight text-slate-950">
+                    {topPriority.title}
+                  </h3>
 
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                    {topPriority.why}
+                  </p>
+                </div>
+
+                {topPriority.action ? (
+                  <span className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                    {canExecuteActions ? 'Ação disponível' : 'Professional'}
+                  </span>
+                ) : null}
+              </div>
+
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <div className="rounded-xl border border-slate-200 bg-white p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                    Impacto
+                  </p>
+                  <p className="mt-1.5 text-sm leading-5 text-slate-700">
+                    {topPriority.impact}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-slate-200 bg-white p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                    Próxima ação
+                  </p>
+                  <p className="mt-1.5 text-sm font-semibold leading-5 text-slate-900">
+                    {topPriority.recommendedAction}
+                  </p>
+                </div>
+              </div>
+
+              {topPriority.action ? (
+                <div className="mt-4 border-t border-slate-200 pt-4">
+                  {canExecuteActions ? (
+                    <SignalAction action={topPriority.action} />
+                  ) : (
+                    <Link
+                      href="/plans?plan=PROFESSIONAL"
+                      className="inline-flex rounded-xl bg-slate-950 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-slate-800"
+                    >
+                      Ver Professional
+                    </Link>
+                  )}
+                </div>
+              ) : null}
+            </article>
+
+            {remainingPriorities.length > 0 ? (
+              <div className="mt-6">
+                <div className="flex flex-col gap-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Outros sinais
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    Situações seguintes por ordem de prioridade.
+                  </p>
+                </div>
+
+                <div className="mt-3 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
+                  {remainingPriorities.map((priority) => {
+                    const severity = severityConfig[priority.severity];
+
+                    return (
+                      <div
+                        key={`${priority.rank}-${priority.source.resource}-${priority.source.resourceId ?? 'unknown'}`}
+                        className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between"
+                      >
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
                             <span
-                              className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${severity.className}`}
+                              className={`rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${severity.className}`}
                             >
                               {severity.label}
                             </span>
-
-                            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                            <span className="text-[10px] uppercase tracking-wide text-slate-400">
                               {priority.source.resource.replace('_', ' ')}
                             </span>
                           </div>
-
-                          <h3 className="mt-2 text-base font-semibold tracking-tight text-slate-950">
-                            {priority.title}
-                          </h3>
-                        </div>
-                      </div>
-
-                      {priority.action ? (
-                        <div className="shrink-0 text-xs font-semibold text-slate-500">
-                          {canExecuteActions
-                            ? 'Ação disponível'
-                            : 'Execução disponível no Professional'}
-                        </div>
-                      ) : null}
-                    </div>
-
-                    <div className="mt-4 grid gap-3 md:grid-cols-3">
-                      <div className="rounded-xl border border-slate-200 bg-white p-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                          Porquê agora
-                        </p>
-                        <p className="mt-1.5 text-xs leading-5 text-slate-700">
-                          {priority.why}
-                        </p>
-                      </div>
-
-                      <div className="rounded-xl border border-slate-200 bg-white p-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                          Impacto
-                        </p>
-                        <p className="mt-1.5 text-xs leading-5 text-slate-700">
-                          {priority.impact}
-                        </p>
-                      </div>
-
-                      <div className="rounded-xl border border-slate-200 bg-white p-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                          Astra recomenda
-                        </p>
-                        <p className="mt-1.5 text-xs font-semibold leading-5 text-slate-900">
-                          {priority.recommendedAction}
-                        </p>
-                      </div>
-                    </div>
-
-                    {priority.action &&
-                    topPriority?.rank === priority.rank ? (
-                      <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
-                        <div className="mb-3">
-                          <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                            Próxima ação
-                          </p>
                           <p className="mt-1 text-sm font-semibold text-slate-900">
-                            {canExecuteActions
-                              ? 'Executar a decisão recomendada para esta prioridade.'
-                              : 'A Astra recomenda esta ação. A execução direta está disponível no plano Professional.'}
+                            {priority.title}
+                          </p>
+                          <p className="mt-1 text-xs leading-5 text-slate-500">
+                            {priority.recommendedAction}
                           </p>
                         </div>
 
-                        {canExecuteActions ? (
-                          <SignalAction action={priority.action} />
-                        ) : (
-                          <Link
-                            href="/plans"
-                            className="inline-flex rounded-xl bg-slate-950 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-slate-800"
-                          >
-                            Ver Professional
-                          </Link>
-                        )}
+                        <Link
+                          href={getSignalHref({
+                            id: `${priority.rank}`,
+                            type: 'HIGH_PRIORITY_WORK_ORDER',
+                            severity: priority.severity,
+                            title: priority.title,
+                            explanation: priority.why,
+                            evidence: [],
+                            urgency: priority.why,
+                            impact: priority.impact,
+                            recommendedAction: priority.recommendedAction,
+                            status: 'OPEN',
+                            timestamp: briefing.generatedAt,
+                            source: priority.source,
+                            action: priority.action,
+                          })}
+                          className="shrink-0 text-xs font-semibold text-slate-600 transition hover:text-slate-950"
+                        >
+                          Rever na operação →
+                        </Link>
                       </div>
-                    ) : null}
-                  </article>
-                );
-              })}
-            </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
 
-            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-950 p-4 text-white">
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-950 p-4 text-white">
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                 Próximo passo
               </p>
@@ -468,6 +483,15 @@ function DailyBriefingCard({
               </p>
             </div>
           </>
+        ) : (
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+            <p className="text-sm font-semibold text-emerald-950">
+              A operação está estável.
+            </p>
+            <p className="mt-1 text-sm leading-6 text-emerald-900/70">
+              {briefing.nextStep}
+            </p>
+          </div>
         )}
       </div>
     </section>
