@@ -56,7 +56,7 @@ async function proxyRequest(
     );
   }
 
-  const body =
+  const body: unknown =
     method === 'PATCH'
       ? await request.json()
       : undefined;

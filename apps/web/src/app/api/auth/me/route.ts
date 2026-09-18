@@ -5,6 +5,28 @@ import { getApiBaseUrl } from '@/lib/api-client';
 import { buildAuthCookieOptions } from '@/lib/auth';
 import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from '@/lib/auth-constants';
 
+interface RefreshTokens {
+  accessToken?: string;
+  refreshToken?: string;
+  expiresIn?: number;
+}
+
+function isRefreshTokens(value: unknown): value is RefreshTokens {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+
+  return (
+    (candidate.accessToken === undefined ||
+      typeof candidate.accessToken === 'string') &&
+    (candidate.refreshToken === undefined ||
+      typeof candidate.refreshToken === 'string') &&
+    (candidate.expiresIn === undefined ||
+      typeof candidate.expiresIn === 'number')
+  );
+}
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -15,7 +37,7 @@ export async function GET() {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const callMe = async (token: string) =>
+  const callMe = async (token: string): Promise<Response> =>
     fetch(`${getApiBaseUrl()}/auth/me`, {
       method: 'GET',
       headers: {
@@ -24,7 +46,7 @@ export async function GET() {
       cache: 'no-store',
     });
 
-  const response = accessToken ? await callMe(accessToken) : null;
+  let response = accessToken ? await callMe(accessToken) : null;
 
   if (!response?.ok && refreshToken) {
     const refreshResponse = await fetch(`${getApiBaseUrl()}/auth/refresh`, {
@@ -37,7 +59,8 @@ export async function GET() {
     });
 
     if (refreshResponse.ok) {
-      const tokens = await refreshResponse.json();
+      const tokenPayload: unknown = await refreshResponse.json().catch(() => null);
+      const tokens = isRefreshTokens(tokenPayload) ? tokenPayload : null;
 
       if (tokens?.accessToken) {
         accessToken = tokens.accessToken;
@@ -47,7 +70,7 @@ export async function GET() {
         result.cookies.set(
           ACCESS_TOKEN_COOKIE,
           tokens.accessToken,
-          buildAuthCookieOptions(tokens.expiresIn),
+          buildAuthCookieOptions(tokens.expiresIn ?? 60 * 60),
         );
 
         if (tokens.refreshToken) {
@@ -58,10 +81,10 @@ export async function GET() {
           );
         }
 
-        const retry = await callMe(tokens.accessToken);
+        response = await callMe(tokens.accessToken);
 
-        if (retry.ok) {
-          const data = await retry.json();
+        if (response.ok) {
+          const data: unknown = await response.json();
           return NextResponse.json(data, {
             status: 200,
             headers: {
@@ -77,7 +100,7 @@ export async function GET() {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const data = await response.json();
+  const data: unknown = await response.json();
 
   return NextResponse.json(data, {
     status: 200,

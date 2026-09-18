@@ -10,7 +10,7 @@ import { ReportCenter } from '@/components/dashboard/reports/report-center';
 import { RiskPanel } from '@/components/dashboard/risk/risk-panel';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 
-export default async function ProductPreviewPage() {
+export default function ProductPreviewPage() {
   const overview = {
     customers: 24,
     sites: 8,

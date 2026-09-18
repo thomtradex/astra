@@ -25,6 +25,7 @@ export class AssetsService {
         organization_id,
       },
       include: {
+        sites: true,
         maintenance_plans: true,
         work_orders: true,
       },

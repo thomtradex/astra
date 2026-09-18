@@ -4,6 +4,9 @@ import { NextResponse } from 'next/server';
 import { getApiBaseUrl } from '@/lib/api-client';
 import { ACCESS_TOKEN_COOKIE } from '@/lib/auth-constants';
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
 
 export async function POST() {
   const cookieStore = await cookies();
@@ -20,7 +23,8 @@ export async function POST() {
     },
   });
 
-  const data = await response.json();
+  const rawData: unknown = await response.json().catch(() => null);
+  const data: Record<string, unknown> = isRecord(rawData) ? rawData : {};
 
   return NextResponse.json(data, {
     status: response.status,

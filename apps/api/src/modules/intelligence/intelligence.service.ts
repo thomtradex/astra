@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 
-import { CooDecisionEngine } from './engines/intelligence.engine';
 import { DailyBriefingService } from './daily-briefing.service';
+import { CooDecisionEngine } from './engines/intelligence.engine';
 import { IntelligenceChange } from './intelligence.types';
 
 const CHANGE_WINDOW_HOURS = 24;

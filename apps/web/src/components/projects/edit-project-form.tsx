@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -75,8 +76,15 @@ export function EditProjectForm({ project }: EditProjectFormProps) {
       });
 
       if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        throw new Error(payload?.message || 'Não foi possível atualizar a obra.');
+        const payload: unknown = await response.json().catch(() => null);
+        throw new Error(
+            typeof payload === 'object' &&
+            payload !== null &&
+            'message' in payload &&
+            typeof payload.message === 'string'
+              ? payload.message
+              : 'Não foi possível atualizar a obra.',
+          );
       }
 
       router.push(`/projects/${project.id}`);
@@ -88,7 +96,7 @@ export function EditProjectForm({ project }: EditProjectFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={(event) => void handleSubmit(event)} className="space-y-6">
       <div className="grid gap-6 md:grid-cols-2">
         <label className="space-y-2">
           <span className="text-sm font-medium">Código</span>

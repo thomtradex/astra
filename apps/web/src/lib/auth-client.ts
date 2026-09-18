@@ -39,7 +39,7 @@ export async function logout(): Promise<void> {
   });
 }
 
-export async function getCurrentSubscription() {
+export async function getCurrentSubscription(): Promise<unknown> {
   const response = await fetch('/api/billing/subscription', {
     method: 'GET',
     credentials: 'include',
@@ -49,10 +49,10 @@ export async function getCurrentSubscription() {
     return null;
   }
 
-  return response.json();
+  return (await response.json()) as unknown;
 }
 
-export async function startTrial() {
+export async function startTrial(): Promise<unknown> {
   const response = await fetch('/api/billing/trial', {
     method: 'POST',
     credentials: 'include',
@@ -62,5 +62,5 @@ export async function startTrial() {
     throw new Error('Unable to start trial');
   }
 
-  return response.json();
+  return (await response.json()) as unknown;
 }

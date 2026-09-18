@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const body = await request.json();
+  const body: unknown = await request.json();
 
   const response = await fetch(
     `${getApiBaseUrl()}/projects`,

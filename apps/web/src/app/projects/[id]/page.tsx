@@ -2,12 +2,12 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { ProjectDecisionAction } from '@/app/intelligence/project-decision-action';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { DeleteProjectButton } from '@/components/projects/delete-project-button';
-import { getIntelligenceBriefing } from '@/lib/intelligence-client';
-import { ProjectDecisionAction } from '@/app/intelligence/project-decision-action';
 import { getApiBaseUrl } from '@/lib/api-client';
 import { ACCESS_TOKEN_COOKIE } from '@/lib/auth-constants';
+import { getIntelligenceBriefing } from '@/lib/intelligence-client';
 
 type Project = {
   id: string;

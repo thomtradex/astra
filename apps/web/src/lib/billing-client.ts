@@ -12,19 +12,40 @@ export type BillingPlan = {
   limits?: Record<string, number>;
 };
 
-async function parseResponse<T>(response: Response): Promise<T> {
-  const data = await response.json().catch(() => null);
+export type BillingSubscription = {
+  id?: string;
+  status?: string;
+  planCode?: string;
+  currentPeriodEnd?: string;
+  cancelAtPeriodEnd?: boolean;
+};
 
-  if (!response.ok) {
-    const message =
-      data && typeof data === 'object' && 'message' in data && typeof data.message === 'string'
-        ? data.message
-        : 'Não foi possível concluir a operação.';
+export type BillingResponse = Record<string, unknown>;
 
-    throw new Error(message);
+function getMessage(data: unknown): string {
+  if (
+    typeof data === 'object' &&
+    data !== null &&
+    'message' in data &&
+    typeof data.message === 'string'
+  ) {
+    return data.message;
   }
 
-  return data as T;
+  return 'Não foi possível concluir a operação.';
+}
+
+async function parseResponse<T>(
+  response: Response,
+  fallback: T,
+): Promise<T> {
+  const data: unknown = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(getMessage(data));
+  }
+
+  return data === null ? fallback : (data as T);
 }
 
 export async function getBillingPlans(): Promise<BillingPlan[]> {
@@ -34,28 +55,30 @@ export async function getBillingPlans(): Promise<BillingPlan[]> {
     cache: 'no-store',
   });
 
-  return parseResponse<BillingPlan[]>(response);
+  return parseResponse<BillingPlan[]>(response, []);
 }
 
-export async function activateFreePlan() {
+export async function activateFreePlan(): Promise<BillingResponse> {
   const response = await fetch('/api/billing/free', {
     method: 'POST',
     credentials: 'include',
   });
 
-  return parseResponse(response);
+  return parseResponse<BillingResponse>(response, {});
 }
 
-export async function startTrial() {
+export async function startTrial(): Promise<BillingResponse> {
   const response = await fetch('/api/billing/trial', {
     method: 'POST',
     credentials: 'include',
   });
 
-  return parseResponse(response);
+  return parseResponse<BillingResponse>(response, {});
 }
 
-export async function createCheckout(planCode: string) {
+export async function createCheckout(
+  planCode: string,
+): Promise<{ url?: string }> {
   const response = await fetch('/api/billing/checkout', {
     method: 'POST',
     credentials: 'include',
@@ -67,10 +90,10 @@ export async function createCheckout(planCode: string) {
     }),
   });
 
-  return parseResponse<{ url?: string }>(response);
+  return parseResponse<{ url?: string }>(response, {});
 }
 
-export async function getCurrentSubscription() {
+export async function getCurrentSubscription(): Promise<BillingSubscription | null> {
   const response = await fetch('/api/billing/subscription', {
     method: 'GET',
     credentials: 'include',
@@ -81,11 +104,12 @@ export async function getCurrentSubscription() {
     return null;
   }
 
-  return response.json();
+  return parseResponse<BillingSubscription | null>(response, null);
 }
 
-
-export async function changePlan(planCode: string) {
+export async function changePlan(
+  planCode: string,
+): Promise<BillingResponse> {
   const response = await fetch('/api/billing/plan', {
     method: 'PATCH',
     headers: {
@@ -97,33 +121,12 @@ export async function changePlan(planCode: string) {
     cache: 'no-store',
   });
 
-  const body = await response.text();
-
-  let data: unknown = null;
-
-  try {
-    data = body ? JSON.parse(body) : null;
-  } catch {
-    data = null;
-  }
-
-  if (!response.ok) {
-    const message =
-      typeof data === 'object' &&
-      data !== null &&
-      'message' in data &&
-      typeof data.message === 'string'
-        ? data.message
-        : 'Não foi possível alterar o plano.';
-
-    throw new Error(message);
-  }
-
-  return data;
+  return parseResponse<BillingResponse>(response, {});
 }
 
-
-export async function createBillingPortalSession(returnUrl: string) {
+export async function createBillingPortalSession(
+  returnUrl: string,
+): Promise<{ url: string }> {
   const response = await fetch('/api/billing/portal', {
     method: 'POST',
     headers: {
@@ -133,10 +136,10 @@ export async function createBillingPortalSession(returnUrl: string) {
     cache: 'no-store',
   });
 
-  return parseResponse<{ url: string }>(response);
+  return parseResponse<{ url: string }>(response, { url: '' });
 }
 
-export async function cancelSubscription() {
+export async function cancelSubscription(): Promise<BillingResponse> {
   const response = await fetch('/api/billing/cancel', {
     method: 'PATCH',
     headers: {
@@ -146,10 +149,10 @@ export async function cancelSubscription() {
     cache: 'no-store',
   });
 
-  return parseResponse(response);
+  return parseResponse<BillingResponse>(response, {});
 }
 
-export async function reactivateSubscription() {
+export async function reactivateSubscription(): Promise<BillingResponse> {
   const response = await fetch('/api/billing/reactivate', {
     method: 'PATCH',
     headers: {
@@ -159,5 +162,5 @@ export async function reactivateSubscription() {
     cache: 'no-store',
   });
 
-  return parseResponse(response);
+  return parseResponse<BillingResponse>(response, {});
 }

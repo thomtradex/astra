@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -47,7 +48,10 @@ export function EditCustomerForm({ customer }: Props) {
         }),
       });
 
-      const data = await response.json().catch(() => null);
+      const data = (await response.json().catch(() => null)) as {
+        id?: string;
+        message?: string | string[];
+      } | null;
 
       if (!response.ok) {
         const message = Array.isArray(data?.message)
@@ -57,7 +61,7 @@ export function EditCustomerForm({ customer }: Props) {
         throw new Error(message);
       }
 
-      router.push(`/customers/${data.id ?? customer.id}`);
+      router.push(`/customers/${data?.id ?? customer.id}`);
       router.refresh();
     } catch (err) {
       setError(
@@ -70,7 +74,7 @@ export function EditCustomerForm({ customer }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+    <form onSubmit={(event) => void handleSubmit(event)} className="max-w-2xl space-y-6">
       <div className="rounded-xl border bg-card p-6">
         <div className="grid gap-5">
           <div>

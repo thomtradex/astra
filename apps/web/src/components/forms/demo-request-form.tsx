@@ -1,3 +1,4 @@
+
 'use client';
 
 import { FormEvent, useState } from 'react';
@@ -49,27 +50,23 @@ export function DemoRequestForm({
         }),
       });
 
-      const data = await response.json().catch(() => null);
+      const data: unknown = await response.json().catch(() => null);
 
       if (!response.ok) {
-        throw new Error(
-          data && typeof data.message === 'string'
-            ? data.message
-            : 'Não foi possível enviar o pedido.',
-        );
+        let message = 'Não foi possível enviar o pedido.';
+
+        if (
+          typeof data === 'object' &&
+          data !== null &&
+          'message' in data &&
+          typeof (data as { message?: unknown }).message === 'string'
+        ) {
+          message = (data as { message: string }).message;
+        }
+
+        throw new Error(message);
       }
 
-      setStatus('success');
-      setCompany('');
-      setEmail('');
-      setProjects('');
-      setUsers('');
-      setCompanySize('');
-      setCapacity('');
-      setFeatures('');
-      setIntegrations('');
-      setSupport('');
-      setNeeds('');
     } catch (err) {
       setStatus('error');
       setError(
@@ -94,7 +91,7 @@ export function DemoRequestForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={(event) => void handleSubmit(event)} className="space-y-5">
       {status === 'error' && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           {error}

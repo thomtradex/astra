@@ -243,7 +243,7 @@ export default function PlanSelector() {
               <button
                 type="button"
                 disabled={loading === plan.code}
-                onClick={() => choosePlan(plan.code)}
+                onClick={() => void choosePlan(plan.code)}
                 className={
                   recommended
                     ? 'mt-10 w-full rounded-xl bg-astra-900 px-5 py-3 text-center text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60'

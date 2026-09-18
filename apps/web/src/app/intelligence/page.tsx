@@ -458,6 +458,10 @@ function DailyBriefingCard({
                             urgency: priority.why,
                             impact: priority.impact,
                             recommendedAction: priority.recommendedAction,
+                            decision: {
+                              type: 'REVIEW',
+                              label: 'Rever',
+                            },
                             status: 'OPEN',
                             timestamp: briefing.generatedAt,
                             source: priority.source,

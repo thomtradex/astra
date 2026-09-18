@@ -20,6 +20,29 @@ const PUBLIC_PATHS = [
   '/api/billing/plans',
 ];
 
+type RefreshTokens = {
+  accessToken?: string;
+  refreshToken?: string;
+  expiresIn?: number;
+};
+
+function isRefreshTokens(value: unknown): value is RefreshTokens {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+
+  return (
+    (candidate.accessToken === undefined ||
+      typeof candidate.accessToken === 'string') &&
+    (candidate.refreshToken === undefined ||
+      typeof candidate.refreshToken === 'string') &&
+    (candidate.expiresIn === undefined ||
+      typeof candidate.expiresIn === 'number')
+  );
+}
+
 function shouldRefreshAccessToken(accessToken: string | undefined): boolean {
   if (!accessToken) {
     return true;
@@ -104,7 +127,8 @@ export async function proxy(request: NextRequest) {
       });
 
       if (refreshResponse.ok) {
-        const tokens = await refreshResponse.json();
+        const payload: unknown = await refreshResponse.json();
+        const tokens = isRefreshTokens(payload) ? payload : null;
 
         if (tokens?.accessToken) {
           const response = NextResponse.next();

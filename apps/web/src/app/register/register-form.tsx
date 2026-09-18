@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -21,7 +22,9 @@ async function registerAccount(data: {
     body: JSON.stringify(data),
   });
 
-  const body = await response.json().catch(() => null);
+  const body = (await response.json().catch(() => null)) as {
+    message?: string;
+  } | null;
 
   if (!response.ok) {
     const message =
@@ -146,7 +149,7 @@ export default function RegisterForm() {
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+              <form onSubmit={(event) => void handleSubmit(event)} className="mt-8 space-y-5">
                 <div>
                   <label className="text-sm font-medium">Empresa</label>
                   <input

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -24,9 +25,16 @@ export function DeleteProjectButton({ projectId, projectName }: DeleteProjectBut
       });
 
       if (!response.ok) {
-        const payload = await response.json().catch(() => null);
+        const payload: unknown = await response.json().catch(() => null);
 
-        throw new Error(payload?.message || 'Não foi possível eliminar a obra.');
+        throw new Error(
+            typeof payload === 'object' &&
+            payload !== null &&
+            'message' in payload &&
+            typeof payload.message === 'string'
+              ? payload.message
+              : 'Não foi possível eliminar a obra.',
+          );
       }
 
       router.push('/projects');
@@ -73,7 +81,7 @@ export function DeleteProjectButton({ projectId, projectName }: DeleteProjectBut
         <button
           type="button"
           disabled={deleting}
-          onClick={handleDelete}
+          onClick={() => void handleDelete()}
           className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
         >
           {deleting ? 'A eliminar...' : 'Confirmar eliminação'}

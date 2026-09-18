@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     },
   );
 
-  const data = await response.json().catch(() => null);
+  const data: unknown = await response.json().catch(() => null);
 
   return NextResponse.json(data, { status: response.status });
 }
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Não autenticado.' }, { status: 401 });
   }
 
-  const body = await request.json();
+  const body: unknown = await request.json();
 
   const response = await fetch(`${getApiBaseUrl()}/customers`, {
     method: 'POST',
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     cache: 'no-store',
   });
 
-  const data = await response.json().catch(() => null);
+  const data: unknown = await response.json().catch(() => null);
 
   return NextResponse.json(data, { status: response.status });
 }
