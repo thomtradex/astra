@@ -36,3 +36,44 @@ export async function getWorkOrders(): Promise<WorkOrder[]> {
     return [];
   }
 }
+
+
+export async function getWorkOrder(id: string): Promise<WorkOrder | null> {
+  const accessToken = await getAccessToken();
+
+  if (!accessToken) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(
+      `${getApiBaseUrl()}/work-orders/${encodeURIComponent(id)}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        cache: 'no-store',
+      },
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const payload: unknown = await response.json();
+
+    if (
+      payload !== null &&
+      typeof payload === 'object' &&
+      'data' in payload
+    ) {
+      return (payload as { data?: WorkOrder }).data ?? null;
+    }
+
+    return payload as WorkOrder;
+  } catch (error) {
+    console.error('Failed to load work order', error);
+    return null;
+  }
+}

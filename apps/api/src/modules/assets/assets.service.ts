@@ -41,6 +41,11 @@ export class AssetsService {
         id,
         organization_id,
       },
+      include: {
+        sites: true,
+        maintenance_plans: true,
+        work_orders: true,
+      },
     });
   }
 

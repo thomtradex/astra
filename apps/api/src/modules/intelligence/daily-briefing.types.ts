@@ -17,6 +17,10 @@ export interface DailyBriefingPriority {
   impact: string;
   recommendedAction: string;
   source: IntelligenceSignal['source'];
+  evidenceItems?: IntelligenceSignal['evidenceItems'];
+  operationalContext?: IntelligenceSignal['operationalContext'];
+  recommendations?: IntelligenceSignal['recommendations'];
+  decisionContext?: IntelligenceSignal['decisionContext'];
   action?: IntelligenceSignal['action'];
 }
 

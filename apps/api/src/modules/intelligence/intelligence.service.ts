@@ -5,7 +5,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 import { DailyBriefingService } from './daily-briefing.service';
 import { CooDecisionEngine } from './engines/intelligence.engine';
-import { IntelligenceChange } from './intelligence.types';
+import { IntelligenceChange, IntelligenceDecisionHistory } from './intelligence.types';
 
 const CHANGE_WINDOW_HOURS = 24;
 const CHANGE_LIMIT = 20;
@@ -93,7 +93,12 @@ export class IntelligenceService {
               in: ['projects', 'work-orders', 'work_orders', 'maintenance', 'maintenance_plans'],
             },
             action: {
-              in: [AuditAction.CREATE, AuditAction.UPDATE, AuditAction.DELETE],
+              in: [
+                AuditAction.CREATE,
+                AuditAction.UPDATE,
+                AuditAction.DELETE,
+                AuditAction.ACCESS_DENIED,
+              ],
             },
           },
           orderBy: {
@@ -106,6 +111,14 @@ export class IntelligenceService {
             resourceId: true,
             createdAt: true,
             metadata: true,
+            actor: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
           },
         }),
       ]);
@@ -149,6 +162,8 @@ export class IntelligenceService {
       });
     }
 
+    const decisionHistory = this.buildDecisionHistory(recentAuditLogs);
+
     const decisionMetrics = recentAuditLogs.reduce(
       (metrics, log) => {
         if (!this.isCooAction(log.metadata)) return metrics;
@@ -177,9 +192,74 @@ export class IntelligenceService {
       ...briefing,
       signals,
       decisionMetrics,
+      decisionHistory,
       changes,
       daily: this.dailyBriefingService.build(signals, new Date(briefing.generatedAt)),
     };
+  }
+
+  private buildDecisionHistory(
+    auditLogs: Array<{
+      id: string;
+      action: AuditAction;
+      resource: string;
+      resourceId: string | null;
+      createdAt: Date;
+      metadata: unknown;
+      actor: {
+        id: string;
+        email: string;
+        firstName: string | null;
+        lastName: string | null;
+      } | null;
+    }>,
+  ): IntelligenceDecisionHistory[] {
+    return auditLogs
+      .filter((log) => this.isCooAction(log.metadata))
+      .map((log): IntelligenceDecisionHistory | null => {
+        if (!log.resourceId) return null;
+
+        const metadata = log.metadata as {
+          outcomeStatus?: unknown;
+          actionType?: unknown;
+          message?: unknown;
+        };
+
+        if (
+          metadata.outcomeStatus !== 'EXECUTED' &&
+          metadata.outcomeStatus !== 'DENIED' &&
+          metadata.outcomeStatus !== 'FAILED'
+        ) {
+          return null;
+        }
+
+        const actorName = log.actor
+          ? [log.actor.firstName, log.actor.lastName].filter(Boolean).join(' ') || undefined
+          : undefined;
+
+        return {
+          id: log.id,
+          timestamp: log.createdAt.toISOString(),
+          status: metadata.outcomeStatus,
+          actionType:
+            typeof metadata.actionType === 'string'
+              ? metadata.actionType
+              : 'COO_ACTION',
+          resource: log.resource,
+          resourceId: log.resourceId,
+          ...(log.actor
+            ? {
+                actor: {
+                  id: log.actor.id,
+                  ...(actorName ? { name: actorName } : {}),
+                  email: log.actor.email,
+                },
+              }
+            : {}),
+          message: typeof metadata.message === 'string' ? metadata.message : '',
+        };
+      })
+      .filter((item): item is IntelligenceDecisionHistory => item !== null);
   }
 
   private buildChanges(

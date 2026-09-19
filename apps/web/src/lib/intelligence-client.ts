@@ -39,6 +39,73 @@ export interface OperationalChain {
   edges: OperationalChainEdge[];
 }
 
+export type IntelligenceEvidenceKind =
+  | 'FACT'
+  | 'RELATION'
+  | 'STATE'
+  | 'HISTORY'
+  | 'THRESHOLD';
+
+export interface IntelligenceEvidence {
+  id: string;
+  kind: IntelligenceEvidenceKind;
+  label: string;
+  value: string;
+  source: {
+    resource: string;
+    resourceId?: string;
+  };
+}
+
+export interface OperationalContext {
+  project?: {
+    id: string;
+    name?: string;
+  };
+  asset?: {
+    id: string;
+    name?: string;
+  };
+  site?: {
+    id: string;
+    name?: string;
+  };
+  maintenance?: {
+    id: string;
+    nextDue?: string;
+  };
+  workOrders: {
+    open: number;
+    highPriorityOpen: number;
+    unassignedHighPriority: number;
+  };
+  chain?: OperationalChain;
+}
+
+export type IntelligenceRecommendationType =
+  | 'REVIEW'
+  | 'ASSIGN'
+  | 'RESCHEDULE'
+  | 'UPDATE_STATUS'
+  | 'MONITOR';
+
+export interface IntelligenceRecommendation {
+  id: string;
+  type: IntelligenceRecommendationType;
+  title: string;
+  explanation: string;
+  resource: string;
+  resourceId: string;
+  executable: boolean;
+}
+
+export interface IntelligenceDecisionContext {
+  evidence: IntelligenceEvidence[];
+  operationalContext: OperationalContext;
+  recommendations: IntelligenceRecommendation[];
+  confidence: number;
+}
+
 export interface IntelligenceSignal {
   id: string;
   type: IntelligenceSignalType;
@@ -46,8 +113,12 @@ export interface IntelligenceSignal {
   title: string;
   explanation: string;
   evidence: string[];
+  evidenceItems?: IntelligenceEvidence[];
   urgency: string;
   impact: string;
+  operationalContext?: OperationalContext;
+  recommendations?: IntelligenceRecommendation[];
+  decisionContext?: IntelligenceDecisionContext;
   owner?: {
     type: 'USER' | 'TEAM' | 'ORGANIZATION';
     id?: string;
@@ -115,6 +186,10 @@ export interface DailyBriefingPriority {
     resource: string;
     resourceId?: string;
   };
+  evidenceItems?: IntelligenceEvidence[];
+  operationalContext?: OperationalContext;
+  recommendations?: IntelligenceRecommendation[];
+  decisionContext?: IntelligenceDecisionContext;
   action?: IntelligenceSignal['action'];
 }
 
@@ -126,6 +201,21 @@ export interface DailyBriefing {
   nextStep: string;
 }
 
+export interface IntelligenceDecisionHistory {
+  id: string;
+  timestamp: string;
+  status: 'EXECUTED' | 'DENIED' | 'FAILED';
+  actionType: string;
+  resource: string;
+  resourceId: string;
+  actor?: {
+    id: string;
+    name?: string;
+    email?: string;
+  };
+  message: string;
+}
+
 export interface IntelligenceBriefing {
   generatedAt: string;
   signalCount: number;
@@ -133,6 +223,7 @@ export interface IntelligenceBriefing {
   changes: IntelligenceChange[];
   daily: DailyBriefing;
   decisionMetrics: { executed: number; denied: number; failed: number };
+  decisionHistory: IntelligenceDecisionHistory[];
 }
 
 export async function getIntelligenceBriefing(): Promise<IntelligenceBriefing> {

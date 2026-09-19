@@ -25,7 +25,67 @@ describe('WorkOrdersService', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    service = new WorkOrdersService(prisma as never);
+    service = new WorkOrdersService(prisma);
+  });
+
+  describe('create', () => {
+    it('creates a work order with a responsible user from the same organization', async () => {
+      prisma.user.findFirst.mockResolvedValue({ id: 'user-1' });
+      prisma.work_orders.count.mockResolvedValue(0);
+      prisma.work_orders.create.mockResolvedValue({
+        id: 'wo-1',
+        title: 'Inspeção',
+        assigned_to_id: 'user-1',
+      });
+
+      const result = await service.create('org-1', {
+        title: 'Inspeção',
+        priority: 'HIGH',
+        assignedToId: 'user-1',
+      });
+
+      expect(prisma.user.findFirst).toHaveBeenCalledWith({
+        where: {
+          id: 'user-1',
+          organizationId: 'org-1',
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      expect(prisma.work_orders.create).toHaveBeenCalled();
+
+      expect(result).toEqual({
+        id: 'wo-1',
+        title: 'Inspeção',
+        assigned_to_id: 'user-1',
+      });
+    });
+
+    it('rejects a responsible user from another organization', async () => {
+      prisma.user.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.create('org-1', {
+          title: 'Inspeção',
+          priority: 'HIGH',
+          assignedToId: 'user-other-org',
+        }),
+      ).rejects.toThrow('User not found for this organization');
+
+      expect(prisma.user.findFirst).toHaveBeenCalledWith({
+        where: {
+          id: 'user-other-org',
+          organizationId: 'org-1',
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      expect(prisma.work_orders.create).not.toHaveBeenCalled();
+    });
   });
 
   describe('update', () => {

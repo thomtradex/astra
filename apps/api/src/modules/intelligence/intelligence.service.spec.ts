@@ -115,6 +115,205 @@ describe('IntelligenceService', () => {
       }),
     );
   });
+  it('propagates the V4 intelligence contract into the daily briefing', async () => {
+    const prisma: any = {
+      projects: { findMany: jest.fn().mockResolvedValue([]) },
+      work_orders: { findMany: jest.fn().mockResolvedValue([]) },
+      maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
+      assets: { findMany: jest.fn().mockResolvedValue([]) },
+      sites: { findMany: jest.fn().mockResolvedValue([]) },
+      auditLog: { findMany: jest.fn().mockResolvedValue([]) },
+    };
+
+    const evidenceItems = [
+      {
+        id: 'evidence-1',
+        kind: 'FACT',
+        label: 'Prioridade',
+        value: 'HIGH',
+        source: {
+          resource: 'work_orders',
+          resourceId: 'wo-v4',
+        },
+      },
+    ];
+
+    const operationalContext = {
+      workOrders: {
+        open: 2,
+        highPriorityOpen: 1,
+        unassignedHighPriority: 1,
+      },
+    };
+
+    const recommendations = [
+      {
+        id: 'recommendation-1',
+        type: 'ASSIGN',
+        title: 'Atribuir ordem',
+        explanation: 'A ordem de alta prioridade está sem responsável.',
+        resource: 'work_orders',
+        resourceId: 'wo-v4',
+        executable: true,
+      },
+    ];
+
+    const decisionContext = {
+      evidence: evidenceItems,
+      operationalContext,
+      recommendations,
+      confidence: 1,
+    };
+
+    const engine: any = {
+      analyze: jest.fn().mockReturnValue({
+        generatedAt: '2026-09-05T12:00:00.000Z',
+        signalCount: 1,
+        signals: [
+          {
+            id: 'signal-v4',
+            type: 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER',
+            severity: 'HIGH',
+            title: 'Ordem sem responsável',
+            explanation: 'Existe uma ordem de alta prioridade sem responsável.',
+            evidence: ['A ordem está sem responsável.'],
+            evidenceItems,
+            urgency: 'NOW',
+            impact: 'HIGH',
+            operationalContext,
+            recommendations,
+            decisionContext,
+            recommendedAction: 'Atribuir responsável',
+            decision: {
+              type: 'REVIEW',
+              label: 'Atribuir',
+            },
+            status: 'OPEN',
+            timestamp: '2026-09-05T12:00:00.000Z',
+            source: {
+              resource: 'work_orders',
+              resourceId: 'wo-v4',
+            },
+          },
+        ],
+      }),
+    };
+
+    const dailyBriefingService = new DailyBriefingService();
+    const result = await new IntelligenceService(
+      prisma,
+      engine,
+      dailyBriefingService,
+    ).analyze('org-1');
+
+    const priority = result.daily.priorities[0];
+
+    expect(priority).toBeDefined();
+    expect(priority?.evidenceItems).toEqual(evidenceItems);
+    expect(priority?.operationalContext).toEqual(operationalContext);
+    expect(priority?.recommendations).toEqual(recommendations);
+    expect(priority?.decisionContext).toEqual(decisionContext);
+  });
+
+  it('builds decision history from COO audit records', async () => {
+    const prisma = {
+      projects: { findMany: jest.fn().mockResolvedValue([]) },
+      work_orders: { findMany: jest.fn().mockResolvedValue([]) },
+      maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
+      assets: { findMany: jest.fn().mockResolvedValue([]) },
+      sites: { findMany: jest.fn().mockResolvedValue([]) },
+      auditLog: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'decision-1',
+            action: 'UPDATE',
+            resource: 'work_orders',
+            resourceId: 'wo-1',
+            createdAt: new Date('2026-09-05T10:00:00.000Z'),
+            metadata: {
+              type: 'coo_action',
+              source: 'coo',
+              outcomeStatus: 'EXECUTED',
+              actionType: 'ASSIGN_WORK_ORDER',
+              message: 'Ordem atribuída com sucesso.',
+            },
+            actor: {
+              id: 'user-1',
+              email: 'operator@astra.test',
+              firstName: 'Ana',
+              lastName: 'Silva',
+            },
+          },
+          {
+            id: 'decision-2',
+            action: 'ACCESS_DENIED',
+            resource: 'work_orders',
+            resourceId: 'wo-2',
+            createdAt: new Date('2026-09-05T09:00:00.000Z'),
+            metadata: {
+              type: 'coo_action',
+              source: 'coo',
+              outcomeStatus: 'DENIED',
+              actionType: 'ASSIGN_WORK_ORDER',
+              message: 'Ação não autorizada.',
+            },
+            actor: null,
+          },
+        ]),
+      },
+    };
+
+    const auditFindMany = prisma.auditLog.findMany;
+
+    const engine: any = {
+      analyze: jest.fn().mockReturnValue({
+        generatedAt: '2026-09-05T12:00:00.000Z',
+        signalCount: 0,
+        signals: [],
+      }),
+    };
+
+    const result = await new IntelligenceService(
+      prisma,
+      engine,
+      new DailyBriefingService(),
+    ).analyze('org-1');
+
+    expect(auditFindMany).toHaveBeenCalled();
+    const auditQuery = auditFindMany.mock.calls[0]?.[0] as {
+      where?: {
+        action?: {
+          in?: string[];
+        };
+      };
+    };
+
+    expect(auditQuery.where?.action?.in).toEqual([
+      'CREATE',
+      'UPDATE',
+      'DELETE',
+      'ACCESS_DENIED',
+    ]);
+
+    expect(result.decisionHistory).toHaveLength(2);
+    expect(result.decisionHistory[0]).toEqual({
+      id: 'decision-1',
+      timestamp: '2026-09-05T10:00:00.000Z',
+      status: 'EXECUTED',
+      actionType: 'ASSIGN_WORK_ORDER',
+      resource: 'work_orders',
+      resourceId: 'wo-1',
+      actor: {
+        id: 'user-1',
+        name: 'Ana Silva',
+        email: 'operator@astra.test',
+      },
+      message: 'Ordem atribuída com sucesso.',
+    });
+    expect(result.decisionHistory[1]?.status).toBe('DENIED');
+    expect(result.decisionHistory[1]?.actor).toBeUndefined();
+  });
+
   it('measures COO decision outcomes', async () => {
     const prisma: any = {
       projects: { findMany: jest.fn().mockResolvedValue([]) },

@@ -92,10 +92,6 @@ export async function proxy(request: NextRequest) {
   );
 
   if (isPublicPath) {
-    if (accessToken && pathname.startsWith('/login')) {
-      return NextResponse.redirect(new URL('/session', request.url));
-    }
-
     return NextResponse.next();
   }
 

@@ -9,6 +9,18 @@ export interface WorkOrder {
   project_id?: string | null;
   organization_id?: string;
   updated_at?: string;
+  assets?: {
+    id: string;
+    name: string;
+    code: string;
+    status: string;
+  } | null;
+  project?: {
+    id: string;
+    name: string;
+    code: string;
+    status: string;
+  } | null;
 }
 
 export interface CreateWorkOrderInput {
@@ -16,9 +28,9 @@ export interface CreateWorkOrderInput {
   description?: string;
   status?: string;
   priority?: string;
-  asset_id?: string;
-  assigned_to_id?: string;
-  project_id?: string;
+  assetId?: string;
+  assignedToId?: string;
+  projectId?: string;
 }
 
 export interface UpdateWorkOrderInput {
@@ -26,9 +38,9 @@ export interface UpdateWorkOrderInput {
   description?: string;
   status?: string;
   priority?: string;
-  asset_id?: string;
-  assigned_to_id?: string | null;
-  project_id?: string | null;
+  assetId?: string;
+  assignedToId?: string | null;
+  projectId?: string | null;
 }
 
 async function request<T>(

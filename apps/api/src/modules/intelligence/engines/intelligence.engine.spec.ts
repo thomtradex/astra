@@ -32,6 +32,123 @@ describe('CooDecisionEngine', () => {
     expect(result.signals[0]!.severity).toBe('HIGH');
   });
 
+  it('does not create an aggregate high-priority signal when all high-priority work is already represented by unassigned signals', () => {
+    const result = engine.analyze({
+      now,
+      workOrders: [
+        {
+          id: 'wo-unassigned-1',
+          title: 'Inspeção sem responsável 1',
+          status: 'IN_PROGRESS',
+          priority: 'HIGH',
+          assigned_to_id: null,
+          project_id: null,
+          asset_id: null,
+          updated_at: new Date(),
+        },
+        {
+          id: 'wo-unassigned-2',
+          title: 'Inspeção sem responsável 2',
+          status: 'IN_PROGRESS',
+          priority: 'HIGH',
+          assigned_to_id: null,
+          project_id: null,
+          asset_id: null,
+          updated_at: new Date(),
+        },
+      ],
+      maintenancePlans: [],
+      assets: [],
+      sites: [],
+      projects: [],
+    });
+
+    expect(
+      result.signals.some(
+        (item) => item.type === 'HIGH_PRIORITY_WORK_ORDER',
+      ),
+    ).toBe(false);
+
+    expect(
+      result.signals.filter(
+        (item) => item.type === 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER',
+      ),
+    ).toHaveLength(2);
+  });
+
+  it('builds operational context from source facts for aggregate high-priority work', () => {
+    const result = engine.analyze({
+      now,
+      workOrders: [
+        {
+          id: 'wo-assigned-1',
+          title: 'Trabalho atribuído',
+          status: 'IN_PROGRESS',
+          priority: 'HIGH',
+          assigned_to_id: 'user-1',
+          project_id: null,
+          asset_id: null,
+          updated_at: new Date(),
+        },
+        {
+          id: 'wo-assigned-2',
+          title: 'Outro trabalho atribuído',
+          status: 'OPEN',
+          priority: 'CRITICAL',
+          assigned_to_id: 'user-2',
+          project_id: null,
+          asset_id: null,
+          updated_at: new Date(),
+        },
+      ],
+      maintenancePlans: [],
+      assets: [],
+      sites: [],
+      projects: [],
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'HIGH_PRIORITY_WORK_ORDER',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.operationalContext?.workOrders).toEqual({
+      open: 2,
+      highPriorityOpen: 2,
+      unassignedHighPriority: 0,
+    });
+  });
+
+  it('treats IN_PROGRESS high-priority work orders as operationally open', () => {
+    const result = engine.analyze({
+      now,
+      workOrders: [
+        {
+          id: 'wo-in-progress',
+          title: 'Inspeção operacional em curso',
+          status: 'IN_PROGRESS',
+          priority: 'HIGH',
+          assigned_to_id: 'user-1',
+          project_id: 'project-1',
+          asset_id: 'asset-1',
+          updated_at: new Date(),
+        },
+      ],
+      maintenancePlans: [],
+      assets: [],
+      sites: [],
+      projects: [],
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'HIGH_PRIORITY_WORK_ORDER',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.severity).toBe('HIGH');
+    expect(signal!.evidence).toContain('Inspeção operacional em curso');
+  });
+
   it('explains why overdue maintenance requires attention today when delay is under 7 days', () => {
     const result = engine.analyze({
       now,
@@ -270,7 +387,7 @@ describe('CooDecisionEngine', () => {
       projects: [],
     });
 
-    expect(result.signals).toHaveLength(3);
+    expect(result.signals).toHaveLength(2);
 
     const signal = result.signals.find((item) => item.type === 'OVERDUE_MAINTENANCE');
 
@@ -1112,5 +1229,127 @@ describe('CooDecisionEngine', () => {
     });
 
     expect(result.signals.some((item) => item.type === 'STALE_OPEN_WORK_ORDER')).toBe(false);
+  });
+});
+
+describe('Operational Intelligence V4 contract', () => {
+  it('exposes structured evidence for every generated signal', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      workOrders: [
+        {
+          id: 'v4-wo-1',
+          title: 'Intervenção urgente',
+          priority: 'HIGH',
+          status: 'OPEN',
+          asset_id: null,
+          project_id: null,
+          assigned_to_id: null,
+          updated_at: new Date('2026-09-18T10:00:00Z'),
+        },
+      ],
+      maintenancePlans: [],
+      assets: [],
+      sites: [],
+      projects: [],
+      now: new Date('2026-09-18T12:00:00Z'),
+    });
+
+    const signal = result.signals[0];
+
+    expect(signal).toBeDefined();
+    expect(signal!.evidenceItems).toHaveLength(signal!.evidence.length);
+    expect(signal!.decisionContext?.evidence).toEqual(signal!.evidenceItems);
+  });
+
+  it('exposes deterministic operational context and recommendations', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      workOrders: [
+        {
+          id: 'v4-wo-2',
+          title: 'Ordem sem responsável',
+          priority: 'CRITICAL',
+          status: 'OPEN',
+          asset_id: null,
+          project_id: null,
+          assigned_to_id: null,
+          updated_at: new Date('2026-09-18T10:00:00Z'),
+        },
+      ],
+      maintenancePlans: [],
+      assets: [],
+      sites: [],
+      projects: [],
+      now: new Date('2026-09-18T12:00:00Z'),
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.operationalContext?.workOrders.highPriorityOpen).toBeGreaterThan(0);
+    expect(signal!.recommendations).toBeDefined();
+    expect(signal!.decisionContext?.confidence).toBe(1);
+  });
+
+  it('preserves operational chains inside structured context', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      workOrders: [
+        {
+          id: 'v4-chain-wo',
+          title: 'Intervenção equipamento',
+          priority: 'HIGH',
+          status: 'OPEN',
+          asset_id: 'v4-chain-asset',
+          project_id: 'v4-chain-project',
+          assigned_to_id: null,
+          updated_at: new Date('2026-09-18T10:00:00Z'),
+        },
+      ],
+      maintenancePlans: [],
+      assets: [
+        {
+          id: 'v4-chain-asset',
+          name: 'Escavadora V4',
+          code: 'V4-ESC-01',
+          status: 'ACTIVE',
+          site_id: 'v4-chain-site',
+        },
+      ],
+      sites: [
+        {
+          id: 'v4-chain-site',
+          name: 'Site V4',
+          code: 'SITE-V4',
+        },
+      ],
+      projects: [
+        {
+          id: 'v4-chain-project',
+          name: 'Obra V4',
+          code: 'V4-001',
+          status: 'IN_PROGRESS',
+          progress: 40,
+          end_date: new Date('2026-09-10T00:00:00Z'),
+        },
+      ],
+      maintenancePlans: [],
+      now: new Date('2026-09-18T12:00:00Z'),
+    });
+
+    const signal = result.signals.find(
+      (item) => item.source.resourceId === 'v4-chain-wo',
+    );
+
+    if (signal?.chain) {
+      expect(signal.operationalContext?.chain).toEqual(signal.chain);
+      expect(signal.decisionContext?.operationalContext.chain).toEqual(signal.chain);
+    }
   });
 });

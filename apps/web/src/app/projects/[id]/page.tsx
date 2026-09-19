@@ -156,7 +156,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const assets = unwrap<Asset[]>(assetsPayload) ?? [];
   const workOrders = unwrap<WorkOrder[]>(workOrdersPayload) ?? [];
 
-  const relatedAssets = project.site_id
+  const siteAssets = project.site_id
     ? assets.filter((asset) => asset.site_id === project.site_id).slice(0, 6)
     : [];
 
@@ -330,8 +330,8 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             <h2 className="text-lg font-semibold">Resumo operacional</h2>
             <div className="mt-5 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-500">Ativos</span>
-                <span className="font-semibold">{relatedAssets.length}</span>
+                <span className="text-sm text-slate-500">Equipamentos no local</span>
+                <span className="font-semibold">{siteAssets.length}</span>
               </div>
 
               <div className="flex items-center justify-between">
@@ -344,17 +344,22 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <article className="rounded-2xl border bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold">Ativos</h2>
-                <p className="mt-1 text-sm text-slate-500">Equipamentos associados à operação.</p>
+                <h2 className="text-lg font-semibold">Equipamentos no local</h2>
+                <p className="mt-1 text-sm text-slate-500">Equipamentos registados no local da obra.</p>
               </div>
             </div>
 
-            {relatedAssets.length ? (
+            {siteAssets.length ? (
               <div className="mt-5 divide-y">
-                {relatedAssets.map((asset) => (
+                {siteAssets.map((asset) => (
                   <div key={asset.id} className="flex items-center justify-between py-4">
                     <div>
-                      <p className="text-sm font-semibold">{asset.name}</p>
+                      <Link
+                        href={`/assets/${asset.id}`}
+                        className="text-sm font-semibold hover:underline"
+                      >
+                        {asset.name}
+                      </Link>
                       {asset.code ? (
                         <p className="mt-1 text-xs text-slate-500">{asset.code}</p>
                       ) : null}
@@ -366,7 +371,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               </div>
             ) : (
               <div className="mt-5 rounded-xl bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
-                Ainda não existem ativos associados.
+                Ainda não existem equipamentos registados neste local.
               </div>
             )}
           </article>
@@ -381,7 +386,12 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <div className="mt-5 divide-y">
                 {relatedWorkOrders.map((workOrder) => (
                   <div key={workOrder.id} className="py-4">
-                    <p className="text-sm font-semibold">{workOrder.title}</p>
+                    <Link
+                      href={`/work-orders/${workOrder.id}`}
+                      className="text-sm font-semibold hover:underline"
+                    >
+                      {workOrder.title}
+                    </Link>
                     <div className="mt-2 flex gap-2 text-xs text-slate-500">
                       <span>{workOrder.status ?? 'Sem estado'}</span>
                       <span>·</span>

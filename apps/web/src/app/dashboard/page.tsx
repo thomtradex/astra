@@ -381,7 +381,7 @@ export default async function DashboardPage() {
               <div className="rounded-xl bg-slate-100 px-3 py-2 text-center">
                 <div className="text-lg font-semibold text-slate-950">{attentionCount}</div>
                 <div className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
-                  sinais
+                  situações
                 </div>
               </div>
             </div>
@@ -420,15 +420,15 @@ export default async function DashboardPage() {
                 })
               ) : hasIntelligence ? (
                 <Signal
-                  title="Nenhum sinal prioritário identificado"
+                  title="Nenhuma situação prioritária identificada"
                   description="Os dados operacionais disponíveis não apresentam situações que cumpram atualmente os critérios de atenção."
                   href="/intelligence"
                   tone="positive"
                 />
               ) : (
                 <Signal
-                  title="Briefing operacional disponível no Professional"
-                  description="Ative o Briefing COO para transformar dados operacionais em prioridades e ações recomendadas."
+                  title="Resumo da operação disponível no Professional"
+                  description="Ative o Resumo da operação para transformar dados operacionais em prioridades e ações recomendadas."
                   href="/plans?plan=PROFESSIONAL"
                   tone="neutral"
                 />
@@ -439,7 +439,7 @@ export default async function DashboardPage() {
                   href="/intelligence"
                   className="block pt-1 text-center text-xs font-semibold text-slate-600 hover:text-slate-950"
                 >
-                  Ver os {intelligenceSignals.length} sinais →
+                  Ver as {intelligenceSignals.length} situações →
                 </Link>
               )}
             </div>
@@ -533,7 +533,7 @@ export default async function DashboardPage() {
 
           <div className="rounded-2xl bg-slate-950 p-6 text-white shadow-sm md:p-7">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/40">
-              Intelligence
+              Inteligência Astra
             </p>
 
             <h2 className="mt-2 text-xl font-semibold tracking-tight">
@@ -541,7 +541,7 @@ export default async function DashboardPage() {
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-white/55">
-              O Astra COO utiliza os dados operacionais disponíveis para identificar padrões, riscos
+              A Astra utiliza os dados operacionais disponíveis para identificar situações relevantes e riscos
               e oportunidades.
             </p>
 
@@ -550,9 +550,9 @@ export default async function DashboardPage() {
               dashboardOverview.assets === 0 &&
               dashboardOverview.workOrders.open === 0 ? (
                 <>
-                  <div className="text-sm font-semibold">Briefing COO pronto para começar</div>
+                  <div className="text-sm font-semibold">Resumo da operação pronto para começar</div>
                   <p className="mt-1 text-xs leading-5 text-white/45">
-                    Registe atividade operacional para que a Astra possa começar a produzir sinais
+                    Registe atividade operacional para que a Astra possa começar a produzir situações
                     úteis.
                   </p>
                 </>
@@ -560,12 +560,12 @@ export default async function DashboardPage() {
                 <>
                   <div className="text-sm font-semibold">
                     {astraState.signalCount > 0
-                      ? 'Existem sinais para analisar'
-                      : 'Operação sem sinais prioritários'}
+                      ? 'Existem situações para analisar'
+                      : 'Operação sem situações prioritárias'}
                   </div>
                   <p className="mt-1 text-xs leading-5 text-white/45">
                     {astraState.signalCount > 0
-                      ? 'Abra o Briefing COO para aprofundar os sinais disponíveis.'
+                      ? 'Abra o Resumo da operação para aprofundar as situações disponíveis.'
                       : 'Continue a alimentar a operação para aumentar a qualidade da análise.'}
                   </p>
                 </>
@@ -576,7 +576,7 @@ export default async function DashboardPage() {
               href="/intelligence"
               className="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-semibold text-slate-950 transition hover:bg-slate-100"
             >
-              Abrir Briefing COO →
+              Abrir Resumo da operação →
             </Link>
           </div>
         </section>

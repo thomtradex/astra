@@ -1,11 +1,27 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState, useTransition } from 'react';
 
 import {
+  createWorkOrder,
   updateWorkOrder,
   type WorkOrder,
 } from '@/lib/work-orders-client';
+
+type AssetOption = {
+  id: string;
+  name: string;
+  code: string;
+  status: string;
+};
+
+type UserOption = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+};
 
 const statuses = [
   { value: 'ALL', label: 'Todas' },
@@ -15,26 +31,39 @@ const statuses = [
   { value: 'CANCELLED', label: 'Canceladas' },
 ];
 
+const createStatuses = [
+  { value: 'OPEN', label: 'Aberta' },
+  { value: 'IN_PROGRESS', label: 'Em curso' },
+];
+
 const priorities = [
   { value: 'ALL', label: 'Todas as prioridades' },
+  { value: 'CRITICAL', label: 'Crítica' },
+  { value: 'HIGH', label: 'Alta' },
+  { value: 'MEDIUM', label: 'Média' },
+  { value: 'LOW', label: 'Baixa' },
+];
+
+const createPriorities = [
+  { value: 'CRITICAL', label: 'Crítica' },
   { value: 'HIGH', label: 'Alta' },
   { value: 'MEDIUM', label: 'Média' },
   { value: 'LOW', label: 'Baixa' },
 ];
 
 function statusLabel(status: string) {
-  return (
-    statuses.find((item) => item.value === status)?.label ?? status
-  );
+  return statuses.find((item) => item.value === status)?.label ?? status;
 }
 
 function priorityLabel(priority: string) {
-  return (
-    priorities.find((item) => item.value === priority)?.label ?? priority
-  );
+  return priorities.find((item) => item.value === priority)?.label ?? priority;
 }
 
 function priorityClass(priority: string) {
+  if (priority === 'CRITICAL') {
+    return 'bg-red-100 text-red-800 ring-1 ring-red-200';
+  }
+
   if (priority === 'HIGH') {
     return 'bg-red-50 text-red-700 ring-1 ring-red-100';
   }
@@ -62,11 +91,20 @@ function statusClass(status: string) {
   return 'bg-orange-50 text-orange-700 ring-1 ring-orange-100';
 }
 
+function userLabel(user: UserOption) {
+  const fullName = `${user.firstName} ${user.lastName}`.trim();
+  return fullName || user.email;
+}
+
 export function WorkOrdersClient({
   workOrders: initialWorkOrders,
+  assets = [],
+  users = [],
   initialMode = 'list',
 }: {
   workOrders: WorkOrder[];
+  assets?: AssetOption[];
+  users?: UserOption[];
   initialMode?: 'list' | 'create';
 }) {
   const [workOrders, setWorkOrders] = useState(initialWorkOrders);
@@ -76,12 +114,24 @@ export function WorkOrdersClient({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(initialMode === 'create');
+
   const [newTitle, setNewTitle] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [newStatus, setNewStatus] = useState('OPEN');
   const [newPriority, setNewPriority] = useState('MEDIUM');
+  const [newAssetId, setNewAssetId] = useState('');
+  const [newAssignedToId, setNewAssignedToId] = useState('');
 
   const metrics = useMemo(() => {
-    const open = workOrders.filter((item) => item.status === 'OPEN');
-    const high = open.filter((item) => item.priority === 'HIGH');
+    const open = workOrders.filter(
+      (item) => item.status === 'OPEN' || item.status === 'IN_PROGRESS',
+    );
+
+    const high = open.filter(
+      (item) =>
+        item.priority === 'HIGH' || item.priority === 'CRITICAL',
+    );
+
     const unassigned = open.filter((item) => !item.assigned_to_id);
 
     return {
@@ -105,17 +155,34 @@ export function WorkOrdersClient({
       const matchesQuery =
         !normalized ||
         workOrder.title.toLowerCase().includes(normalized) ||
-        workOrder.description?.toLowerCase().includes(normalized);
+        workOrder.description?.toLowerCase().includes(normalized) ||
+        workOrder.assets?.name.toLowerCase().includes(normalized) ||
+        workOrder.assets?.code.toLowerCase().includes(normalized);
 
       return matchesStatus && matchesPriority && matchesQuery;
     });
   }, [workOrders, query, status, priority]);
 
+  function resetCreateForm() {
+    setNewTitle('');
+    setNewDescription('');
+    setNewStatus('OPEN');
+    setNewPriority('MEDIUM');
+    setNewAssetId('');
+    setNewAssignedToId('');
+  }
+
   function createOrder() {
     const title = newTitle.trim();
+    const description = newDescription.trim();
 
     if (!title) {
       setError('Indique um título para a ordem de trabalho.');
+      return;
+    }
+
+    if (title.length < 4) {
+      setError('O título deve ter pelo menos 4 caracteres.');
       return;
     }
 
@@ -123,17 +190,17 @@ export function WorkOrdersClient({
 
     startTransition(async () => {
       try {
-        const { createWorkOrder } = await import('@/lib/work-orders-client');
-
         const created = await createWorkOrder({
           title,
+          description: description || undefined,
+          status: newStatus,
           priority: newPriority,
-          status: 'OPEN',
+          assetId: newAssetId || undefined,
+          assignedToId: newAssignedToId || undefined,
         });
 
         setWorkOrders((current) => [created, ...current]);
-        setNewTitle('');
-        setNewPriority('MEDIUM');
+        resetCreateForm();
         setShowCreateForm(false);
       } catch (err) {
         setError(
@@ -146,6 +213,10 @@ export function WorkOrdersClient({
   }
 
   function changeStatus(workOrder: WorkOrder, nextStatus: string) {
+    if (nextStatus === workOrder.status) {
+      return;
+    }
+
     setError(null);
 
     startTransition(async () => {
@@ -185,42 +256,157 @@ export function WorkOrdersClient({
       </div>
 
       {showCreateForm && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end">
-            <div className="min-w-0 flex-1">
+        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="max-w-3xl">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+              Nova intervenção
+            </p>
+            <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
+              Criar ordem de trabalho
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Registe o trabalho, associe o equipamento e defina quem deve
+              executar a intervenção.
+            </p>
+          </div>
+
+          <div className="mt-6 grid gap-5 lg:grid-cols-2">
+            <div className="lg:col-span-2">
               <label
-                htmlFor="new-work-order-title"
-                className="text-[11px] font-semibold uppercase tracking-wide text-slate-400"
+                htmlFor="work-order-title"
+                className="text-xs font-semibold text-slate-700"
               >
                 Título
               </label>
               <input
-                id="new-work-order-title"
+                id="work-order-title"
                 value={newTitle}
                 onChange={(event) => setNewTitle(event.target.value)}
-                placeholder="Ex.: Reparar bomba hidráulica"
-                className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2"
+                placeholder="Ex.: Inspeção hidráulica da escavadora"
+                className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-slate-400 focus:ring-2"
+                disabled={isPending}
+              />
+            </div>
+
+            <div className="lg:col-span-2">
+              <label
+                htmlFor="work-order-description"
+                className="text-xs font-semibold text-slate-700"
+              >
+                Descrição
+              </label>
+              <textarea
+                id="work-order-description"
+                value={newDescription}
+                onChange={(event) => setNewDescription(event.target.value)}
+                placeholder="Descreva o problema, intervenção necessária ou contexto operacional..."
+                rows={4}
+                className="mt-2 w-full resize-y rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-slate-400 focus:ring-2"
+                disabled={isPending}
               />
             </div>
 
             <div>
               <label
-                htmlFor="new-work-order-priority"
-                className="text-[11px] font-semibold uppercase tracking-wide text-slate-400"
+                htmlFor="work-order-status"
+                className="text-xs font-semibold text-slate-700"
+              >
+                Estado inicial
+              </label>
+              <select
+                id="work-order-status"
+                value={newStatus}
+                onChange={(event) => setNewStatus(event.target.value)}
+                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none"
+                disabled={isPending}
+              >
+                {createStatuses.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label
+                htmlFor="work-order-priority"
+                className="text-xs font-semibold text-slate-700"
               >
                 Prioridade
               </label>
               <select
-                id="new-work-order-priority"
+                id="work-order-priority"
                 value={newPriority}
                 onChange={(event) => setNewPriority(event.target.value)}
-                className="mt-2 rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none"
+                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none"
+                disabled={isPending}
               >
-                <option value="HIGH">Alta</option>
-                <option value="MEDIUM">Média</option>
-                <option value="LOW">Baixa</option>
+                {createPriorities.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
               </select>
             </div>
+
+            <div>
+              <label
+                htmlFor="work-order-asset"
+                className="text-xs font-semibold text-slate-700"
+              >
+                Equipamento
+              </label>
+              <select
+                id="work-order-asset"
+                value={newAssetId}
+                onChange={(event) => setNewAssetId(event.target.value)}
+                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none"
+                disabled={isPending}
+              >
+                <option value="">Sem equipamento associado</option>
+                {assets.map((asset) => (
+                  <option key={asset.id} value={asset.id}>
+                    {asset.name} · {asset.code}
+                  </option>
+                ))}
+              </select>
+              {assets.length === 0 && (
+                <p className="mt-2 text-xs text-slate-400">
+                  Não existem equipamentos disponíveis para esta organização.
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="work-order-assignee"
+                className="text-xs font-semibold text-slate-700"
+              >
+                Responsável
+              </label>
+              <select
+                id="work-order-assignee"
+                value={newAssignedToId}
+                onChange={(event) => setNewAssignedToId(event.target.value)}
+                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none"
+                disabled={isPending}
+              >
+                <option value="">Sem responsável</option>
+                {users.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {userLabel(user)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-slate-400">
+              A ordem pode ser criada sem equipamento ou responsável e
+              enriquecida posteriormente.
+            </p>
 
             <button
               type="button"
@@ -228,17 +414,17 @@ export function WorkOrdersClient({
               onClick={createOrder}
               className="rounded-xl bg-astra-950 px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
             >
-              Criar ordem
+              {isPending ? 'A criar...' : 'Criar ordem'}
             </button>
           </div>
-        </div>
+        </section>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
           ['Total', metrics.total, 'Todas as ordens registadas'],
           ['Abertas', metrics.open, 'Precisam de acompanhamento'],
-          ['Alta prioridade', metrics.high, 'Atenção operacional'],
+          ['Alta prioridade', metrics.high, 'Críticas ou altas'],
           ['Sem responsável', metrics.unassigned, 'Risco de execução'],
         ].map(([label, value, description]) => (
           <div
@@ -311,7 +497,7 @@ export function WorkOrdersClient({
       ) : (
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left">
+            <table className="w-full min-w-[1200px] text-left">
               <thead className="border-b border-slate-100 bg-slate-50">
                 <tr>
                   <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
@@ -327,6 +513,12 @@ export function WorkOrdersClient({
                     Responsável
                   </th>
                   <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                    Equipamento
+                  </th>
+                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                    Obra
+                  </th>
+                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                     Ação
                   </th>
                 </tr>
@@ -336,9 +528,12 @@ export function WorkOrdersClient({
                 {filteredWorkOrders.map((workOrder) => (
                   <tr key={workOrder.id} className="hover:bg-slate-50/70">
                     <td className="px-5 py-4">
-                      <div className="font-medium text-slate-950">
+                      <Link
+                        href={`/work-orders/${workOrder.id}`}
+                        className="font-medium text-slate-950 hover:underline"
+                      >
                         {workOrder.title}
-                      </div>
+                      </Link>
                       {workOrder.description && (
                         <div className="mt-1 max-w-md truncate text-xs text-slate-500">
                           {workOrder.description}
@@ -370,6 +565,46 @@ export function WorkOrdersClient({
                       ) : (
                         <span className="font-medium text-red-600">
                           Sem responsável
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      {workOrder.assets ? (
+                        <Link
+                          href={`/assets/${workOrder.assets.id}`}
+                          className="group block min-w-[150px]"
+                        >
+                          <span className="block text-sm font-medium text-slate-800 group-hover:underline">
+                            {workOrder.assets.name}
+                          </span>
+                          <span className="mt-0.5 block text-[11px] text-slate-400">
+                            {workOrder.assets.code}
+                          </span>
+                        </Link>
+                      ) : (
+                        <span className="text-sm text-slate-400">
+                          Sem equipamento
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      {workOrder.project ? (
+                        <Link
+                          href={`/projects/${workOrder.project.id}`}
+                          className="group block min-w-[150px]"
+                        >
+                          <span className="block text-sm font-medium text-slate-800 group-hover:underline">
+                            {workOrder.project.name}
+                          </span>
+                          <span className="mt-0.5 block text-[11px] text-slate-400">
+                            {workOrder.project.code}
+                          </span>
+                        </Link>
+                      ) : (
+                        <span className="text-sm text-slate-400">
+                          Sem obra
                         </span>
                       )}
                     </td>

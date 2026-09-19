@@ -24,6 +24,24 @@ export class WorkOrdersService {
       orderBy: {
         created_at: 'desc',
       },
+      include: {
+        assets: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            status: true,
+          },
+        },
+        project: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            status: true,
+          },
+        },
+      },
     });
   }
 
@@ -42,7 +60,7 @@ export class WorkOrdersService {
       });
 
       if (!project) {
-        throw new Error('Project not found for this organization');
+        throw new NotFoundException('Project not found for this organization');
       }
     }
 
@@ -58,31 +76,44 @@ export class WorkOrdersService {
       });
 
       if (!asset) {
-        throw new Error('Asset not found for this organization');
+        throw new NotFoundException('Asset not found for this organization');
+      }
+    }
+
+    if (dto.assignedToId) {
+      const user = await this.prisma.user.findFirst({
+        where: {
+          id: dto.assignedToId,
+          organizationId: organizationId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found for this organization');
       }
     }
 
     const monthStart = new Date();
-        monthStart.setDate(1);
-        monthStart.setHours(0, 0, 0, 0);
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
 
-        if (this.billingService) {
-          const currentUsage = await this.prisma.work_orders.count({
-              where: {
-                organization_id: organizationId,
-                created_at: { gte: monthStart },
-            },
-        });
+    if (this.billingService) {
+      const currentUsage = await this.prisma.work_orders.count({
+        where: {
+          organization_id: organizationId,
+          created_at: { gte: monthStart },
+        },
+      });
 
-        await this.billingService.assertLimit(
-            organizationId,
-            'workOrdersPerMonth',
-            currentUsage,
-        );
-
-
-        }
-
+      await this.billingService.assertLimit(
+        organizationId,
+        'workOrdersPerMonth',
+        currentUsage,
+      );
+    }
 
     return this.prisma.work_orders.create({
       data: {
@@ -105,6 +136,24 @@ export class WorkOrdersService {
       where: {
         id,
         organization_id: organizationId,
+      },
+      include: {
+        assets: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            status: true,
+          },
+        },
+        project: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            status: true,
+          },
+        },
       },
     });
   }
@@ -140,7 +189,7 @@ export class WorkOrdersService {
       });
 
       if (!project) {
-        throw new Error('Project not found for this organization');
+        throw new NotFoundException('Project not found for this organization');
       }
     }
 
@@ -156,7 +205,7 @@ export class WorkOrdersService {
       });
 
       if (!asset) {
-        throw new Error('Asset not found for this organization');
+        throw new NotFoundException('Asset not found for this organization');
       }
     }
 

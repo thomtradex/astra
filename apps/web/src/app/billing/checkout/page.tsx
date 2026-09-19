@@ -329,7 +329,7 @@ const FALLBACK_PLANS: Record<string, BillingPlan> = {
         </div>
 
         <div className="mx-auto mt-10 max-w-5xl text-center text-sm text-white/35">
-          Astra Operational Intelligence · Construída para empresas que
+          Inteligência operacional orientada à decisão · Construída para empresas que
           precisam de executar melhor.
         </div>
       </div>

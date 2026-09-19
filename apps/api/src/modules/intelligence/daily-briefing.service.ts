@@ -54,7 +54,7 @@ export class DailyBriefingService {
       return `${total} situação(ões) operacional(is) requerem atenção.`;
     }
 
-    return 'A operação não apresenta sinais prioritários neste momento.';
+    return 'A operação não apresenta situações prioritárias neste momento.';
   }
 
   private buildExplanation(
@@ -81,7 +81,7 @@ export class DailyBriefingService {
       parts.push(`${medium} de prioridade média`);
     }
 
-    return `A Astra identificou ${parts.join(', ')} entre ${total} sinal(is) operacional(is) em aberto.`;
+    return `A Astra identificou ${parts.join(', ')} entre ${total} situações operacionais em aberto.`;
   }
 
   private toPriority(signal: IntelligenceSignal, rank: number): DailyBriefingPriority {
@@ -93,6 +93,14 @@ export class DailyBriefingService {
       impact: signal.impact,
       recommendedAction: signal.recommendedAction,
       source: signal.source,
+      ...(signal.evidenceItems ? { evidenceItems: signal.evidenceItems } : {}),
+      ...(signal.operationalContext
+        ? { operationalContext: signal.operationalContext }
+        : {}),
+      ...(signal.recommendations ? { recommendations: signal.recommendations } : {}),
+      ...(signal.decisionContext
+        ? { decisionContext: signal.decisionContext }
+        : {}),
       ...(signal.action ? { action: signal.action } : {}),
     };
   }
@@ -102,7 +110,7 @@ export class DailyBriefingService {
     priorities: DailyBriefingPriority[],
   ): string {
     if (priorities.length === 0) {
-      return 'Continuar a operação normalmente e voltar a consultar o briefing à medida que existirem novas alterações.';
+      return 'Continuar a operação normalmente e voltar a consultar o resumo à medida que existirem novas alterações.';
     }
 
     if (summary.critical > 0) {
@@ -110,7 +118,7 @@ export class DailyBriefingService {
     }
 
     if (summary.high > 0) {
-      return 'Começar pelo primeiro sinal de alta prioridade e confirmar responsável, estado e próxima ação.';
+      return 'Começar pela primeira situação de alta prioridade e confirmar responsável, estado e próxima ação.';
     }
 
     return 'Rever as prioridades apresentadas e confirmar a próxima ação operacional.';

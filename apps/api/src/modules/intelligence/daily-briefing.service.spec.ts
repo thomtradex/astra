@@ -37,7 +37,7 @@ describe('DailyBriefingService', () => {
     expect(result.date).toBe('2026-09-15');
     expect(result.generatedAt).toBe('2026-09-15T08:00:00.000Z');
     expect(result.summary).toEqual({
-      headline: 'A operação não apresenta sinais prioritários neste momento.',
+      headline: 'A operação não apresenta situações prioritárias neste momento.',
       explanation:
         'Os dados operacionais disponíveis não apresentam situações que cumpram os critérios atuais de atenção.',
       critical: 0,

@@ -119,12 +119,12 @@ const PLAN_CONTENT: Record<Plan['code'], {
   },
   PROFESSIONAL: {
     eyebrow: 'Mais popular',
-    headline: 'Passe da operação à decisão com a Astra COO.',
+    headline: 'Passe da operação à decisão com a Astra.',
     bullets: [
       'Tudo do Starter',
       'Mais utilizadores, sites e capacidade',
-      'Inteligência operacional e briefing COO',
-      'Sinais, prioridades e recomendações operacionais',
+      'Inteligência operacional orientada à decisão',
+      'Situações, prioridades e recomendações operacionais',
       'Maior capacidade para equipas e operações',
     ],
     accent: 'A escolha para empresas que precisam de decidir melhor e mais cedo.',
