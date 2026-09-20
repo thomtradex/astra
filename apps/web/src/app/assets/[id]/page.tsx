@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { RescheduleMaintenanceAction } from '@/components/maintenance/reschedule-maintenance-action';
 import { getAsset } from '@/lib/assets-client';
 
 type AssetPageProps = {
@@ -38,6 +39,17 @@ function formatDateTime(value?: string | null) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(value));
+}
+
+function formatFrequency(value: string) {
+  const normalized = value.toUpperCase();
+
+  if (normalized === 'MONTHLY') return 'Mensal';
+  if (normalized === 'WEEKLY') return 'Semanal';
+  if (normalized === 'QUARTERLY') return 'Trimestral';
+  if (normalized === 'YEARLY' || normalized === 'ANNUALLY') return 'Anual';
+
+  return value;
 }
 
 function labelStatus(value: string) {
@@ -490,7 +502,7 @@ export default async function AssetDetailPage({
                             {plan.plan}
                           </p>
                           <p className="mt-1 text-sm text-slate-500">
-                            {plan.frequency}
+                            {formatFrequency(plan.frequency)}
                           </p>
                         </div>
 
@@ -505,17 +517,26 @@ export default async function AssetDetailPage({
                         </span>
                       </div>
 
-                      <div className="mt-4 flex items-center justify-between gap-4">
-                        <span className="text-xs font-medium text-slate-400">
-                          Próxima data
-                        </span>
-                        <span
-                          className={`text-sm font-semibold ${
-                            overdue ? 'text-red-700' : 'text-slate-800'
-                          }`}
-                        >
-                          {formatDate(plan.nextDue)}
-                        </span>
+                      <div className="mt-4 rounded-xl bg-slate-50 p-4">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                          <div>
+                            <p className="text-xs font-medium text-slate-400">
+                              Próxima intervenção
+                            </p>
+                            <p
+                              className={`mt-1 text-base font-semibold ${
+                                overdue ? 'text-red-700' : 'text-slate-900'
+                              }`}
+                            >
+                              {formatDate(plan.nextDue)}
+                            </p>
+                          </div>
+
+                          <RescheduleMaintenanceAction
+                            maintenancePlanId={plan.id}
+                            currentNextDue={plan.nextDue}
+                          />
+                        </div>
                       </div>
                     </div>
                   );
