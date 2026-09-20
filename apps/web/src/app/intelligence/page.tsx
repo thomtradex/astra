@@ -175,7 +175,6 @@ function SignalAction({ action }: { action: IntelligenceSignal['action'] }) {
 
 function DailyBriefingCard({
   briefing,
-  canExecuteActions,
 }: {
   briefing: IntelligenceBriefing['daily'];
   canExecuteActions: boolean;
@@ -191,7 +190,7 @@ function DailyBriefingCard({
           <div className="max-w-2xl">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-300">
-                Astra
+                Resumo da operação
               </span>
               <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
                 {briefing.date}
@@ -236,12 +235,12 @@ function DailyBriefingCard({
                 Atenção agora
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                A situação que requer a primeira intervenção.
+                A prioridade que deve ser revista primeiro.
               </p>
             </div>
 
-            <article className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span
@@ -250,85 +249,49 @@ function DailyBriefingCard({
                       {severityConfig[topPriority.severity].label}
                     </span>
                     <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
-                      Em aberto
+                      Prioridade 1
                     </span>
                   </div>
 
-                  <h3 className="mt-3 text-xl font-semibold tracking-tight text-slate-950">
+                  <h3 className="mt-3 text-lg font-semibold tracking-tight text-slate-950">
                     {topPriority.title}
                   </h3>
+                </div>
 
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                <span className="shrink-0 text-xs font-semibold text-slate-500">
+                  Rever abaixo
+                </span>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-xl bg-white p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                    Porque agora
+                  </p>
+                  <p className="mt-1.5 text-xs leading-5 text-slate-700">
                     {topPriority.why}
                   </p>
                 </div>
-              </div>
 
-              <div className="mt-5 grid gap-3 lg:grid-cols-[1fr_1fr]">
-                <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="rounded-xl bg-white p-3">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                    Porque importa
+                    Impacto
                   </p>
-                  <p className="mt-1.5 text-sm leading-6 text-slate-700">
+                  <p className="mt-1.5 text-xs leading-5 text-slate-700">
                     {topPriority.impact}
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-slate-900 bg-slate-950 p-4 text-white">
+                <div className="rounded-xl bg-slate-900 p-3 text-white">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                    Ação recomendada
+                    Próxima ação
                   </p>
-                  <p className="mt-1.5 text-sm font-semibold leading-6">
+                  <p className="mt-1.5 text-xs font-semibold leading-5">
                     {topPriority.recommendedAction}
                   </p>
                 </div>
               </div>
-
-              {topPriority.action ? (
-                <div className="mt-5 border-t border-slate-200 pt-5">
-                  {canExecuteActions ? (
-                    <SignalAction action={topPriority.action} />
-                  ) : (
-                    <Link
-                      href="/plans?plan=PROFESSIONAL"
-                      className="inline-flex rounded-xl bg-slate-950 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-slate-800"
-                    >
-                      Ver capacidade Professional →
-                    </Link>
-                  )}
-                </div>
-              ) : null}
-
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <Link
-                  href={getSignalHref({
-                    id: String(topPriority.rank),
-                    type: 'HIGH_PRIORITY_WORK_ORDER',
-                    severity: topPriority.severity,
-                    title: topPriority.title,
-                    explanation: topPriority.why,
-                    evidence: [],
-                    urgency: topPriority.why,
-                    impact: topPriority.impact,
-                    recommendedAction: topPriority.recommendedAction,
-                    decision: { type: 'REVIEW', label: 'Rever' },
-                    status: 'OPEN',
-                    timestamp: briefing.generatedAt,
-                    source: topPriority.source,
-                    action: topPriority.action,
-                  })}
-                  className="text-xs font-semibold text-slate-600 transition hover:text-slate-950"
-                >
-                  Ver na operação →
-                </Link>
-
-                {topPriority.evidenceItems?.length ? (
-                  <span className="text-xs text-slate-400">
-                    {topPriority.evidenceItems.length} factos disponíveis
-                  </span>
-                ) : null}
-              </div>
-            </article>
+            </div>
 
             {remainingPriorities.length > 0 ? (
               <div className="mt-7">
@@ -337,7 +300,7 @@ function DailyBriefingCard({
                     Outras situações
                   </p>
                   <p className="mt-1 text-sm text-slate-500">
-                    Restantes situações por prioridade.
+                    Restantes prioridades identificadas pela Astra.
                   </p>
                 </div>
 
@@ -358,7 +321,7 @@ function DailyBriefingCard({
                               {severity.label}
                             </span>
                             <span className="text-[10px] uppercase tracking-wide text-slate-400">
-                              {priority.source.resource.replace('_', ' ')}
+                              Prioridade {priority.rank}
                             </span>
                           </div>
 
@@ -371,27 +334,9 @@ function DailyBriefingCard({
                           </p>
                         </div>
 
-                        <Link
-                          href={getSignalHref({
-                            id: String(priority.rank),
-                            type: 'HIGH_PRIORITY_WORK_ORDER',
-                            severity: priority.severity,
-                            title: priority.title,
-                            explanation: priority.why,
-                            evidence: [],
-                            urgency: priority.why,
-                            impact: priority.impact,
-                            recommendedAction: priority.recommendedAction,
-                            decision: { type: 'REVIEW', label: 'Rever' },
-                            status: 'OPEN',
-                            timestamp: briefing.generatedAt,
-                            source: priority.source,
-                            action: priority.action,
-                          })}
-                          className="shrink-0 text-xs font-semibold text-slate-600 transition hover:text-slate-950"
-                        >
-                          Ver situação →
-                        </Link>
+                        <span className="shrink-0 text-xs font-semibold text-slate-400">
+                          Ver abaixo
+                        </span>
                       </div>
                     );
                   })}
@@ -767,11 +712,10 @@ export default async function IntelligencePage() {
           <section className="mt-10">
             <div className="mb-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Evidência operacional
+                Situações operacionais
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                Detalhe das situações identificadas. A informação de suporte fica disponível sem
-                competir com a decisão principal.
+                Situações que requerem atenção, com contexto, evidência e próxima ação.
               </p>
             </div>
 

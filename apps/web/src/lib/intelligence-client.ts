@@ -158,8 +158,12 @@ export interface IntelligenceChange {
   title: string;
   explanation: string;
   evidence: string[];
+  evidenceItems?: IntelligenceEvidence[];
   impact: string;
   recommendedAction: string;
+  operationalContext?: OperationalContext;
+  recommendations?: IntelligenceRecommendation[];
+  decisionContext?: IntelligenceDecisionContext;
   timestamp: string;
   source: {
     resource: string;

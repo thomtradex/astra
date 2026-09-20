@@ -1532,6 +1532,108 @@ describe('Operational Intelligence V4 contract', () => {
     expect(signal!.decisionContext?.confidence).toBe(1);
   });
 
+  it('builds maintenance operational context through the maintenance asset', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      workOrders: [
+        {
+          id: 'maintenance-context-wo',
+          title: 'Intervenção urgente no equipamento',
+          priority: 'HIGH',
+          status: 'OPEN',
+          asset_id: 'maintenance-context-asset',
+          project_id: 'maintenance-context-project',
+          assigned_to_id: null,
+          updated_at: new Date('2026-09-18T10:00:00Z'),
+        },
+        {
+          id: 'unrelated-wo',
+          title: 'Ordem de outro equipamento',
+          priority: 'HIGH',
+          status: 'OPEN',
+          asset_id: 'different-asset',
+          project_id: 'different-project',
+          assigned_to_id: 'user-1',
+          updated_at: new Date('2026-09-18T10:00:00Z'),
+        },
+      ],
+      maintenancePlans: [
+        {
+          id: 'maintenance-context-plan',
+          plan: 'Manutenção preventiva',
+          status: 'ACTIVE',
+          nextDue: new Date('2026-09-25T10:00:00Z'),
+          assetId: 'maintenance-context-asset',
+        },
+      ],
+      assets: [
+        {
+          id: 'maintenance-context-asset',
+          name: 'Escavadora operacional',
+          code: 'ESC-001',
+          serial_number: null,
+          status: 'ACTIVE',
+          site_id: 'maintenance-context-site',
+        },
+        {
+          id: 'different-asset',
+          name: 'Betoneira',
+          code: 'BET-001',
+          serial_number: null,
+          status: 'ACTIVE',
+          site_id: null,
+        },
+      ],
+      sites: [
+        {
+          id: 'maintenance-context-site',
+          name: 'Obra Principal',
+          code: 'SITE-001',
+        },
+      ],
+      projects: [
+        {
+          id: 'maintenance-context-project',
+          name: 'Obra Principal',
+          status: 'IN_PROGRESS',
+          progress: 50,
+          end_date: new Date('2026-12-31T00:00:00Z'),
+        },
+      ],
+      now: new Date('2026-09-18T12:00:00Z'),
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.source.resource).toBe('maintenance_plans');
+    expect(signal!.source.resourceId).toBe('maintenance-context-plan');
+
+    expect(signal!.operationalContext?.maintenance).toEqual({
+      id: 'maintenance-context-plan',
+      nextDue: '2026-09-25T10:00:00.000Z',
+    });
+
+    expect(signal!.operationalContext?.asset).toEqual({
+      id: 'maintenance-context-asset',
+      name: 'Escavadora operacional',
+    });
+
+    expect(signal!.operationalContext?.site).toEqual({
+      id: 'maintenance-context-site',
+      name: 'Obra Principal',
+    });
+
+    expect(signal!.operationalContext?.workOrders).toEqual({
+      open: 1,
+      highPriorityOpen: 1,
+      unassignedHighPriority: 1,
+    });
+  });
+
   it('preserves operational chains inside structured context', () => {
     const engine = new CooDecisionEngine();
 

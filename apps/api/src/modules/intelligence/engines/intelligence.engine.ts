@@ -968,32 +968,13 @@ export class CooDecisionEngine {
     input: CooDecisionInput,
   ): OperationalContext {
     const resourceId = signal.source.resourceId;
-
-    const relatedWorkOrders = resourceId
-      ? input.workOrders.filter(
-          (order) =>
-            order.id === resourceId ||
-            order.project_id === resourceId ||
-            order.asset_id === resourceId,
-        )
-      : input.workOrders;
-
-    const openWorkOrders = relatedWorkOrders.filter((order) =>
-      this.isOpenWorkOrder(order.status),
-    );
-
-    const highPriorityOpenWorkOrders = openWorkOrders.filter(
-      (order) => order.priority === 'HIGH' || order.priority === 'CRITICAL',
-    );
-
-    const unassignedHighPriorityWorkOrders =
-      highPriorityOpenWorkOrders.filter((order) => !order.assigned_to_id);
+    const resource = signal.source.resource;
 
     const context: OperationalContext = {
       workOrders: {
-        open: openWorkOrders.length,
-        highPriorityOpen: highPriorityOpenWorkOrders.length,
-        unassignedHighPriority: unassignedHighPriorityWorkOrders.length,
+        open: 0,
+        highPriorityOpen: 0,
+        unassignedHighPriority: 0,
       },
     };
 
@@ -1001,7 +982,24 @@ export class CooDecisionEngine {
       context.chain = signal.chain;
     }
 
-    const resource = signal.source.resource;
+    const setWorkOrderContext = (workOrders: CooDecisionInput['workOrders']) => {
+      const openWorkOrders = workOrders.filter((order) =>
+        this.isOpenWorkOrder(order.status),
+      );
+
+      const highPriorityOpenWorkOrders = openWorkOrders.filter(
+        (order) => order.priority === 'HIGH' || order.priority === 'CRITICAL',
+      );
+
+      const unassignedHighPriorityWorkOrders =
+        highPriorityOpenWorkOrders.filter((order) => !order.assigned_to_id);
+
+      context.workOrders = {
+        open: openWorkOrders.length,
+        highPriorityOpen: highPriorityOpenWorkOrders.length,
+        unassignedHighPriority: unassignedHighPriorityWorkOrders.length,
+      };
+    };
 
     if (resource === 'projects' && resourceId) {
       const project = input.projects.find((item) => item.id === resourceId);
@@ -1012,66 +1010,48 @@ export class CooDecisionEngine {
           name: project.name,
         };
       }
+
+      setWorkOrderContext(
+        input.workOrders.filter((order) => order.project_id === resourceId),
+      );
+
+      return context;
     }
 
     if (resource === 'work_orders' && resourceId) {
       const workOrder = input.workOrders.find((item) => item.id === resourceId);
 
-      if (workOrder) {
-        if (workOrder.project_id) {
-          const project = input.projects.find(
-            (item) => item.id === workOrder.project_id,
-          );
-
-          if (project) {
-            context.project = {
-              id: project.id,
-              name: project.name,
-            };
-          }
-        }
-
-        if (workOrder.asset_id) {
-          const asset = input.assets.find(
-            (item) => item.id === workOrder.asset_id,
-          );
-
-          if (asset) {
-            context.asset = {
-              id: asset.id,
-              name: asset.name,
-            };
-
-            if (asset.site_id) {
-              const site = input.sites.find(
-                (item) => item.id === asset.site_id,
-              );
-
-              if (site) {
-                context.site = {
-                  id: site.id,
-                  name: site.name,
-                };
-              }
-            }
-          }
-        }
+      if (!workOrder) {
+        return context;
       }
-    }
 
-    if (resource === 'maintenance_plans' && resourceId) {
-      const maintenance = input.maintenancePlans.find(
-        (item) => item.id === resourceId,
+      setWorkOrderContext(
+        input.workOrders.filter(
+          (order) =>
+            order.id === resourceId ||
+            (workOrder.project_id !== null &&
+              order.project_id === workOrder.project_id) ||
+            (workOrder.asset_id !== null &&
+              order.asset_id === workOrder.asset_id),
+        ),
       );
 
-      if (maintenance) {
-        context.maintenance = {
-          id: maintenance.id,
-          nextDue: maintenance.nextDue.toISOString(),
-        };
+      if (workOrder.project_id) {
+        const project = input.projects.find(
+          (item) => item.id === workOrder.project_id,
+        );
 
+        if (project) {
+          context.project = {
+            id: project.id,
+            name: project.name,
+          };
+        }
+      }
+
+      if (workOrder.asset_id) {
         const asset = input.assets.find(
-          (item) => item.id === maintenance.assetId,
+          (item) => item.id === workOrder.asset_id,
         );
 
         if (asset) {
@@ -1094,7 +1074,58 @@ export class CooDecisionEngine {
           }
         }
       }
+
+      return context;
     }
+
+    if (resource === 'maintenance_plans' && resourceId) {
+      const maintenance = input.maintenancePlans.find(
+        (item) => item.id === resourceId,
+      );
+
+      if (!maintenance) {
+        return context;
+      }
+
+      context.maintenance = {
+        id: maintenance.id,
+        nextDue: maintenance.nextDue.toISOString(),
+      };
+
+      const asset = input.assets.find(
+        (item) => item.id === maintenance.assetId,
+      );
+
+      if (!asset) {
+        return context;
+      }
+
+      context.asset = {
+        id: asset.id,
+        name: asset.name,
+      };
+
+      if (asset.site_id) {
+        const site = input.sites.find(
+          (item) => item.id === asset.site_id,
+        );
+
+        if (site) {
+          context.site = {
+            id: site.id,
+            name: site.name,
+          };
+        }
+      }
+
+      setWorkOrderContext(
+        input.workOrders.filter((order) => order.asset_id === asset.id),
+      );
+
+      return context;
+    }
+
+    setWorkOrderContext(input.workOrders);
 
     return context;
   }
