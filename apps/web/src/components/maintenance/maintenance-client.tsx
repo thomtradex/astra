@@ -201,7 +201,9 @@ export function MaintenanceClient({
   const maintenanceSituations = useMemo(
     () =>
       (briefing?.signals ?? []).filter(
-        (signal) => signal.type === 'OVERDUE_MAINTENANCE',
+        (signal) =>
+          signal.type === 'OVERDUE_MAINTENANCE' ||
+          signal.type === 'MAINTENANCE_OPERATIONAL_CONFLICT',
       ),
     [briefing],
   );
@@ -688,11 +690,21 @@ export function MaintenanceClient({
                 >
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-semibold text-red-700 ring-1 ring-red-100">
-                        Atenção
+                      <span
+                        className={
+                          situation.type === 'MAINTENANCE_OPERATIONAL_CONFLICT'
+                            ? 'inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700 ring-1 ring-amber-100'
+                            : 'inline-flex rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-semibold text-red-700 ring-1 ring-red-100'
+                        }
+                      >
+                        {situation.type === 'MAINTENANCE_OPERATIONAL_CONFLICT'
+                          ? 'Coordenação'
+                          : 'Atenção'}
                       </span>
                       <span className="text-xs text-slate-400">
-                        Manutenção em atraso
+                        {situation.type === 'MAINTENANCE_OPERATIONAL_CONFLICT'
+                          ? 'Manutenção próxima com trabalho em aberto'
+                          : 'Manutenção em atraso'}
                       </span>
                     </div>
 
