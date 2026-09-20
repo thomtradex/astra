@@ -99,6 +99,39 @@ export class CooDecisionEngine {
       );
     }
 
+    const upcomingMaintenance = input.maintenancePlans.filter((plan) => {
+      if (plan.status !== 'ACTIVE' || plan.nextDue < now) {
+        return false;
+      }
+
+      const daysUntilDue =
+        (plan.nextDue.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+
+      return daysUntilDue <= 30;
+    });
+
+    for (const plan of upcomingMaintenance.slice(0, 10)) {
+      const assetWorkOrders = input.workOrders.filter(
+        (order) =>
+          order.asset_id === plan.assetId &&
+          this.isOpenWorkOrder(order.status),
+      );
+
+      if (assetWorkOrders.length === 0) {
+        continue;
+      }
+
+      signals.push(
+        this.createMaintenanceOperationalConflictSignal(
+          plan,
+          input.assets,
+          input.sites,
+          assetWorkOrders,
+          now,
+        ),
+      );
+    }
+
     const overdueProjects = input.projects.filter(
       (project) => project.progress < 100 && project.end_date !== null && project.end_date < now,
     );
@@ -653,6 +686,111 @@ export class CooDecisionEngine {
       timestamp: now.toISOString(),
       source: {
         resource: 'work_orders',
+      },
+    };
+  }
+
+  private createMaintenanceOperationalConflictSignal(
+    plan: MaintenancePlan,
+    assets: Asset[],
+    sites: Site[],
+    assetWorkOrders: WorkOrder[],
+    now: Date,
+  ): IntelligenceSignal {
+    const daysUntilDue = Math.max(
+      0,
+      Math.ceil(
+        (plan.nextDue.getTime() - now.getTime()) /
+          (1000 * 60 * 60 * 24),
+      ),
+    );
+
+    const highPriorityAssetWorkOrders = assetWorkOrders.filter(
+      (order) => order.priority === 'HIGH' || order.priority === 'CRITICAL',
+    );
+
+    const asset = assets.find((item) => item.id === plan.assetId);
+
+    const site = asset?.site_id
+      ? sites.find((item) => item.id === asset.site_id)
+      : undefined;
+
+    const severity: IntelligenceSeverity =
+      highPriorityAssetWorkOrders.length > 0 ? 'HIGH' : 'MEDIUM';
+
+    const title = asset
+      ? `Manutenção próxima com conflito operacional — ${asset.name}`
+      : `Manutenção próxima com conflito operacional — ${plan.plan}`;
+
+    const evidence = [
+      `Data prevista: ${plan.nextDue.toISOString()}`,
+      `Faltam ${daysUntilDue} dia(s) para a intervenção`,
+      `Ordens de trabalho abertas associadas: ${assetWorkOrders.length}`,
+    ];
+
+    if (asset) {
+      evidence.unshift(`Equipamento: ${asset.name} (${asset.code})`);
+    }
+
+    if (site) {
+      evidence.push(`Site associado: ${site.name} (${site.code})`);
+    }
+
+    if (highPriorityAssetWorkOrders.length > 0) {
+      evidence.push(
+        `Ordens abertas de alta prioridade: ${highPriorityAssetWorkOrders.length}`,
+      );
+    }
+
+    const recommendedAction =
+      highPriorityAssetWorkOrders.length > 0
+        ? `Rever primeiro as ${highPriorityAssetWorkOrders.length} ordem(ns) de alta prioridade associadas ao equipamento e coordenar a intervenção de manutenção.`
+        : `Coordenar as ${assetWorkOrders.length} ordem(ns) de trabalho abertas com a intervenção de manutenção prevista.`;
+
+    const maintenanceAsset = asset;
+
+    const maintenanceChain = maintenanceAsset
+      ? this.buildMaintenanceAssetChain(
+          plan,
+          maintenanceAsset,
+          assetWorkOrders,
+          site,
+        )
+      : undefined;
+
+    return {
+      id: `maintenance-operational-conflict-${plan.id}`,
+      type: 'MAINTENANCE_OPERATIONAL_CONFLICT',
+      severity,
+      title,
+      explanation:
+        'Uma intervenção de manutenção está prevista nos próximos 30 dias e existem ordens de trabalho abertas associadas ao mesmo equipamento.',
+      priorityContext: {
+        openWorkOrders: assetWorkOrders.length,
+        highPriorityOpenWorkOrders: highPriorityAssetWorkOrders.length,
+      },
+      evidence,
+      urgency:
+        highPriorityAssetWorkOrders.length > 0
+          ? `Requer coordenação prioritária: existem ${highPriorityAssetWorkOrders.length} ordem(ns) de alta prioridade associadas ao equipamento.`
+          : daysUntilDue <= 7
+            ? 'Requer coordenação esta semana: a manutenção aproxima-se e existem ordens de trabalho abertas associadas.'
+            : 'Requer coordenação: a manutenção aproxima-se e existem ordens de trabalho abertas associadas.',
+      impact:
+        highPriorityAssetWorkOrders.length > 0
+          ? `A intervenção de manutenção aproxima-se e pode interferir com ${assetWorkOrders.length} ordem(ns) de trabalho abertas, incluindo ${highPriorityAssetWorkOrders.length} de alta prioridade.`
+          : `A intervenção de manutenção aproxima-se e pode interferir com ${assetWorkOrders.length} ordem(ns) de trabalho abertas no mesmo equipamento.`,
+      recommendedAction,
+      ...(maintenanceChain ? { chain: maintenanceChain } : {}),
+      decision: {
+        type: 'REVIEW',
+        label: 'Coordenar manutenção e operação',
+      },
+      status: 'OPEN',
+      timestamp: now.toISOString(),
+      source: {
+        resource: 'maintenance_plans',
+        resourceId: plan.id,
       },
     };
   }

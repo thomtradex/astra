@@ -274,7 +274,7 @@ describe('IntelligenceService', () => {
     };
 
     const result = await new IntelligenceService(
-      prisma,
+      prisma as any,
       engine,
       new DailyBriefingService(),
     ).analyze('org-1');

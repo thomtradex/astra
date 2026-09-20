@@ -25,7 +25,7 @@ describe('WorkOrdersService', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    service = new WorkOrdersService(prisma);
+    service = new WorkOrdersService(prisma as any);
   });
 
   describe('create', () => {

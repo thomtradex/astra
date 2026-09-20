@@ -1230,6 +1230,242 @@ describe('CooDecisionEngine', () => {
 
     expect(result.signals.some((item) => item.type === 'STALE_OPEN_WORK_ORDER')).toBe(false);
   });
+
+
+  describe('upcoming maintenance operational coordination', () => {
+    it('does not create a situation when upcoming maintenance has no open work orders', () => {
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const result = engine.analyze({
+        now,
+        workOrders: [],
+        maintenancePlans: [
+          {
+            id: 'maintenance-upcoming-clean',
+            plan: 'Manutenção mensal',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-09-20T10:00:00.000Z'),
+            assetId: 'asset-upcoming-clean',
+          },
+        ],
+        assets: [
+          {
+            id: 'asset-upcoming-clean',
+            name: 'Betoneira ProMix',
+            code: 'BET-001',
+            serial_number: null,
+            status: 'ACTIVE',
+            site_id: null,
+          },
+        ],
+        sites: [],
+        projects: [],
+      });
+
+      expect(
+        result.signals.some(
+          (item) => item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT',
+        ),
+      ).toBe(false);
+    });
+
+    it('creates a medium coordination situation for an upcoming maintenance with a normal open work order', () => {
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const result = engine.analyze({
+        now,
+        workOrders: [
+          {
+            id: 'wo-maintenance-normal',
+            title: 'Preparar equipamento para obra',
+            status: 'OPEN',
+            priority: 'MEDIUM',
+            assigned_to_id: 'user-1',
+            project_id: null,
+            asset_id: 'asset-maintenance-normal',
+            updated_at: now,
+          },
+        ],
+        maintenancePlans: [
+          {
+            id: 'maintenance-upcoming-normal',
+            plan: 'Manutenção mensal',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-09-20T10:00:00.000Z'),
+            assetId: 'asset-maintenance-normal',
+          },
+        ],
+        assets: [
+          {
+            id: 'asset-maintenance-normal',
+            name: 'Escavadora CAT 320',
+            code: 'CAT-320',
+            serial_number: null,
+            status: 'ACTIVE',
+            site_id: null,
+          },
+        ],
+        sites: [],
+        projects: [],
+      });
+
+      const signal = result.signals.find(
+        (item) => item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT',
+      );
+
+      expect(signal).toBeDefined();
+      expect(signal!.severity).toBe('MEDIUM');
+      expect(signal!.source.resourceId).toBe('maintenance-upcoming-normal');
+      expect(signal!.priorityContext?.openWorkOrders).toBe(1);
+      expect(signal!.priorityContext?.highPriorityOpenWorkOrders).toBe(0);
+    });
+
+    it('creates a high-priority coordination situation when an upcoming maintenance has a high-priority open work order', () => {
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const result = engine.analyze({
+        now,
+        workOrders: [
+          {
+            id: 'wo-maintenance-high',
+            title: 'Falha crítica do equipamento',
+            status: 'OPEN',
+            priority: 'HIGH',
+            assigned_to_id: null,
+            project_id: null,
+            asset_id: 'asset-maintenance-high',
+            updated_at: now,
+          },
+        ],
+        maintenancePlans: [
+          {
+            id: 'maintenance-upcoming-high',
+            plan: 'Manutenção mensal',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-09-12T10:00:00.000Z'),
+            assetId: 'asset-maintenance-high',
+          },
+        ],
+        assets: [
+          {
+            id: 'asset-maintenance-high',
+            name: 'Grua Torre GT-500',
+            code: 'GT-500',
+            serial_number: null,
+            status: 'ACTIVE',
+            site_id: null,
+          },
+        ],
+        sites: [],
+        projects: [],
+      });
+
+      const signal = result.signals.find(
+        (item) => item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT',
+      );
+
+      expect(signal).toBeDefined();
+      expect(signal!.severity).toBe('HIGH');
+      expect(signal!.priorityContext?.openWorkOrders).toBe(1);
+      expect(signal!.priorityContext?.highPriorityOpenWorkOrders).toBe(1);
+    });
+
+    it('does not create a coordination situation when maintenance is more than 30 days away', () => {
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const result = engine.analyze({
+        now,
+        workOrders: [
+          {
+            id: 'wo-maintenance-far',
+            title: 'Trabalho futuro',
+            status: 'OPEN',
+            priority: 'HIGH',
+            assigned_to_id: null,
+            project_id: null,
+            asset_id: 'asset-maintenance-far',
+            updated_at: now,
+          },
+        ],
+        maintenancePlans: [
+          {
+            id: 'maintenance-upcoming-far',
+            plan: 'Manutenção mensal',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-10-15T10:00:00.000Z'),
+            assetId: 'asset-maintenance-far',
+          },
+        ],
+        assets: [
+          {
+            id: 'asset-maintenance-far',
+            name: 'Gerador Industrial 500KW',
+            code: 'GEN-500',
+            serial_number: null,
+            status: 'ACTIVE',
+            site_id: null,
+          },
+        ],
+        sites: [],
+        projects: [],
+      });
+
+      expect(
+        result.signals.some(
+          (item) => item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT',
+        ),
+      ).toBe(false);
+    });
+
+    it('does not create a coordination situation for overdue maintenance', () => {
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const result = engine.analyze({
+        now,
+        workOrders: [
+          {
+            id: 'wo-overdue-maintenance',
+            title: 'Intervenção do equipamento',
+            status: 'OPEN',
+            priority: 'HIGH',
+            assigned_to_id: null,
+            project_id: null,
+            asset_id: 'asset-overdue-maintenance',
+            updated_at: now,
+          },
+        ],
+        maintenancePlans: [
+          {
+            id: 'maintenance-overdue-only',
+            plan: 'Manutenção mensal',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-09-01T10:00:00.000Z'),
+            assetId: 'asset-overdue-maintenance',
+          },
+        ],
+        assets: [],
+        sites: [],
+        projects: [],
+      });
+
+      expect(
+        result.signals.some(
+          (item) =>
+            item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT' &&
+            item.source.resourceId === 'maintenance-overdue-only',
+        ),
+      ).toBe(false);
+
+      expect(
+        result.signals.some(
+          (item) =>
+            item.type === 'OVERDUE_MAINTENANCE' &&
+            item.source.resourceId === 'maintenance-overdue-only',
+        ),
+      ).toBe(true);
+    });
+  });
+
 });
 
 describe('Operational Intelligence V4 contract', () => {
@@ -1318,6 +1554,7 @@ describe('Operational Intelligence V4 contract', () => {
           id: 'v4-chain-asset',
           name: 'Escavadora V4',
           code: 'V4-ESC-01',
+          serial_number: null,
           status: 'ACTIVE',
           site_id: 'v4-chain-site',
         },
@@ -1333,13 +1570,11 @@ describe('Operational Intelligence V4 contract', () => {
         {
           id: 'v4-chain-project',
           name: 'Obra V4',
-          code: 'V4-001',
           status: 'IN_PROGRESS',
           progress: 40,
           end_date: new Date('2026-09-10T00:00:00Z'),
         },
       ],
-      maintenancePlans: [],
       now: new Date('2026-09-18T12:00:00Z'),
     });
 
