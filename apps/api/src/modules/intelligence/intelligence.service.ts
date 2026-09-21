@@ -162,7 +162,11 @@ export class IntelligenceService {
       });
     }
 
-    const decisionHistory = this.buildDecisionHistory(recentAuditLogs);
+    const decisionHistory = this.buildDecisionHistory(
+      recentAuditLogs,
+      workOrders,
+      new Date(briefing.generatedAt),
+    );
 
     const decisionMetrics = recentAuditLogs.reduce(
       (metrics, log) => {
@@ -213,6 +217,12 @@ export class IntelligenceService {
         lastName: string | null;
       } | null;
     }>,
+    workOrders: Array<{
+      id: string;
+      assigned_to_id: string | null;
+      status: string;
+    }>,
+    checkedAt: Date,
   ): IntelligenceDecisionHistory[] {
     return auditLogs
       .filter((log) => this.isCooAction(log.metadata))
@@ -237,6 +247,15 @@ export class IntelligenceService {
           ? [log.actor.firstName, log.actor.lastName].filter(Boolean).join(' ') || undefined
           : undefined;
 
+        const verification = this.verifyDecision(
+          log.resource,
+          log.resourceId,
+          typeof metadata.actionType === 'string' ? metadata.actionType : undefined,
+          metadata.outcomeStatus,
+          workOrders,
+          checkedAt,
+        );
+
         return {
           id: log.id,
           timestamp: log.createdAt.toISOString(),
@@ -247,19 +266,77 @@ export class IntelligenceService {
               : 'COO_ACTION',
           resource: log.resource,
           resourceId: log.resourceId,
-          ...(log.actor
+          actor: log.actor
             ? {
-                actor: {
-                  id: log.actor.id,
-                  ...(actorName ? { name: actorName } : {}),
-                  email: log.actor.email,
-                },
+                id: log.actor.id,
+                name: actorName,
+                email: log.actor.email,
               }
-            : {}),
-          message: typeof metadata.message === 'string' ? metadata.message : '',
+            : undefined,
+          message:
+            typeof metadata.message === 'string' ? metadata.message : '',
+          verification,
         };
       })
       .filter((item): item is IntelligenceDecisionHistory => item !== null);
+  }
+
+  private verifyDecision(
+    resource: string,
+    resourceId: string,
+    actionType: string | undefined,
+    outcomeStatus: 'EXECUTED' | 'DENIED' | 'FAILED',
+    workOrders: Array<{
+      id: string;
+      assigned_to_id: string | null;
+      status: string;
+    }>,
+    checkedAt: Date,
+  ):
+    | {
+        status: 'VERIFIED' | 'STILL_OPEN' | 'NOT_VERIFIED';
+        label: string;
+        explanation: string;
+        checkedAt: string;
+      }
+    | undefined {
+    if (outcomeStatus !== 'EXECUTED') {
+      return undefined;
+    }
+
+    if (
+      actionType === 'ASSIGN_WORK_ORDER' &&
+      resource === 'work_orders'
+    ) {
+      const workOrder = workOrders.find((order) => order.id === resourceId);
+
+      if (!workOrder) {
+        return {
+          status: 'NOT_VERIFIED',
+          label: 'Não foi possível verificar',
+          explanation: 'A ordem de trabalho já não está disponível no estado atual.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      if (workOrder.assigned_to_id) {
+        return {
+          status: 'VERIFIED',
+          label: 'Resultado confirmado',
+          explanation: 'A ordem de trabalho já tem um responsável atribuído.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      return {
+        status: 'STILL_OPEN',
+        label: 'Situação continua aberta',
+        explanation: 'A ordem de trabalho continua sem responsável atribuído.',
+        checkedAt: checkedAt.toISOString(),
+      };
+    }
+
+    return undefined;
   }
 
   private buildChanges(

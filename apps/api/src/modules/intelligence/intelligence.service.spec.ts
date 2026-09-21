@@ -218,7 +218,15 @@ describe('IntelligenceService', () => {
   it('builds decision history from COO audit records', async () => {
     const prisma = {
       projects: { findMany: jest.fn().mockResolvedValue([]) },
-      work_orders: { findMany: jest.fn().mockResolvedValue([]) },
+      work_orders: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'wo-1',
+            assigned_to_id: 'user-2',
+            status: 'OPEN',
+          },
+        ]),
+      },
       maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
       assets: { findMany: jest.fn().mockResolvedValue([]) },
       sites: { findMany: jest.fn().mockResolvedValue([]) },
@@ -309,9 +317,78 @@ describe('IntelligenceService', () => {
         email: 'operator@astra.test',
       },
       message: 'Ordem atribuída com sucesso.',
+      verification: {
+        status: 'VERIFIED',
+        label: 'Resultado confirmado',
+        explanation: 'A ordem de trabalho já tem um responsável atribuído.',
+        checkedAt: '2026-09-05T12:00:00.000Z',
+      },
     });
     expect(result.decisionHistory[1]?.status).toBe('DENIED');
     expect(result.decisionHistory[1]?.actor).toBeUndefined();
+  });
+
+  it('marks an executed assignment as still open when the work order remains unassigned', async () => {
+    const prisma = {
+      projects: { findMany: jest.fn().mockResolvedValue([]) },
+      work_orders: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'wo-open',
+            assigned_to_id: null,
+            status: 'OPEN',
+          },
+        ]),
+      },
+      maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
+      assets: { findMany: jest.fn().mockResolvedValue([]) },
+      sites: { findMany: jest.fn().mockResolvedValue([]) },
+      auditLog: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'decision-open',
+            action: 'UPDATE',
+            resource: 'work_orders',
+            resourceId: 'wo-open',
+            createdAt: new Date('2026-09-05T10:00:00.000Z'),
+            metadata: {
+              type: 'coo_action',
+              source: 'coo',
+              outcomeStatus: 'EXECUTED',
+              actionType: 'ASSIGN_WORK_ORDER',
+              message: 'Ordem atribuída com sucesso.',
+            },
+            actor: {
+              id: 'user-1',
+              email: 'operator@astra.test',
+              firstName: 'Ana',
+              lastName: 'Silva',
+            },
+          },
+        ]),
+      },
+    };
+
+    const engine: any = {
+      analyze: jest.fn().mockReturnValue({
+        generatedAt: '2026-09-05T12:00:00.000Z',
+        signalCount: 0,
+        signals: [],
+      }),
+    };
+
+    const result = await new IntelligenceService(
+      prisma as any,
+      engine,
+      new DailyBriefingService(),
+    ).analyze('org-1');
+
+    expect(result.decisionHistory[0]?.verification).toEqual({
+      status: 'STILL_OPEN',
+      label: 'Situação continua aberta',
+      explanation: 'A ordem de trabalho continua sem responsável atribuído.',
+      checkedAt: '2026-09-05T12:00:00.000Z',
+    });
   });
 
   it('measures COO decision outcomes', async () => {

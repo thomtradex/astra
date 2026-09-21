@@ -797,6 +797,23 @@ export default async function IntelligencePage() {
                   },
                 }[entry.status];
 
+                const verificationConfig = entry.verification
+                  ? {
+                      VERIFIED: {
+                        className:
+                          'border-emerald-200 bg-emerald-50 text-emerald-800',
+                      },
+                      STILL_OPEN: {
+                        className:
+                          'border-amber-200 bg-amber-50 text-amber-800',
+                      },
+                      NOT_VERIFIED: {
+                        className:
+                          'border-slate-200 bg-slate-50 text-slate-700',
+                      },
+                    }[entry.verification.status]
+                  : undefined;
+
                 const actionLabels: Record<string, string> = {
                   ASSIGN_WORK_ORDER: 'Responsável atribuído',
                   UPDATE_MAINTENANCE: 'Manutenção reagendada',
@@ -823,6 +840,7 @@ export default async function IntelligencePage() {
                         >
                           {statusConfig.label}
                         </span>
+
                         <span className="text-[10px] uppercase tracking-wide text-slate-400">
                           {actionLabels[entry.actionType] ?? entry.actionType}
                         </span>
@@ -840,6 +858,23 @@ export default async function IntelligencePage() {
                         <p className="mt-1 text-xs text-slate-500">
                           Decidido por {entry.actor.name ?? entry.actor.email ?? 'Utilizador'}
                         </p>
+                      ) : null}
+
+                      {entry.verification && verificationConfig ? (
+                        <div
+                          className={`mt-3 rounded-lg border px-3 py-2 ${verificationConfig.className}`}
+                        >
+                          <p className="text-xs font-semibold">
+                            {entry.verification.label}
+                          </p>
+                          <p className="mt-1 text-xs leading-5 opacity-90">
+                            {entry.verification.explanation}
+                          </p>
+                          <p className="mt-1 text-[10px] opacity-70">
+                            Verificado em{' '}
+                            {new Date(entry.verification.checkedAt).toLocaleString('pt-PT')}
+                          </p>
+                        </div>
                       ) : null}
                     </div>
 

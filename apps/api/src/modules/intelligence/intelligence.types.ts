@@ -38,6 +38,13 @@ export interface IntelligenceChange {
   };
 }
 
+export interface IntelligenceDecisionVerification {
+  status: 'VERIFIED' | 'STILL_OPEN' | 'NOT_VERIFIED';
+  label: string;
+  explanation: string;
+  checkedAt: string;
+}
+
 export interface IntelligenceDecisionHistory {
   id: string;
   timestamp: string;
@@ -51,6 +58,7 @@ export interface IntelligenceDecisionHistory {
     email?: string;
   };
   message: string;
+  verification?: IntelligenceDecisionVerification;
 }
 
 export interface IntelligenceSignal {
