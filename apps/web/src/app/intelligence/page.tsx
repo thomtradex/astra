@@ -181,7 +181,6 @@ function DailyBriefingCard({
 }) {
   const summary = briefing.summary;
   const topPriority = briefing.priorities[0];
-  const remainingPriorities = briefing.priorities.slice(1);
 
   return (
     <section className="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
@@ -248,9 +247,6 @@ function DailyBriefingCard({
                     >
                       {severityConfig[topPriority.severity].label}
                     </span>
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
-                      Prioridade 1
-                    </span>
                   </div>
 
                   <h3 className="mt-3 text-lg font-semibold tracking-tight text-slate-950">
@@ -292,57 +288,6 @@ function DailyBriefingCard({
                 </div>
               </div>
             </div>
-
-            {remainingPriorities.length > 0 ? (
-              <div className="mt-7">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                    Outras situações
-                  </p>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Restantes prioridades identificadas pela Astra.
-                  </p>
-                </div>
-
-                <div className="mt-3 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
-                  {remainingPriorities.map((priority) => {
-                    const severity = severityConfig[priority.severity];
-
-                    return (
-                      <div
-                        key={`${priority.rank}-${priority.source.resource}-${priority.source.resourceId ?? 'unknown'}`}
-                        className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
-                      >
-                        <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span
-                              className={`rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${severity.className}`}
-                            >
-                              {severity.label}
-                            </span>
-                            <span className="text-[10px] uppercase tracking-wide text-slate-400">
-                              Prioridade {priority.rank}
-                            </span>
-                          </div>
-
-                          <p className="mt-1 text-sm font-semibold text-slate-900">
-                            {priority.title}
-                          </p>
-
-                          <p className="mt-1 text-xs leading-5 text-slate-500">
-                            {priority.recommendedAction}
-                          </p>
-                        </div>
-
-                        <span className="shrink-0 text-xs font-semibold text-slate-400">
-                          Ver abaixo
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : null}
 
             <div className="mt-7 rounded-2xl bg-slate-950 p-4 text-white">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
@@ -442,14 +387,7 @@ function SignalCard({
               <div className="flex items-center justify-between gap-3">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                   Factos
-                </p>
-
-                {signal.decisionContext ? (
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                    Confiança {Math.round(signal.decisionContext.confidence * 100)}%
-                  </span>
-                ) : null}
-              </div>
+                </p>              </div>
 
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 {signal.evidenceItems.map((item) => (
@@ -715,7 +653,7 @@ export default async function IntelligencePage() {
                 Situações operacionais
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                Situações que requerem atenção, com contexto, evidência e próxima ação.
+                Todas as situações identificadas pela Astra, com contexto, evidência e próxima ação.
               </p>
             </div>
 
