@@ -822,13 +822,19 @@ export default async function IntelligencePage() {
                         <div
                           className={`mt-3 rounded-lg border px-3 py-2 ${verificationConfig.className}`}
                         >
-                          <p className="text-xs font-semibold">{entry.verification.label}</p>
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-wide opacity-70">
+                              Verificação atual
+                            </p>
+                            <p className="text-[10px] opacity-70">
+                              {new Date(entry.verification.checkedAt).toLocaleString('pt-PT')}
+                            </p>
+                          </div>
+
+                          <p className="mt-1 text-xs font-semibold">{entry.verification.label}</p>
+
                           <p className="mt-1 text-xs leading-5 opacity-90">
                             {entry.verification.explanation}
-                          </p>
-                          <p className="mt-1 text-[10px] opacity-70">
-                            Verificado em{' '}
-                            {new Date(entry.verification.checkedAt).toLocaleString('pt-PT')}
                           </p>
                         </div>
                       ) : null}
