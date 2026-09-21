@@ -1,3 +1,5 @@
+import type { AIAnalysis } from '../ai/ai.types';
+
 import type {
   IntelligenceDecisionContext,
   IntelligenceEvidence,
@@ -81,6 +83,7 @@ export interface IntelligenceSignal {
   operationalContext?: OperationalContext;
   recommendations?: IntelligenceRecommendation[];
   decisionContext?: IntelligenceDecisionContext;
+  aiAnalysis?: AIAnalysis;
   owner?: {
     type: 'USER' | 'TEAM' | 'ORGANIZATION';
     id?: string;

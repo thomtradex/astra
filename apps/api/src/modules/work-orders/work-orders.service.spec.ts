@@ -1,3 +1,5 @@
+import { PrismaService } from '../../prisma/prisma.service';
+
 import { WorkOrdersService } from './work-orders.service';
 
 describe('WorkOrdersService', () => {
@@ -25,7 +27,7 @@ describe('WorkOrdersService', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    service = new WorkOrdersService(prisma as any);
+    service = new WorkOrdersService(prisma as unknown as PrismaService);
   });
 
   describe('create', () => {

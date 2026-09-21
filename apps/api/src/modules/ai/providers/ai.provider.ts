@@ -1,3 +1,5 @@
+import type { AIAnalysis, AIAnalysisInput } from '../ai.types';
+
 export interface AIProvider {
-  analyze(input: string): Promise<string>;
+  analyze(input: AIAnalysisInput): Promise<AIAnalysis>;
 }

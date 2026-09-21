@@ -2,10 +2,16 @@ import { AuditAction } from '@astra/database';
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import { AiService } from '../ai/ai.service';
+import { IntelligenceAiContextBuilder } from '../ai/context/intelligence-ai-context.builder';
 
 import { DailyBriefingService } from './daily-briefing.service';
 import { CooDecisionEngine } from './engines/intelligence.engine';
-import { IntelligenceChange, IntelligenceDecisionHistory } from './intelligence.types';
+import {
+  IntelligenceChange,
+  IntelligenceDecisionHistory,
+  IntelligenceSignal,
+} from './intelligence.types';
 
 const CHANGE_WINDOW_HOURS = 24;
 const CHANGE_LIMIT = 20;
@@ -16,6 +22,8 @@ export class IntelligenceService {
     private readonly prisma: PrismaService,
     private readonly engine: CooDecisionEngine,
     private readonly dailyBriefingService: DailyBriefingService,
+    private readonly aiService: AiService,
+    private readonly aiContextBuilder: IntelligenceAiContextBuilder,
   ) {}
 
   async analyze(organizationId: string) {
@@ -184,12 +192,18 @@ export class IntelligenceService {
       { executed: 0, denied: 0, failed: 0 },
     );
 
-    const signals = briefing.signals.map((signal) => ({
-      ...signal,
-      lastAction: signal.action
-        ? lastCooActions.get(`${signal.action.resource}:${signal.action.resourceId}`)
-        : undefined,
-    }));
+    const signals = await Promise.all(
+      briefing.signals.map(async (signal) => {
+        const enrichedSignal = await this.enrichSignalWithAi(signal);
+
+        return {
+          ...enrichedSignal,
+          lastAction: signal.action
+            ? lastCooActions.get(`${signal.action.resource}:${signal.action.resourceId}`)
+            : undefined,
+        };
+      }),
+    );
 
     const recentChanges = recentAuditLogs.filter(
       (log) => !this.isCooAction(log.metadata) && log.resourceId,
@@ -220,6 +234,35 @@ export class IntelligenceService {
       changes,
       daily: this.dailyBriefingService.build(signals, new Date(briefing.generatedAt)),
     };
+  }
+
+  private async enrichSignalWithAi(signal: IntelligenceSignal): Promise<IntelligenceSignal> {
+    const context = this.aiContextBuilder.build(signal);
+
+    if (!context) {
+      return signal;
+    }
+
+    try {
+      const aiAnalysis = await this.aiService.analyze(context);
+
+      return {
+        ...signal,
+        aiAnalysis,
+      };
+    } catch {
+      return {
+        ...signal,
+        aiAnalysis: {
+          status: 'UNAVAILABLE',
+          summary: 'A análise AI não está disponível neste momento.',
+          rationale:
+            'A análise operacional determinística continua disponível e não foi afetada pela indisponibilidade do provider AI.',
+          confidence: 0,
+          provider: 'unavailable',
+        },
+      };
+    }
   }
 
   private buildDecisionHistory(

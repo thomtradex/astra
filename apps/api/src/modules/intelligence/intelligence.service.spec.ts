@@ -4,8 +4,24 @@
 
 import { DailyBriefingService } from './daily-briefing.service';
 import { IntelligenceService } from './intelligence.service';
+import type { IntelligenceSignal } from './intelligence.types';
 
 describe('IntelligenceService', () => {
+  const createAiDependencies = () => ({
+    aiService: {
+      analyze: jest.fn().mockResolvedValue({
+        status: 'GENERATED' as const,
+        summary: 'Análise AI determinística.',
+        rationale: 'Contexto operacional analisado.',
+        confidence: 1,
+        provider: 'deterministic',
+      }),
+    },
+    aiContextBuilder: {
+      build: jest.fn().mockReturnValue(null),
+    },
+  });
+
   it('passes organization-scoped project work order context to the COO engine', async () => {
     const prisma: any = {
       work_orders: {
@@ -53,7 +69,56 @@ describe('IntelligenceService', () => {
     };
 
     const dailyBriefingService = new DailyBriefingService();
-    const service = new IntelligenceService(prisma, engine, dailyBriefingService);
+    const aiService: any = {
+      analyze: jest.fn().mockResolvedValue({
+        status: 'GENERATED',
+        summary: 'Análise AI determinística.',
+        rationale: 'Contexto operacional analisado.',
+        confidence: 1,
+        provider: 'deterministic',
+      }),
+    };
+    const aiContextBuilder: any = {
+      build: jest.fn().mockReturnValue({
+        signalId: 'signal-test',
+        signalType: 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER',
+        severity: 'HIGH',
+        title: 'Signal test',
+        explanation: 'Signal test',
+        urgency: 'high',
+        impact: 'impact',
+        recommendedAction: 'action',
+        evidence: [],
+        operationalContext: {
+          workOrders: {
+            open: 0,
+            highPriorityOpen: 0,
+            unassignedHighPriority: 0,
+          },
+        },
+        recommendations: [],
+        decisionContext: {
+          evidence: [],
+          operationalContext: {
+            workOrders: {
+              open: 0,
+              highPriorityOpen: 0,
+              unassignedHighPriority: 0,
+            },
+          },
+          recommendations: [],
+          confidence: 1,
+        },
+      }),
+    };
+
+    const service = new IntelligenceService(
+      prisma,
+      engine,
+      dailyBriefingService,
+      aiService,
+      aiContextBuilder,
+    );
 
     await service.analyze('org-1');
 
@@ -204,6 +269,8 @@ describe('IntelligenceService', () => {
       prisma,
       engine,
       dailyBriefingService,
+      createAiDependencies().aiService,
+      createAiDependencies().aiContextBuilder,
     ).analyze('org-1');
 
     const priority = result.daily.priorities[0];
@@ -754,7 +821,19 @@ describe('IntelligenceService', () => {
       }),
     };
     const dailyBriefingService = new DailyBriefingService();
-    const result = await new IntelligenceService(prisma, engine, dailyBriefingService).analyze(
+    const result = await new IntelligenceService(
+      prisma,
+      engine,
+      dailyBriefingService,
+      { analyze: jest.fn().mockResolvedValue({
+        status: 'GENERATED',
+        summary: 'Análise AI determinística.',
+        rationale: 'Contexto operacional analisado.',
+        confidence: 1,
+        provider: 'deterministic',
+      }) },
+      { build: jest.fn().mockReturnValue(null) },
+    ).analyze(
       'org-1',
     );
     expect(result.decisionMetrics).toEqual({ executed: 1, denied: 1, failed: 2 });
@@ -762,4 +841,156 @@ describe('IntelligenceService', () => {
     expect(firstSignal).toBeDefined();
     expect(firstSignal?.lastAction?.status).toBe('EXECUTED');
   });
+
+  it('enriches actionable signals with AI analysis', async () => {
+    const prisma: any = {
+      projects: { findMany: jest.fn().mockResolvedValue([]) },
+      work_orders: { findMany: jest.fn().mockResolvedValue([]) },
+      maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
+      assets: { findMany: jest.fn().mockResolvedValue([]) },
+      sites: { findMany: jest.fn().mockResolvedValue([]) },
+      auditLog: { findMany: jest.fn().mockResolvedValue([]) },
+    };
+
+    const evidenceItems = [
+      {
+        id: 'evidence-ai-1',
+        kind: 'FACT',
+        label: 'Prioridade',
+        value: 'HIGH',
+        source: {
+          resource: 'work_orders',
+          resourceId: 'wo-ai-1',
+        },
+      },
+    ];
+
+    const operationalContext = {
+      workOrders: {
+        open: 1,
+        highPriorityOpen: 1,
+        unassignedHighPriority: 1,
+      },
+    };
+
+    const recommendations = [
+      {
+        id: 'recommendation-ai-1',
+        type: 'ASSIGN',
+        title: 'Atribuir ordem',
+        explanation: 'A ordem necessita de responsável.',
+        resource: 'work_orders',
+        resourceId: 'wo-ai-1',
+        executable: true,
+      },
+    ];
+
+    const decisionContext = {
+      evidence: evidenceItems,
+      operationalContext,
+      recommendations,
+      confidence: 0.95,
+    };
+
+    const engine: any = {
+      analyze: jest.fn().mockReturnValue({
+        generatedAt: '2026-09-05T12:00:00.000Z',
+        signalCount: 1,
+        signals: [
+          {
+            id: 'signal-ai-1',
+            type: 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER',
+            severity: 'HIGH',
+            title: 'Ordem sem responsável',
+            explanation: 'Existe uma ordem de alta prioridade sem responsável.',
+            evidence: ['A ordem está sem responsável.'],
+            evidenceItems,
+            urgency: 'Alta',
+            impact: 'Pode atrasar a operação.',
+            operationalContext,
+            recommendations,
+            decisionContext,
+            recommendedAction: 'Atribuir responsável.',
+            decision: {
+              type: 'REVIEW',
+              label: 'Rever decisão',
+            },
+            action: {
+              type: 'ASSIGN_WORK_ORDER',
+              resource: 'work_orders',
+              resourceId: 'wo-ai-1',
+              requiresAuthorization: true,
+            },
+            status: 'OPEN',
+            timestamp: '2026-09-05T12:00:00.000Z',
+            source: {
+              resource: 'work_orders',
+              resourceId: 'wo-ai-1',
+            },
+          },
+        ],
+      }),
+    };
+
+    const aiService = {
+      analyze: jest.fn().mockResolvedValue({
+        status: 'GENERATED',
+        summary: 'A ordem necessita de responsável.',
+        rationale: 'Existe uma ordem de alta prioridade sem responsável.',
+        recommendedRecommendationId: 'recommendation-ai-1',
+        confidence: 0.95,
+        provider: 'deterministic',
+      }),
+    };
+
+    const aiContextBuilder = {
+      build: jest.fn().mockImplementation((signal: IntelligenceSignal) => ({
+        signalId: signal.id,
+        signalType: signal.type,
+        severity: signal.severity,
+        title: signal.title,
+        explanation: signal.explanation,
+        urgency: signal.urgency,
+        impact: signal.impact,
+        recommendedAction: signal.recommendedAction,
+        evidence: signal.evidenceItems,
+        operationalContext: signal.operationalContext,
+        recommendations: signal.recommendations,
+        decisionContext: signal.decisionContext,
+      })),
+    };
+
+    const service = new IntelligenceService(
+      prisma,
+      engine,
+      new DailyBriefingService(),
+      aiService,
+      aiContextBuilder,
+    );
+
+    const result = await service.analyze('org-1');
+
+    expect(aiContextBuilder.build).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'signal-ai-1',
+      }),
+    );
+
+    expect(aiService.analyze).toHaveBeenCalledWith(
+      expect.objectContaining({
+        signalId: 'signal-ai-1',
+        signalType: 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER',
+      }),
+    );
+
+    expect(result.signals[0]?.aiAnalysis).toEqual({
+      status: 'GENERATED',
+      summary: 'A ordem necessita de responsável.',
+      rationale: 'Existe uma ordem de alta prioridade sem responsável.',
+      recommendedRecommendationId: 'recommendation-ai-1',
+      confidence: 0.95,
+      provider: 'deterministic',
+    });
+  });
+
 });
