@@ -325,6 +325,148 @@ describe('IntelligenceService', () => {
     expect(result.decisionHistory[1]?.actor).toBeUndefined();
   });
 
+  it('verifies an executed project status decision against the current project state', async () => {
+    const prisma = {
+      projects: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'project-1',
+            name: 'Projeto principal',
+            status: 'ON_HOLD',
+            progress: 50,
+            end_date: null,
+          },
+        ]),
+      },
+      work_orders: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
+      assets: { findMany: jest.fn().mockResolvedValue([]) },
+      sites: { findMany: jest.fn().mockResolvedValue([]) },
+      auditLog: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'decision-project-1',
+            action: 'UPDATE',
+            resource: 'projects',
+            resourceId: 'project-1',
+            createdAt: new Date('2026-09-05T10:00:00.000Z'),
+            metadata: {
+              type: 'coo_action',
+              source: 'coo',
+              outcomeStatus: 'EXECUTED',
+              actionType: 'SET_PROJECT_STATUS',
+              status: 'ON_HOLD',
+              message: 'Projeto colocado em pausa com sucesso.',
+            },
+            actor: {
+              id: 'user-1',
+              email: 'operator@astra.test',
+              firstName: 'Ana',
+              lastName: 'Silva',
+            },
+          },
+        ]),
+      },
+    };
+
+    const engine: any = {
+      analyze: jest.fn().mockReturnValue({
+        generatedAt: '2026-09-05T12:00:00.000Z',
+        signalCount: 0,
+        signals: [],
+      }),
+    };
+
+    const result = await new IntelligenceService(
+      prisma as any,
+      engine,
+      new DailyBriefingService(),
+    ).analyze('org-1');
+
+    expect(result.decisionHistory).toHaveLength(1);
+    expect(result.decisionHistory[0]?.verification).toEqual({
+      status: 'VERIFIED',
+      label: 'Resultado confirmado',
+      explanation:
+        'O estado definido pela decisão está atualmente aplicado ao projeto.',
+      checkedAt: '2026-09-05T12:00:00.000Z',
+    });
+  });
+
+  it('verifies an executed maintenance decision against the current next due date', async () => {
+    const nextDue = '2026-10-15T09:00:00.000Z';
+
+    const prisma = {
+      projects: { findMany: jest.fn().mockResolvedValue([]) },
+      work_orders: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      maintenance_plans: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'maintenance-1',
+            plan: 'Inspeção preventiva',
+            status: 'ACTIVE',
+            nextDue: new Date(nextDue),
+            assetId: 'asset-1',
+          },
+        ]),
+      },
+      assets: { findMany: jest.fn().mockResolvedValue([]) },
+      sites: { findMany: jest.fn().mockResolvedValue([]) },
+      auditLog: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'decision-maintenance-1',
+            action: 'UPDATE',
+            resource: 'maintenance_plans',
+            resourceId: 'maintenance-1',
+            createdAt: new Date('2026-09-05T10:00:00.000Z'),
+            metadata: {
+              type: 'coo_action',
+              source: 'coo',
+              outcomeStatus: 'EXECUTED',
+              actionType: 'UPDATE_MAINTENANCE',
+              nextDue,
+              message: 'Manutenção reagendada com sucesso.',
+            },
+            actor: {
+              id: 'user-1',
+              email: 'operator@astra.test',
+              firstName: 'Ana',
+              lastName: 'Silva',
+            },
+          },
+        ]),
+      },
+    };
+
+    const engine: any = {
+      analyze: jest.fn().mockReturnValue({
+        generatedAt: '2026-09-05T12:00:00.000Z',
+        signalCount: 0,
+        signals: [],
+      }),
+    };
+
+    const result = await new IntelligenceService(
+      prisma as any,
+      engine,
+      new DailyBriefingService(),
+    ).analyze('org-1');
+
+    expect(result.decisionHistory).toHaveLength(1);
+    expect(result.decisionHistory[0]?.verification).toEqual({
+      status: 'VERIFIED',
+      label: 'Resultado confirmado',
+      explanation:
+        'A data definida pela decisão está atualmente aplicada ao plano de manutenção.',
+      checkedAt: '2026-09-05T12:00:00.000Z',
+    });
+  });
+
   it('marks an executed assignment as still open when the work order remains unassigned', async () => {
     const prisma = {
       projects: { findMany: jest.fn().mockResolvedValue([]) },

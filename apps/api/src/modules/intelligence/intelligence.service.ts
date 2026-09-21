@@ -164,7 +164,9 @@ export class IntelligenceService {
 
     const decisionHistory = this.buildDecisionHistory(
       recentAuditLogs,
+      projects,
       workOrders,
+      maintenancePlans,
       new Date(briefing.generatedAt),
     );
 
@@ -231,10 +233,21 @@ export class IntelligenceService {
         lastName: string | null;
       } | null;
     }>,
+    projects: Array<{
+      id: string;
+      name: string;
+      status: string;
+      progress: number;
+      end_date: Date | null;
+    }>,
     workOrders: Array<{
       id: string;
       assigned_to_id: string | null;
       status: string;
+    }>,
+    maintenancePlans: Array<{
+      id: string;
+      nextDue: Date;
     }>,
     checkedAt: Date,
   ): IntelligenceDecisionHistory[] {
@@ -248,6 +261,8 @@ export class IntelligenceService {
           actionType?: unknown;
           message?: unknown;
           assignedToId?: unknown;
+          status?: unknown;
+          nextDue?: unknown;
         };
 
         if (
@@ -268,7 +283,11 @@ export class IntelligenceService {
           typeof metadata.actionType === 'string' ? metadata.actionType : undefined,
           metadata.outcomeStatus,
           typeof metadata.assignedToId === 'string' ? metadata.assignedToId : undefined,
+          typeof metadata.status === 'string' ? metadata.status : undefined,
+          typeof metadata.nextDue === 'string' ? metadata.nextDue : undefined,
+          projects,
           workOrders,
+          maintenancePlans,
           checkedAt,
         );
 
@@ -299,10 +318,20 @@ export class IntelligenceService {
     actionType: string | undefined,
     outcomeStatus: 'EXECUTED' | 'DENIED' | 'FAILED',
     assignedToId: string | undefined,
+    targetStatus: string | undefined,
+    targetNextDue: string | undefined,
+    projects: Array<{
+      id: string;
+      status: string;
+    }>,
     workOrders: Array<{
       id: string;
       assigned_to_id: string | null;
       status: string;
+    }>,
+    maintenancePlans: Array<{
+      id: string;
+      nextDue: Date;
     }>,
     checkedAt: Date,
   ):
@@ -315,6 +344,91 @@ export class IntelligenceService {
     | undefined {
     if (outcomeStatus !== 'EXECUTED') {
       return undefined;
+    }
+
+    if (actionType === 'SET_PROJECT_STATUS' && resource === 'projects') {
+      const project = projects.find((item) => item.id === resourceId);
+
+      if (!project) {
+        return {
+          status: 'NOT_VERIFIED',
+          label: 'Não foi possível verificar',
+          explanation: 'O projeto já não está disponível no estado atual.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      if (!targetStatus) {
+        return {
+          status: 'NOT_VERIFIED',
+          label: 'Não foi possível verificar',
+          explanation: 'A decisão não contém o estado que deveria ter sido definido.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      if (project.status === targetStatus) {
+        return {
+          status: 'VERIFIED',
+          label: 'Resultado confirmado',
+          explanation:
+            'O estado definido pela decisão está atualmente aplicado ao projeto.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      return {
+        status: 'STILL_OPEN',
+        label: 'Situação continua aberta',
+        explanation:
+          'O projeto não está atualmente no estado definido pela decisão.',
+        checkedAt: checkedAt.toISOString(),
+      };
+    }
+
+    if (actionType === 'UPDATE_MAINTENANCE' && resource === 'maintenance_plans') {
+      const maintenancePlan = maintenancePlans.find((plan) => plan.id === resourceId);
+
+      if (!maintenancePlan) {
+        return {
+          status: 'NOT_VERIFIED',
+          label: 'Não foi possível verificar',
+          explanation: 'O plano de manutenção já não está disponível no estado atual.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      if (!targetNextDue) {
+        return {
+          status: 'NOT_VERIFIED',
+          label: 'Não foi possível verificar',
+          explanation: 'A decisão não contém a data que deveria ter sido definida.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      const targetDate = new Date(targetNextDue);
+
+      if (
+        Number.isNaN(targetDate.getTime()) ||
+        maintenancePlan.nextDue.toISOString() !== targetDate.toISOString()
+      ) {
+        return {
+          status: 'STILL_OPEN',
+          label: 'Situação continua aberta',
+          explanation:
+            'O plano de manutenção não está atualmente agendado para a data definida pela decisão.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      return {
+        status: 'VERIFIED',
+        label: 'Resultado confirmado',
+        explanation:
+          'A data definida pela decisão está atualmente aplicada ao plano de manutenção.',
+        checkedAt: checkedAt.toISOString(),
+      };
     }
 
     if (actionType === 'ASSIGN_WORK_ORDER' && resource === 'work_orders') {
