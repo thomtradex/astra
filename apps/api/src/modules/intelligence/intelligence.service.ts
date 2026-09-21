@@ -185,8 +185,22 @@ export class IntelligenceService {
       lastAction: signal.action ? lastCooActions.get(signal.action.resourceId) : undefined,
     }));
 
+    const recentChanges = recentAuditLogs.filter(
+      (log) => !this.isCooAction(log.metadata) && log.resourceId,
+    );
+    const seenChanges = new Set<string>();
+    const deduplicatedChanges = recentChanges.filter((log) => {
+      const key = `${log.resource}:${log.resourceId}:${log.action}`;
+      if (seenChanges.has(key)) {
+        return false;
+      }
+
+      seenChanges.add(key);
+      return true;
+    });
+
     const changes = this.buildChanges(
-      recentAuditLogs.filter((log) => !this.isCooAction(log.metadata)).slice(0, CHANGE_LIMIT),
+      deduplicatedChanges.slice(0, CHANGE_LIMIT),
       projects,
       workOrders,
       maintenancePlans,

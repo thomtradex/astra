@@ -255,9 +255,65 @@ function DailyBriefingCard({
                 </div>
 
                 <span className="shrink-0 text-xs font-semibold text-slate-500">
-                  Rever abaixo
+                  Situação em aberto
                 </span>
               </div>
+
+              {topPriority.operationalContext ? (
+                <div className="mt-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                    Contexto operacional
+                  </p>
+
+                  <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                    {topPriority.operationalContext.project ? (
+                      <div className="rounded-xl bg-white p-3">
+                        <p className="text-[10px] uppercase tracking-wide text-slate-400">
+                          Obra
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-slate-800">
+                          {topPriority.operationalContext.project.name ?? 'Relacionada'}
+                        </p>
+                      </div>
+                    ) : null}
+
+                    {topPriority.operationalContext.asset ? (
+                      <div className="rounded-xl bg-white p-3">
+                        <p className="text-[10px] uppercase tracking-wide text-slate-400">
+                          Equipamento
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-slate-800">
+                          {topPriority.operationalContext.asset.name ?? 'Relacionado'}
+                        </p>
+                      </div>
+                    ) : null}
+
+                    {topPriority.operationalContext.site ? (
+                      <div className="rounded-xl bg-white p-3">
+                        <p className="text-[10px] uppercase tracking-wide text-slate-400">
+                          Local
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-slate-800">
+                          {topPriority.operationalContext.site.name ?? 'Relacionado'}
+                        </p>
+                      </div>
+                    ) : null}
+
+                    <div className="rounded-xl bg-white p-3">
+                      <p className="text-[10px] uppercase tracking-wide text-slate-400">
+                        Ordens abertas
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-slate-800">
+                        {topPriority.operationalContext.workOrders.open}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {topPriority.operationalContext.workOrders.highPriorityOpen} alta prioridade ·{' '}
+                        {topPriority.operationalContext.workOrders.unassignedHighPriority} sem responsável
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
 
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
                 <div className="rounded-xl bg-white p-3">
