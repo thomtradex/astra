@@ -196,13 +196,9 @@ function DailyBriefingCard({
               </span>
             </div>
 
-            <h2 className="mt-4 text-2xl font-semibold tracking-tight">
-              {summary.headline}
-            </h2>
+            <h2 className="mt-4 text-2xl font-semibold tracking-tight">{summary.headline}</h2>
 
-            <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">
-              {summary.explanation}
-            </p>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">{summary.explanation}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">

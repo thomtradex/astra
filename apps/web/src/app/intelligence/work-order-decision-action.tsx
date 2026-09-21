@@ -16,9 +16,7 @@ interface WorkOrderDecisionActionProps {
   workOrderId: string;
 }
 
-export function WorkOrderDecisionAction({
-  workOrderId,
-}: WorkOrderDecisionActionProps) {
+export function WorkOrderDecisionAction({ workOrderId }: WorkOrderDecisionActionProps) {
   const router = useRouter();
 
   const [users, setUsers] = useState<AssignableUser[]>([]);
@@ -81,9 +79,7 @@ export function WorkOrderDecisionAction({
         router.refresh();
       } catch (cause) {
         setError(
-          cause instanceof Error
-            ? cause.message
-            : 'Não foi possível atribuir a ordem de trabalho.',
+          cause instanceof Error ? cause.message : 'Não foi possível atribuir a ordem de trabalho.',
         );
       }
     });
@@ -98,21 +94,17 @@ export function WorkOrderDecisionAction({
           Decisão operacional
         </p>
 
-        <p className="text-sm font-semibold text-slate-900">
-          Confirmar responsável
-        </p>
+        <p className="text-sm font-semibold text-slate-900">Confirmar responsável</p>
 
         <p className="text-xs leading-5 text-slate-600">
-          A Astra detetou uma ordem de alta prioridade sem responsável atribuído.
-          Escolha quem deve assumir a execução.
+          A Astra detetou uma ordem de alta prioridade sem responsável atribuído. Escolha quem deve
+          assumir a execução.
         </p>
       </div>
 
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end">
         <label className="min-w-0 flex-1">
-          <span className="mb-1.5 block text-xs font-medium text-slate-700">
-            Responsável
-          </span>
+          <span className="mb-1.5 block text-xs font-medium text-slate-700">Responsável</span>
 
           <select
             value={selectedUserId}
@@ -125,9 +117,7 @@ export function WorkOrderDecisionAction({
             className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 outline-none transition focus:border-slate-400 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="">
-              {loadingUsers
-                ? 'A carregar responsáveis…'
-                : 'Escolher responsável'}
+              {loadingUsers ? 'A carregar responsáveis…' : 'Escolher responsável'}
             </option>
 
             {users.map((user) => (
