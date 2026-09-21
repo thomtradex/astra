@@ -247,6 +247,7 @@ export class IntelligenceService {
           outcomeStatus?: unknown;
           actionType?: unknown;
           message?: unknown;
+          assignedToId?: unknown;
         };
 
         if (
@@ -266,6 +267,7 @@ export class IntelligenceService {
           log.resourceId,
           typeof metadata.actionType === 'string' ? metadata.actionType : undefined,
           metadata.outcomeStatus,
+          typeof metadata.assignedToId === 'string' ? metadata.assignedToId : undefined,
           workOrders,
           checkedAt,
         );
@@ -274,10 +276,7 @@ export class IntelligenceService {
           id: log.id,
           timestamp: log.createdAt.toISOString(),
           status: metadata.outcomeStatus,
-          actionType:
-            typeof metadata.actionType === 'string'
-              ? metadata.actionType
-              : 'COO_ACTION',
+          actionType: typeof metadata.actionType === 'string' ? metadata.actionType : 'COO_ACTION',
           resource: log.resource,
           resourceId: log.resourceId,
           actor: log.actor
@@ -287,8 +286,7 @@ export class IntelligenceService {
                 email: log.actor.email,
               }
             : undefined,
-          message:
-            typeof metadata.message === 'string' ? metadata.message : '',
+          message: typeof metadata.message === 'string' ? metadata.message : '',
           verification,
         };
       })
@@ -300,6 +298,7 @@ export class IntelligenceService {
     resourceId: string,
     actionType: string | undefined,
     outcomeStatus: 'EXECUTED' | 'DENIED' | 'FAILED',
+    assignedToId: string | undefined,
     workOrders: Array<{
       id: string;
       assigned_to_id: string | null;
@@ -318,10 +317,7 @@ export class IntelligenceService {
       return undefined;
     }
 
-    if (
-      actionType === 'ASSIGN_WORK_ORDER' &&
-      resource === 'work_orders'
-    ) {
+    if (actionType === 'ASSIGN_WORK_ORDER' && resource === 'work_orders') {
       const workOrder = workOrders.find((order) => order.id === resourceId);
 
       if (!workOrder) {
@@ -333,11 +329,21 @@ export class IntelligenceService {
         };
       }
 
-      if (workOrder.assigned_to_id) {
+      if (!assignedToId) {
+        return {
+          status: 'NOT_VERIFIED',
+          label: 'Não foi possível verificar',
+          explanation: 'A decisão não contém o responsável que deveria ter sido atribuído.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      if (workOrder.assigned_to_id === assignedToId) {
         return {
           status: 'VERIFIED',
           label: 'Resultado confirmado',
-          explanation: 'A ordem de trabalho já tem um responsável atribuído.',
+          explanation:
+            'O responsável definido pela decisão está atualmente atribuído à ordem de trabalho.',
           checkedAt: checkedAt.toISOString(),
         };
       }
@@ -345,7 +351,8 @@ export class IntelligenceService {
       return {
         status: 'STILL_OPEN',
         label: 'Situação continua aberta',
-        explanation: 'A ordem de trabalho continua sem responsável atribuído.',
+        explanation:
+          'A ordem de trabalho não está atualmente atribuída ao responsável definido pela decisão.',
         checkedAt: checkedAt.toISOString(),
       };
     }

@@ -243,6 +243,7 @@ describe('IntelligenceService', () => {
               source: 'coo',
               outcomeStatus: 'EXECUTED',
               actionType: 'ASSIGN_WORK_ORDER',
+              assignedToId: 'user-2',
               message: 'Ordem atribuída com sucesso.',
             },
             actor: {
@@ -296,12 +297,7 @@ describe('IntelligenceService', () => {
       };
     };
 
-    expect(auditQuery.where?.action?.in).toEqual([
-      'CREATE',
-      'UPDATE',
-      'DELETE',
-      'ACCESS_DENIED',
-    ]);
+    expect(auditQuery.where?.action?.in).toEqual(['CREATE', 'UPDATE', 'DELETE', 'ACCESS_DENIED']);
 
     expect(result.decisionHistory).toHaveLength(2);
     expect(result.decisionHistory[0]).toEqual({
@@ -320,7 +316,8 @@ describe('IntelligenceService', () => {
       verification: {
         status: 'VERIFIED',
         label: 'Resultado confirmado',
-        explanation: 'A ordem de trabalho já tem um responsável atribuído.',
+        explanation:
+          'O responsável definido pela decisão está atualmente atribuído à ordem de trabalho.',
         checkedAt: '2026-09-05T12:00:00.000Z',
       },
     });
@@ -356,6 +353,7 @@ describe('IntelligenceService', () => {
               source: 'coo',
               outcomeStatus: 'EXECUTED',
               actionType: 'ASSIGN_WORK_ORDER',
+              assignedToId: 'user-2',
               message: 'Ordem atribuída com sucesso.',
             },
             actor: {
@@ -386,7 +384,136 @@ describe('IntelligenceService', () => {
     expect(result.decisionHistory[0]?.verification).toEqual({
       status: 'STILL_OPEN',
       label: 'Situação continua aberta',
-      explanation: 'A ordem de trabalho continua sem responsável atribuído.',
+      explanation:
+        'A ordem de trabalho não está atualmente atribuída ao responsável definido pela decisão.',
+      checkedAt: '2026-09-05T12:00:00.000Z',
+    });
+  });
+
+  it('does not verify an executed assignment when a different user is currently assigned', async () => {
+    const prisma = {
+      projects: { findMany: jest.fn().mockResolvedValue([]) },
+      work_orders: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'wo-different-user',
+            assigned_to_id: 'user-3',
+            status: 'OPEN',
+          },
+        ]),
+      },
+      maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
+      assets: { findMany: jest.fn().mockResolvedValue([]) },
+      sites: { findMany: jest.fn().mockResolvedValue([]) },
+      auditLog: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'decision-different-user',
+            action: 'UPDATE',
+            resource: 'work_orders',
+            resourceId: 'wo-different-user',
+            createdAt: new Date('2026-09-05T10:00:00.000Z'),
+            metadata: {
+              type: 'coo_action',
+              source: 'coo',
+              outcomeStatus: 'EXECUTED',
+              actionType: 'ASSIGN_WORK_ORDER',
+              assignedToId: 'user-2',
+              message: 'Ordem atribuída com sucesso.',
+            },
+            actor: {
+              id: 'user-1',
+              email: 'operator@astra.test',
+              firstName: 'Ana',
+              lastName: 'Silva',
+            },
+          },
+        ]),
+      },
+    };
+
+    const engine: any = {
+      analyze: jest.fn().mockReturnValue({
+        generatedAt: '2026-09-05T12:00:00.000Z',
+        signalCount: 0,
+        signals: [],
+      }),
+    };
+
+    const result = await new IntelligenceService(
+      prisma as any,
+      engine,
+      new DailyBriefingService(),
+    ).analyze('org-1');
+
+    expect(result.decisionHistory[0]?.verification).toEqual({
+      status: 'STILL_OPEN',
+      label: 'Situação continua aberta',
+      explanation:
+        'A ordem de trabalho não está atualmente atribuída ao responsável definido pela decisão.',
+      checkedAt: '2026-09-05T12:00:00.000Z',
+    });
+  });
+
+  it('does not verify an executed assignment when the decision has no target user', async () => {
+    const prisma = {
+      projects: { findMany: jest.fn().mockResolvedValue([]) },
+      work_orders: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'wo-missing-target',
+            assigned_to_id: 'user-2',
+            status: 'OPEN',
+          },
+        ]),
+      },
+      maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
+      assets: { findMany: jest.fn().mockResolvedValue([]) },
+      sites: { findMany: jest.fn().mockResolvedValue([]) },
+      auditLog: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'decision-missing-target',
+            action: 'UPDATE',
+            resource: 'work_orders',
+            resourceId: 'wo-missing-target',
+            createdAt: new Date('2026-09-05T10:00:00.000Z'),
+            metadata: {
+              type: 'coo_action',
+              source: 'coo',
+              outcomeStatus: 'EXECUTED',
+              actionType: 'ASSIGN_WORK_ORDER',
+              message: 'Ordem atribuída com sucesso.',
+            },
+            actor: {
+              id: 'user-1',
+              email: 'operator@astra.test',
+              firstName: 'Ana',
+              lastName: 'Silva',
+            },
+          },
+        ]),
+      },
+    };
+
+    const engine: any = {
+      analyze: jest.fn().mockReturnValue({
+        generatedAt: '2026-09-05T12:00:00.000Z',
+        signalCount: 0,
+        signals: [],
+      }),
+    };
+
+    const result = await new IntelligenceService(
+      prisma as any,
+      engine,
+      new DailyBriefingService(),
+    ).analyze('org-1');
+
+    expect(result.decisionHistory[0]?.verification).toEqual({
+      status: 'NOT_VERIFIED',
+      label: 'Não foi possível verificar',
+      explanation: 'A decisão não contém o responsável que deveria ter sido atribuído.',
       checkedAt: '2026-09-05T12:00:00.000Z',
     });
   });

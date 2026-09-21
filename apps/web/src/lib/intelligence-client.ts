@@ -40,12 +40,7 @@ export interface OperationalChain {
   edges: OperationalChainEdge[];
 }
 
-export type IntelligenceEvidenceKind =
-  | 'FACT'
-  | 'RELATION'
-  | 'STATE'
-  | 'HISTORY'
-  | 'THRESHOLD';
+export type IntelligenceEvidenceKind = 'FACT' | 'RELATION' | 'STATE' | 'HISTORY' | 'THRESHOLD';
 
 export interface IntelligenceEvidence {
   id: string;
@@ -84,11 +79,7 @@ export interface OperationalContext {
 }
 
 export type IntelligenceRecommendationType =
-  | 'REVIEW'
-  | 'ASSIGN'
-  | 'RESCHEDULE'
-  | 'UPDATE_STATUS'
-  | 'MONITOR';
+  'REVIEW' | 'ASSIGN' | 'RESCHEDULE' | 'UPDATE_STATUS' | 'MONITOR';
 
 export interface IntelligenceRecommendation {
   id: string;

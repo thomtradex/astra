@@ -268,9 +268,7 @@ function DailyBriefingCard({
                   <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                     {topPriority.operationalContext.project ? (
                       <div className="rounded-xl bg-white p-3">
-                        <p className="text-[10px] uppercase tracking-wide text-slate-400">
-                          Obra
-                        </p>
+                        <p className="text-[10px] uppercase tracking-wide text-slate-400">Obra</p>
                         <p className="mt-1 text-sm font-semibold text-slate-800">
                           {topPriority.operationalContext.project.name ?? 'Relacionada'}
                         </p>
@@ -290,9 +288,7 @@ function DailyBriefingCard({
 
                     {topPriority.operationalContext.site ? (
                       <div className="rounded-xl bg-white p-3">
-                        <p className="text-[10px] uppercase tracking-wide text-slate-400">
-                          Local
-                        </p>
+                        <p className="text-[10px] uppercase tracking-wide text-slate-400">Local</p>
                         <p className="mt-1 text-sm font-semibold text-slate-800">
                           {topPriority.operationalContext.site.name ?? 'Relacionado'}
                         </p>
@@ -307,8 +303,9 @@ function DailyBriefingCard({
                         {topPriority.operationalContext.workOrders.open}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
-                        {topPriority.operationalContext.workOrders.highPriorityOpen} alta prioridade ·{' '}
-                        {topPriority.operationalContext.workOrders.unassignedHighPriority} sem responsável
+                        {topPriority.operationalContext.workOrders.highPriorityOpen} alta prioridade
+                        · {topPriority.operationalContext.workOrders.unassignedHighPriority} sem
+                        responsável
                       </p>
                     </div>
                   </div>
@@ -320,18 +317,14 @@ function DailyBriefingCard({
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                     Porque agora
                   </p>
-                  <p className="mt-1.5 text-xs leading-5 text-slate-700">
-                    {topPriority.why}
-                  </p>
+                  <p className="mt-1.5 text-xs leading-5 text-slate-700">{topPriority.why}</p>
                 </div>
 
                 <div className="rounded-xl bg-white p-3">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                     Impacto
                   </p>
-                  <p className="mt-1.5 text-xs leading-5 text-slate-700">
-                    {topPriority.impact}
-                  </p>
+                  <p className="mt-1.5 text-xs leading-5 text-slate-700">{topPriority.impact}</p>
                 </div>
 
                 <div className="rounded-xl bg-slate-900 p-3 text-white">
@@ -349,19 +342,13 @@ function DailyBriefingCard({
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
                 Próximo passo
               </p>
-              <p className="mt-1.5 text-sm font-semibold leading-6">
-                {briefing.nextStep}
-              </p>
+              <p className="mt-1.5 text-sm font-semibold leading-6">{briefing.nextStep}</p>
             </div>
           </>
         ) : (
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-            <p className="text-sm font-semibold text-emerald-950">
-              A operação está estável.
-            </p>
-            <p className="mt-1 text-sm leading-6 text-emerald-900/70">
-              {briefing.nextStep}
-            </p>
+            <p className="text-sm font-semibold text-emerald-950">A operação está estável.</p>
+            <p className="mt-1 text-sm leading-6 text-emerald-900/70">{briefing.nextStep}</p>
           </div>
         )}
       </div>
@@ -397,9 +384,7 @@ function SignalCard({
             {signal.title}
           </h2>
 
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            {signal.explanation}
-          </p>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{signal.explanation}</p>
         </div>
 
         <div className="shrink-0 rounded-xl bg-slate-50 px-3 py-2">
@@ -417,18 +402,14 @@ function SignalCard({
           <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
             Porque importa
           </p>
-          <p className="mt-1.5 text-sm leading-6 text-slate-700">
-            {signal.impact}
-          </p>
+          <p className="mt-1.5 text-sm leading-6 text-slate-700">{signal.impact}</p>
         </div>
 
         <div className="rounded-xl border border-slate-900 bg-slate-950 p-4 text-white">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
             Ação recomendada
           </p>
-          <p className="mt-1.5 text-sm font-semibold leading-6">
-            {signal.recommendedAction}
-          </p>
+          <p className="mt-1.5 text-sm font-semibold leading-6">{signal.recommendedAction}</p>
         </div>
       </div>
 
@@ -443,7 +424,8 @@ function SignalCard({
               <div className="flex items-center justify-between gap-3">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                   Factos
-                </p>              </div>
+                </p>{' '}
+              </div>
 
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 {signal.evidenceItems.map((item) => (
@@ -503,9 +485,7 @@ function SignalCard({
 
                 {signal.operationalContext.site ? (
                   <div className="rounded-xl bg-slate-50 p-3">
-                    <p className="text-[10px] uppercase tracking-wide text-slate-400">
-                      Local
-                    </p>
+                    <p className="text-[10px] uppercase tracking-wide text-slate-400">Local</p>
                     <p className="mt-1 text-sm font-semibold text-slate-800">
                       {signal.operationalContext.site.name ?? 'Relacionado'}
                     </p>
@@ -656,8 +636,7 @@ export default async function IntelligencePage() {
   }
 
   const decisionMetrics = briefing.decisionMetrics;
-  const totalDecisions =
-    decisionMetrics.executed + decisionMetrics.denied + decisionMetrics.failed;
+  const totalDecisions = decisionMetrics.executed + decisionMetrics.denied + decisionMetrics.failed;
 
   return (
     <DashboardShell>
@@ -688,19 +667,14 @@ export default async function IntelligencePage() {
               </div>
 
               <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-                <div className="text-2xl font-semibold text-slate-950">
-                  {totalDecisions}
-                </div>
+                <div className="text-2xl font-semibold text-slate-950">{totalDecisions}</div>
                 <div className="text-xs text-slate-400">decisões registadas</div>
               </div>
             </div>
           </div>
         </header>
 
-        <DailyBriefingCard
-          briefing={briefing.daily}
-          canExecuteActions={hasCooActions}
-        />
+        <DailyBriefingCard briefing={briefing.daily} canExecuteActions={hasCooActions} />
 
         {briefing.signals.length > 0 ? (
           <section className="mt-10">
@@ -715,11 +689,7 @@ export default async function IntelligencePage() {
 
             <div className="space-y-3">
               {briefing.signals.map((signal) => (
-                <SignalCard
-                  key={signal.id}
-                  signal={signal}
-                  canExecuteActions={hasCooActions}
-                />
+                <SignalCard key={signal.id} signal={signal} canExecuteActions={hasCooActions} />
               ))}
             </div>
           </section>
@@ -731,12 +701,8 @@ export default async function IntelligencePage() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                 Histórico de decisões
               </p>
-              <h2 className="mt-1 text-base font-semibold text-slate-900">
-                Decisões e resultados
-              </h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Registo auditável das decisões.
-              </p>
+              <h2 className="mt-1 text-base font-semibold text-slate-900">Decisões e resultados</h2>
+              <p className="mt-1 text-sm text-slate-500">Registo auditável das decisões.</p>
             </div>
 
             <span className="text-sm font-semibold text-slate-700">
@@ -758,18 +724,14 @@ export default async function IntelligencePage() {
               <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-700">
                 Negadas
               </p>
-              <p className="mt-1 text-xl font-semibold text-amber-950">
-                {decisionMetrics.denied}
-              </p>
+              <p className="mt-1 text-xl font-semibold text-amber-950">{decisionMetrics.denied}</p>
             </div>
 
             <div className="rounded-xl bg-rose-50 p-3">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-rose-700">
                 Falhadas
               </p>
-              <p className="mt-1 text-xl font-semibold text-rose-950">
-                {decisionMetrics.failed}
-              </p>
+              <p className="mt-1 text-xl font-semibold text-rose-950">{decisionMetrics.failed}</p>
             </div>
           </div>
 
@@ -794,16 +756,13 @@ export default async function IntelligencePage() {
                 const verificationConfig = entry.verification
                   ? {
                       VERIFIED: {
-                        className:
-                          'border-emerald-200 bg-emerald-50 text-emerald-800',
+                        className: 'border-emerald-200 bg-emerald-50 text-emerald-800',
                       },
                       STILL_OPEN: {
-                        className:
-                          'border-amber-200 bg-amber-50 text-amber-800',
+                        className: 'border-amber-200 bg-amber-50 text-amber-800',
                       },
                       NOT_VERIFIED: {
-                        className:
-                          'border-slate-200 bg-slate-50 text-slate-700',
+                        className: 'border-slate-200 bg-slate-50 text-slate-700',
                       },
                     }[entry.verification.status]
                   : undefined;
@@ -840,9 +799,7 @@ export default async function IntelligencePage() {
                         </span>
                       </div>
 
-                      <p className="mt-2 text-sm font-semibold text-slate-900">
-                        {entry.message}
-                      </p>
+                      <p className="mt-2 text-sm font-semibold text-slate-900">{entry.message}</p>
 
                       <p className="mt-1 text-xs text-slate-500">
                         {resourceLabels[entry.resource] ?? entry.resource}
@@ -858,9 +815,7 @@ export default async function IntelligencePage() {
                         <div
                           className={`mt-3 rounded-lg border px-3 py-2 ${verificationConfig.className}`}
                         >
-                          <p className="text-xs font-semibold">
-                            {entry.verification.label}
-                          </p>
+                          <p className="text-xs font-semibold">{entry.verification.label}</p>
                           <p className="mt-1 text-xs leading-5 opacity-90">
                             {entry.verification.explanation}
                           </p>
@@ -885,8 +840,8 @@ export default async function IntelligencePage() {
                 Ainda não existem decisões registadas.
               </p>
               <p className="mt-1 text-sm leading-6 text-slate-500">
-                Quando uma decisão for revista e executada, negada ou falhar, o resultado
-                aparecerá aqui.
+                Quando uma decisão for revista e executada, negada ou falhar, o resultado aparecerá
+                aqui.
               </p>
             </div>
           )}
@@ -912,11 +867,10 @@ export default async function IntelligencePage() {
         ) : null}
 
         <footer className="mt-8 text-xs text-slate-400">
-          Resumo da operação atualizado em {new Date(briefing.generatedAt).toLocaleString('pt-PT')}. As situações
-          são baseadas nos dados operacionais atualmente disponíveis na Astra.
+          Resumo da operação atualizado em {new Date(briefing.generatedAt).toLocaleString('pt-PT')}.
+          As situações são baseadas nos dados operacionais atualmente disponíveis na Astra.
         </footer>
       </main>
     </DashboardShell>
   );
-
 }
