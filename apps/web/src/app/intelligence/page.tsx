@@ -752,12 +752,15 @@ export default async function IntelligencePage() {
                 const verificationConfig = entry.verification
                   ? {
                       VERIFIED: {
+                        label: 'Verificado',
                         className: 'border-emerald-200 bg-emerald-50 text-emerald-800',
                       },
                       STILL_OPEN: {
+                        label: 'Ainda aberto',
                         className: 'border-amber-200 bg-amber-50 text-amber-800',
                       },
                       NOT_VERIFIED: {
+                        label: 'Não verificado',
                         className: 'border-slate-200 bg-slate-50 text-slate-700',
                       },
                     }[entry.verification.status]
@@ -793,6 +796,14 @@ export default async function IntelligencePage() {
                         <span className="text-[10px] uppercase tracking-wide text-slate-400">
                           {actionLabels[entry.actionType] ?? entry.actionType}
                         </span>
+
+                        {verificationConfig ? (
+                          <span
+                            className={`rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${verificationConfig.className}`}
+                          >
+                            {verificationConfig.label}
+                          </span>
+                        ) : null}
                       </div>
 
                       <p className="mt-2 text-sm font-semibold text-slate-900">{entry.message}</p>
