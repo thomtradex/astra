@@ -154,7 +154,9 @@ export class IntelligenceService {
         metadata.outcomeStatus !== 'FAILED'
       )
         continue;
-      lastCooActions.set(log.resourceId, {
+      const key = `${log.resource}:${log.resourceId}`;
+
+      lastCooActions.set(key, {
         status: metadata.outcomeStatus,
         timestamp: log.createdAt.toISOString(),
         actionType: typeof metadata.actionType === 'string' ? metadata.actionType : 'COO_ACTION',
@@ -184,7 +186,9 @@ export class IntelligenceService {
 
     const signals = briefing.signals.map((signal) => ({
       ...signal,
-      lastAction: signal.action ? lastCooActions.get(signal.action.resourceId) : undefined,
+      lastAction: signal.action
+        ? lastCooActions.get(`${signal.action.resource}:${signal.action.resourceId}`)
+        : undefined,
     }));
 
     const recentChanges = recentAuditLogs.filter(
@@ -371,8 +375,7 @@ export class IntelligenceService {
         return {
           status: 'VERIFIED',
           label: 'Resultado confirmado',
-          explanation:
-            'O estado definido pela decisão está atualmente aplicado ao projeto.',
+          explanation: 'O estado definido pela decisão está atualmente aplicado ao projeto.',
           checkedAt: checkedAt.toISOString(),
         };
       }
@@ -380,8 +383,7 @@ export class IntelligenceService {
       return {
         status: 'STILL_OPEN',
         label: 'Situação continua aberta',
-        explanation:
-          'O projeto não está atualmente no estado definido pela decisão.',
+        explanation: 'O projeto não está atualmente no estado definido pela decisão.',
         checkedAt: checkedAt.toISOString(),
       };
     }

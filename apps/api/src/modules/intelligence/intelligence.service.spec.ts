@@ -708,6 +708,19 @@ describe('IntelligenceService', () => {
               actionType: 'ASSIGN_WORK_ORDER',
             },
           },
+          {
+            id: 'a4',
+            action: 'UPDATE',
+            resource: 'projects',
+            resourceId: 'wo-x',
+            createdAt: new Date('2026-09-05T11:00:00.000Z'),
+            metadata: {
+              type: 'coo_action',
+              source: 'coo',
+              outcomeStatus: 'FAILED',
+              actionType: 'SET_PROJECT_STATUS',
+            },
+          },
         ]),
       },
     };
@@ -744,7 +757,7 @@ describe('IntelligenceService', () => {
     const result = await new IntelligenceService(prisma, engine, dailyBriefingService).analyze(
       'org-1',
     );
-    expect(result.decisionMetrics).toEqual({ executed: 1, denied: 1, failed: 1 });
+    expect(result.decisionMetrics).toEqual({ executed: 1, denied: 1, failed: 2 });
     const firstSignal = result.signals[0];
     expect(firstSignal).toBeDefined();
     expect(firstSignal?.lastAction?.status).toBe('EXECUTED');
