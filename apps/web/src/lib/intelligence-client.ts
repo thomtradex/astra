@@ -98,6 +98,17 @@ export interface IntelligenceDecisionContext {
   confidence: number;
 }
 
+export type AIAnalysisStatus = 'GENERATED' | 'UNAVAILABLE';
+
+export interface AIAnalysis {
+  status: AIAnalysisStatus;
+  summary: string;
+  rationale: string;
+  recommendedRecommendationId?: string;
+  confidence: number;
+  provider: string;
+}
+
 export interface IntelligenceSignal {
   id: string;
   type: IntelligenceSignalType;
@@ -111,6 +122,7 @@ export interface IntelligenceSignal {
   operationalContext?: OperationalContext;
   recommendations?: IntelligenceRecommendation[];
   decisionContext?: IntelligenceDecisionContext;
+  aiAnalysis?: AIAnalysis;
   owner?: {
     type: 'USER' | 'TEAM' | 'ORGANIZATION';
     id?: string;
