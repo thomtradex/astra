@@ -349,10 +349,14 @@ describe('IntelligenceService', () => {
       }),
     };
 
+    const aiDependencies = createAiDependencies();
+
     const result = await new IntelligenceService(
       prisma as any,
       engine,
       new DailyBriefingService(),
+      aiDependencies.aiService,
+      aiDependencies.aiContextBuilder,
     ).analyze('org-1');
 
     expect(auditFindMany).toHaveBeenCalled();
@@ -446,10 +450,14 @@ describe('IntelligenceService', () => {
       }),
     };
 
+    const aiDependencies = createAiDependencies();
+
     const result = await new IntelligenceService(
       prisma as any,
       engine,
       new DailyBriefingService(),
+      aiDependencies.aiService,
+      aiDependencies.aiContextBuilder,
     ).analyze('org-1');
 
     expect(result.decisionHistory).toHaveLength(1);
@@ -518,10 +526,14 @@ describe('IntelligenceService', () => {
       }),
     };
 
+    const aiDependencies = createAiDependencies();
+
     const result = await new IntelligenceService(
       prisma as any,
       engine,
       new DailyBriefingService(),
+      aiDependencies.aiService,
+      aiDependencies.aiContextBuilder,
     ).analyze('org-1');
 
     expect(result.decisionHistory).toHaveLength(1);
@@ -584,10 +596,14 @@ describe('IntelligenceService', () => {
       }),
     };
 
+    const aiDependencies = createAiDependencies();
+
     const result = await new IntelligenceService(
       prisma as any,
       engine,
       new DailyBriefingService(),
+      aiDependencies.aiService,
+      aiDependencies.aiContextBuilder,
     ).analyze('org-1');
 
     expect(result.decisionHistory[0]?.verification).toEqual({
@@ -649,10 +665,14 @@ describe('IntelligenceService', () => {
       }),
     };
 
+    const aiDependencies = createAiDependencies();
+
     const result = await new IntelligenceService(
       prisma as any,
       engine,
       new DailyBriefingService(),
+      aiDependencies.aiService,
+      aiDependencies.aiContextBuilder,
     ).analyze('org-1');
 
     expect(result.decisionHistory[0]?.verification).toEqual({
@@ -713,10 +733,14 @@ describe('IntelligenceService', () => {
       }),
     };
 
+    const aiDependencies = createAiDependencies();
+
     const result = await new IntelligenceService(
       prisma as any,
       engine,
       new DailyBriefingService(),
+      aiDependencies.aiService,
+      aiDependencies.aiContextBuilder,
     ).analyze('org-1');
 
     expect(result.decisionHistory[0]?.verification).toEqual({

@@ -102,6 +102,7 @@ export class DailyBriefingService {
         ? { decisionContext: signal.decisionContext }
         : {}),
       ...(signal.action ? { action: signal.action } : {}),
+      ...(signal.aiAnalysis ? { aiAnalysis: signal.aiAnalysis } : {}),
     };
   }
 

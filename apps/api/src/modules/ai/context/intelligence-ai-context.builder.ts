@@ -6,12 +6,7 @@ import type { AIAnalysisInput } from '../ai.types';
 @Injectable()
 export class IntelligenceAiContextBuilder {
   build(signal: IntelligenceSignal): AIAnalysisInput | undefined {
-    if (
-      !signal.evidenceItems ||
-      !signal.operationalContext ||
-      !signal.recommendations ||
-      !signal.decisionContext
-    ) {
+    if (!signal.decisionContext) {
       return undefined;
     }
 
@@ -24,9 +19,6 @@ export class IntelligenceAiContextBuilder {
       urgency: signal.urgency,
       impact: signal.impact,
       recommendedAction: signal.recommendedAction,
-      evidence: signal.evidenceItems,
-      operationalContext: signal.operationalContext,
-      recommendations: signal.recommendations,
       decisionContext: signal.decisionContext,
     };
   }

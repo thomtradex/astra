@@ -1,5 +1,5 @@
 import { AuditAction } from '@astra/database';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { AiService } from '../ai/ai.service';
@@ -22,7 +22,8 @@ export class IntelligenceService {
     private readonly prisma: PrismaService,
     private readonly engine: CooDecisionEngine,
     private readonly dailyBriefingService: DailyBriefingService,
-    private readonly aiService: AiService,
+    @Inject(AiService)
+    private readonly aiService: Pick<AiService, 'analyze'>,
     private readonly aiContextBuilder: IntelligenceAiContextBuilder,
   ) {}
 
@@ -259,6 +260,7 @@ export class IntelligenceService {
           rationale:
             'A análise operacional determinística continua disponível e não foi afetada pela indisponibilidade do provider AI.',
           confidence: 0,
+          confidenceSource: 'UNAVAILABLE',
           provider: 'unavailable',
         },
       };

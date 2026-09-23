@@ -1,8 +1,5 @@
 import type {
   IntelligenceDecisionContext,
-  IntelligenceEvidence,
-  IntelligenceRecommendation,
-  OperationalContext,
 } from '../intelligence/intelligence-contract.types';
 
 export interface AIAnalysisInput {
@@ -14,13 +11,15 @@ export interface AIAnalysisInput {
   urgency: string;
   impact: string;
   recommendedAction: string;
-  evidence: IntelligenceEvidence[];
-  operationalContext: OperationalContext;
-  recommendations: IntelligenceRecommendation[];
   decisionContext: IntelligenceDecisionContext;
 }
 
 export type AIAnalysisStatus = 'GENERATED' | 'UNAVAILABLE';
+
+export type AIAnalysisConfidenceSource =
+  | 'DETERMINISTIC_RULE'
+  | 'LLM'
+  | 'UNAVAILABLE';
 
 export interface AIAnalysis {
   status: AIAnalysisStatus;
@@ -28,5 +27,6 @@ export interface AIAnalysis {
   rationale: string;
   recommendedRecommendationId?: string;
   confidence: number;
+  confidenceSource: AIAnalysisConfidenceSource;
   provider: string;
 }

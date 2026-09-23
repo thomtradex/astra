@@ -22,6 +22,7 @@ export interface DailyBriefingPriority {
   recommendations?: IntelligenceSignal['recommendations'];
   decisionContext?: IntelligenceSignal['decisionContext'];
   action?: IntelligenceSignal['action'];
+  aiAnalysis?: IntelligenceSignal['aiAnalysis'];
 }
 
 export interface DailyBriefing {
