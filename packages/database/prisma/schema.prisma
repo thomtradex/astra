@@ -10,25 +10,28 @@ datasource db {
 }
 
 model Organization {
-  id                String              @id @default(cuid())
-  name              String
-  slug              String              @unique
-  employees         Int?
-  preference        String?
-  is_active         Boolean             @default(true)
-  createdAt         DateTime            @default(now()) @map("created_at")
-  updatedAt         DateTime            @updatedAt @map("updated_at")
-  assets            assets[]
-  auditLogs         AuditLog[]
-  customers         customers[]
-  maintenance_plans maintenance_plans[]
-  sites             sites[]
-  projects          projects[]
-  subscriptions     Subscription[]
-  users             User[]
-  work_orders       work_orders[]
-  suppliers         suppliers[]
-  materials         materials[]
+  id                   String                 @id @default(cuid())
+  name                 String
+  slug                 String                 @unique
+  employees            Int?
+  preference           String?
+  is_active            Boolean                @default(true)
+  createdAt            DateTime               @default(now()) @map("created_at")
+  updatedAt            DateTime               @updatedAt @map("updated_at")
+  assets               assets[]
+  auditLogs            AuditLog[]
+  customers            customers[]
+  maintenance_plans    maintenance_plans[]
+  sites                sites[]
+  projects             projects[]
+  subscriptions        Subscription[]
+  users                User[]
+  work_orders          work_orders[]
+  work_order_materials work_order_materials[]
+  suppliers            suppliers[]
+  materials            materials[]
+  inventory_stock      inventory_stock[]
+  inventory_movements  inventory_movements[]
 
   @@map("organizations")
 }
@@ -228,19 +231,21 @@ model maintenance_plans {
 }
 
 model sites {
-  id              String       @id
-  name            String
-  code            String
-  address         String?
-  city            String?
-  country         String?
-  is_active       Boolean      @default(true)
-  organization_id String
-  created_at      DateTime     @default(now())
-  updated_at      DateTime
-  assets          assets[]
-  organizations   Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
-  projects        projects[]
+  id                  String                @id
+  name                String
+  code                String
+  address             String?
+  city                String?
+  country             String?
+  is_active           Boolean               @default(true)
+  organization_id     String
+  created_at          DateTime              @default(now())
+  updated_at          DateTime
+  assets              assets[]
+  organizations       Organization          @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  projects            projects[]
+  inventory_stock     inventory_stock[]
+  inventory_movements inventory_movements[]
 
   @@unique([organization_id, code])
   @@index([organization_id])
@@ -261,8 +266,9 @@ model work_orders {
   assets          assets?  @relation(fields: [asset_id], references: [id])
   users           User?    @relation(fields: [assigned_to_id], references: [id])
 
-  project       projects?    @relation(fields: [project_id], references: [id], onDelete: SetNull)
-  organizations Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  project              projects?              @relation(fields: [project_id], references: [id], onDelete: SetNull)
+  organizations        Organization           @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  work_order_materials work_order_materials[]
 
   @@index([asset_id])
   @@index([assigned_to_id])
@@ -312,14 +318,89 @@ model materials {
   created_at       DateTime @default(now())
   updated_at       DateTime
 
-  organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
-  supplier     suppliers?   @relation(fields: [supplier_id], references: [id], onDelete: SetNull)
+  organization         Organization           @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  supplier             suppliers?             @relation(fields: [supplier_id], references: [id], onDelete: SetNull)
+  inventory_stock      inventory_stock[]
+  inventory_movements  inventory_movements[]
+  work_order_materials work_order_materials[]
 
   @@unique([organization_id, code])
   @@index([organization_id])
   @@index([organization_id, active])
   @@index([organization_id, supplier_id])
   @@index([supplier_id])
+}
+
+model inventory_stock {
+  id                String   @id
+  organization_id   String
+  site_id           String
+  material_id       String
+  quantity_on_hand  Decimal  @default(0) @db.Decimal(12, 3)
+  quantity_reserved Decimal  @default(0) @db.Decimal(12, 3)
+  created_at        DateTime @default(now())
+  updated_at        DateTime
+
+  organizations Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  sites         sites        @relation(fields: [site_id], references: [id], onDelete: Cascade)
+  materials     materials    @relation(fields: [material_id], references: [id], onDelete: Cascade)
+
+  @@unique([organization_id, site_id, material_id])
+  @@index([organization_id])
+  @@index([organization_id, site_id])
+  @@index([organization_id, material_id])
+  @@index([site_id])
+  @@index([material_id])
+}
+
+model inventory_movements {
+  id              String   @id
+  organization_id String
+  site_id         String
+  material_id     String
+  movement_type   String
+  quantity        Decimal  @db.Decimal(12, 3)
+  reference_type  String?
+  reference_id    String?
+  reason          String?
+  occurred_at     DateTime @default(now())
+  created_at      DateTime @default(now())
+
+  organizations Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  sites         sites        @relation(fields: [site_id], references: [id], onDelete: Cascade)
+  materials     materials    @relation(fields: [material_id], references: [id], onDelete: Cascade)
+
+  @@index([organization_id])
+  @@index([organization_id, site_id])
+  @@index([organization_id, material_id])
+  @@index([organization_id, occurred_at])
+  @@index([material_id, occurred_at])
+  @@index([reference_type, reference_id])
+}
+
+model work_order_materials {
+  id                String   @id
+  organization_id   String
+  work_order_id     String
+  material_id       String
+  required_quantity Decimal  @db.Decimal(12, 3)
+  reserved_quantity Decimal  @default(0) @db.Decimal(12, 3)
+  consumed_quantity Decimal  @default(0) @db.Decimal(12, 3)
+  status            String   @default("REQUIRED")
+  notes             String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime
+
+  organizations Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  work_orders   work_orders  @relation(fields: [work_order_id], references: [id], onDelete: Cascade)
+  materials     materials    @relation(fields: [material_id], references: [id], onDelete: Cascade)
+
+  @@unique([work_order_id, material_id])
+  @@index([organization_id])
+  @@index([organization_id, work_order_id])
+  @@index([organization_id, material_id])
+  @@index([work_order_id])
+  @@index([material_id])
 }
 
 model BillingPlan {
