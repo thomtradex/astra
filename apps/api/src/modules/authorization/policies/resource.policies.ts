@@ -93,6 +93,22 @@ export const CanManageMaintenance = new PermissionBackedPolicy('CanManageMainten
   PERMISSIONS.MAINTENANCE_WRITE,
 ]);
 
+export const CanReadSuppliers = new PermissionBackedPolicy('CanReadSuppliers', [
+  PERMISSIONS.SUPPLIER_READ,
+]);
+
+export const CanManageSuppliers = new PermissionBackedPolicy('CanManageSuppliers', [
+  PERMISSIONS.SUPPLIER_WRITE,
+]);
+
+export const CanReadMaterials = new PermissionBackedPolicy('CanReadMaterials', [
+  PERMISSIONS.MATERIAL_READ,
+]);
+
+export const CanManageMaterials = new PermissionBackedPolicy('CanManageMaterials', [
+  PERMISSIONS.MATERIAL_WRITE,
+]);
+
 export const CanReadAudit = new PermissionBackedPolicy('CanReadAudit', [PERMISSIONS.AUDIT_READ]);
 
 export const CanManageBilling = new PermissionBackedPolicy('CanManageBilling', [

@@ -27,6 +27,8 @@ model Organization {
   subscriptions     Subscription[]
   users             User[]
   work_orders       work_orders[]
+  suppliers         suppliers[]
+  materials         materials[]
 
   @@map("organizations")
 }
@@ -266,6 +268,58 @@ model work_orders {
   @@index([assigned_to_id])
   @@index([organization_id])
   @@index([project_id])
+}
+
+model suppliers {
+  id              String   @id
+  organization_id String
+  code            String
+  name            String
+  tax_id          String?
+  email           String?
+  phone           String?
+  address         String?
+  lead_time_days  Int?
+  active          Boolean  @default(true)
+  notes           String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime
+
+  organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  materials    materials[]
+
+  @@unique([organization_id, code])
+  @@index([organization_id])
+  @@index([organization_id, active])
+  @@index([organization_id, name])
+}
+
+model materials {
+  id               String   @id
+  organization_id  String
+  supplier_id      String?
+  code             String
+  name             String
+  description      String?
+  category         String?
+  unit             String
+  unit_cost        Decimal? @db.Decimal(12, 2)
+  lead_time_days   Int?
+  reorder_point    Decimal? @db.Decimal(12, 3)
+  reorder_quantity Decimal? @db.Decimal(12, 3)
+  active           Boolean  @default(true)
+  notes            String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime
+
+  organization Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  supplier     suppliers?   @relation(fields: [supplier_id], references: [id], onDelete: SetNull)
+
+  @@unique([organization_id, code])
+  @@index([organization_id])
+  @@index([organization_id, active])
+  @@index([organization_id, supplier_id])
+  @@index([supplier_id])
 }
 
 model BillingPlan {
