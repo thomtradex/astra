@@ -1007,14 +1007,132 @@ describe('IntelligenceService', () => {
       }),
     );
 
-    expect(result.signals[0]?.aiAnalysis).toEqual({
+    const expectedAiAnalysis = {
       status: 'GENERATED',
       summary: 'A ordem necessita de responsável.',
       rationale: 'Existe uma ordem de alta prioridade sem responsável.',
       recommendedRecommendationId: 'recommendation-ai-1',
       confidence: 0.95,
       provider: 'deterministic',
+    };
+
+    expect(result.signals[0]?.aiAnalysis).toEqual(expectedAiAnalysis);
+    expect(result.daily.priorities[0]?.aiAnalysis).toEqual(
+      expectedAiAnalysis,
+    );
+  });
+
+
+  it('keeps deterministic intelligence available when AI analysis fails', async () => {
+    const signal: IntelligenceSignal = {
+      id: 'signal-ai-unavailable-1',
+      type: 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER',
+      severity: 'HIGH',
+      title: 'Ordem de alta prioridade sem responsável',
+      explanation: 'Existe uma ordem de alta prioridade sem responsável.',
+      urgency: 'Alta',
+      impact: 'Pode atrasar a execução operacional.',
+      recommendedAction: 'Atribuir responsável à ordem.',
+      source: 'WORK_ORDER',
+      evidenceItems: [],
+      operationalContext: {},
+      recommendations: [
+        {
+          id: 'recommendation-ai-unavailable-1',
+          title: 'Atribuir responsável',
+          action: 'ASSIGN_WORK_ORDER',
+          executable: true,
+        },
+      ],
+      decisionContext: {
+        confidence: 0.9,
+        factors: [],
+        evidence: [],
+      },
+    };
+
+    const prisma = {
+      work_orders: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      maintenance_plans: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      assets: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      sites: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      projects: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      auditLog: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+    };
+
+    const engine = {
+      analyze: jest.fn().mockReturnValue({
+        generatedAt: '2026-01-01T08:00:00.000Z',
+        signals: [signal],
+      }),
+    };
+
+    const aiService = {
+      analyze: jest
+        .fn()
+        .mockRejectedValue(new Error('AI provider unavailable')),
+    };
+
+    const aiContextBuilder = {
+      build: jest.fn().mockReturnValue({
+        signalId: signal.id,
+        signalType: signal.type,
+        severity: signal.severity,
+        title: signal.title,
+        explanation: signal.explanation,
+        urgency: signal.urgency,
+        impact: signal.impact,
+        recommendedAction: signal.recommendedAction,
+        evidence: signal.evidenceItems,
+        operationalContext: signal.operationalContext,
+        recommendations: signal.recommendations,
+        decisionContext: signal.decisionContext,
+      }),
+    };
+
+    const service = new IntelligenceService(
+      prisma,
+      engine,
+      new DailyBriefingService(),
+      aiService,
+      aiContextBuilder,
+    );
+
+    const result = await service.analyze('org-1');
+
+    expect(result.signals[0]?.title).toBe(
+      'Ordem de alta prioridade sem responsável',
+    );
+
+    expect(result.signals[0]?.aiAnalysis).toEqual({
+      status: 'UNAVAILABLE',
+      summary: 'A análise AI não está disponível neste momento.',
+      rationale:
+        'A análise operacional determinística continua disponível e não foi afetada pela indisponibilidade do provider AI.',
+      confidence: 0,
+      confidenceSource: 'UNAVAILABLE',
+      provider: 'unavailable',
     });
+
+    expect(result.daily.priorities[0]?.title).toBe(
+      'Ordem de alta prioridade sem responsável',
+    );
+
+    expect(result.daily.priorities[0]?.aiAnalysis).toEqual(
+      result.signals[0]?.aiAnalysis,
+    );
   });
 
 });
