@@ -404,7 +404,7 @@ describe('CooDecisionEngine', () => {
         'Ordens abertas de alta prioridade: 1',
       ]),
     );
-    expect(signal.recommendedAction).toContain('ordem(ns) de alta prioridade');
+    expect(signal.recommendedAction).toContain('ordem de alta prioridade aberta associada');
     expect(signal.action).toEqual({
       type: 'UPDATE_MAINTENANCE',
       resource: 'maintenance_plans',
@@ -1318,6 +1318,11 @@ describe('CooDecisionEngine', () => {
       expect(signal!.source.resourceId).toBe('maintenance-upcoming-normal');
       expect(signal!.priorityContext?.openWorkOrders).toBe(1);
       expect(signal!.priorityContext?.highPriorityOpenWorkOrders).toBe(0);
+      expect(signal!.chain?.explanation).toContain(
+        'A manutenção está associada ao ativo Escavadora CAT 320',
+      );
+      expect(signal!.chain?.explanation).not.toContain('manutenção vencida');
+      expect(signal!.chain?.recommendedAction).not.toContain('manutenção vencida');
     });
 
     it('creates a high-priority coordination situation when an upcoming maintenance has a high-priority open work order', () => {
@@ -1368,6 +1373,121 @@ describe('CooDecisionEngine', () => {
       expect(signal!.severity).toBe('HIGH');
       expect(signal!.priorityContext?.openWorkOrders).toBe(1);
       expect(signal!.priorityContext?.highPriorityOpenWorkOrders).toBe(1);
+    });
+
+    it('creates a coordination situation when maintenance is exactly 30 days away', () => {
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const result = engine.analyze({
+        now,
+        workOrders: [
+          {
+            id: 'wo-maintenance-boundary',
+            title: 'Intervenção programada',
+            status: 'OPEN',
+            priority: 'MEDIUM',
+            assigned_to_id: 'user-1',
+            project_id: null,
+            asset_id: 'asset-maintenance-boundary',
+            updated_at: now,
+          },
+        ],
+        maintenancePlans: [
+          {
+            id: 'maintenance-boundary',
+            plan: 'Manutenção mensal',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-10-08T10:00:00.000Z'),
+            assetId: 'asset-maintenance-boundary',
+          },
+        ],
+        assets: [
+          {
+            id: 'asset-maintenance-boundary',
+            name: 'Escavadora de teste',
+            code: 'ESC-BOUNDARY',
+            serial_number: null,
+            status: 'ACTIVE',
+            site_id: null,
+          },
+        ],
+        sites: [],
+        projects: [],
+      });
+
+      const signal = result.signals.find(
+        (item) => item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT',
+      );
+
+      expect(signal).toBeDefined();
+      expect(signal!.source.resourceId).toBe('maintenance-boundary');
+      expect(signal!.type).toBe('MAINTENANCE_OPERATIONAL_CONFLICT');
+      expect(signal!.evidence).toContain('Faltam 30 dia(s) para a intervenção');
+
+      expect(
+        result.signals.some(
+          (item) =>
+            item.type === 'OVERDUE_MAINTENANCE' &&
+            item.source.resourceId === 'maintenance-boundary',
+        ),
+      ).toBe(false);
+    });
+
+    it('does not create a coordination situation one second beyond the 30-day boundary', () => {
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const result = engine.analyze({
+        now,
+        workOrders: [
+          {
+            id: 'wo-maintenance-boundary-far',
+            title: 'Intervenção futura',
+            status: 'OPEN',
+            priority: 'MEDIUM',
+            assigned_to_id: 'user-1',
+            project_id: null,
+            asset_id: 'asset-maintenance-boundary-far',
+            updated_at: now,
+          },
+        ],
+        maintenancePlans: [
+          {
+            id: 'maintenance-boundary-far',
+            plan: 'Manutenção mensal',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-10-08T10:00:01.000Z'),
+            assetId: 'asset-maintenance-boundary-far',
+          },
+        ],
+        assets: [
+          {
+            id: 'asset-maintenance-boundary-far',
+            name: 'Gerador de teste',
+            code: 'GEN-BOUNDARY',
+            serial_number: null,
+            status: 'ACTIVE',
+            site_id: null,
+          },
+        ],
+        sites: [],
+        projects: [],
+      });
+
+      expect(
+        result.signals.some(
+          (item) =>
+            item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT' &&
+            item.source.resourceId === 'maintenance-boundary-far',
+        ),
+      ).toBe(false);
+
+      expect(
+        result.signals.some(
+          (item) =>
+            item.type === 'OVERDUE_MAINTENANCE' &&
+            item.source.resourceId === 'maintenance-boundary-far',
+        ),
+      ).toBe(false);
     });
 
     it('does not create a coordination situation when maintenance is more than 30 days away', () => {

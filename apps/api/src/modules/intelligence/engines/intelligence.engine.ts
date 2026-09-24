@@ -67,6 +67,36 @@ type CooDecisionInput = {
 
 @Injectable()
 export class CooDecisionEngine {
+  private openWorkOrderPhrase(count: number): string {
+    return count === 1
+      ? 'ordem de trabalho aberta'
+      : 'ordens de trabalho abertas';
+  }
+
+  private highPriorityOpenWorkOrderPhrase(count: number): string {
+    return count === 1
+      ? 'ordem de alta prioridade aberta'
+      : 'ordens de alta prioridade abertas';
+  }
+
+  private highPriorityUnassignedWorkOrderPhrase(count: number): string {
+    return count === 1
+      ? 'ordem de alta prioridade sem responsável'
+      : 'ordens de alta prioridade sem responsável';
+  }
+
+  private associatedOpenWorkOrderPhrase(count: number): string {
+    return count === 1
+      ? 'ordem de trabalho aberta associada'
+      : 'ordens de trabalho abertas associadas';
+  }
+
+  private associatedHighPriorityWorkOrderPhrase(count: number): string {
+    return count === 1
+      ? 'ordem de alta prioridade associada'
+      : 'ordens de alta prioridade associadas';
+  }
+
   analyze(input: CooDecisionInput) {
     const now = input.now ?? new Date();
 
@@ -388,7 +418,7 @@ export class CooDecisionEngine {
     return {
       id: `chain-project-${project.id}`,
       title: 'Obra → ordens de trabalho → ativos',
-      explanation: `A obra ${project.name} tem ${projectWorkOrders.length} ordem(ns) de trabalho aberta(s) relacionadas.`,
+      explanation: `A obra ${project.name} tem ${projectWorkOrders.length} ${this.openWorkOrderPhrase(projectWorkOrders.length)} relacionadas.`,
       impact:
         'As ordens abertas representam trabalho operacional ainda pendente dentro do contexto da obra.',
       recommendedAction:
@@ -468,16 +498,16 @@ export class CooDecisionEngine {
       title: site ? 'Manutenção → ativo → ordens → local' : 'Manutenção → ativo → ordens',
       explanation:
         openWorkOrders.length > 0
-          ? `A manutenção vencida está ligada ao ativo ${asset.name}, que tem ${openWorkOrders.length} ordem(ns) de trabalho aberta(s).`
-          : `A manutenção vencida está ligada ao ativo ${asset.name}.`,
+          ? `A manutenção está associada ao ativo ${asset.name}, que tem ${openWorkOrders.length} ${this.openWorkOrderPhrase(openWorkOrders.length)}.`
+          : `A manutenção está associada ao ativo ${asset.name}.`,
       impact:
         openWorkOrders.length > 0
           ? 'Existe trabalho operacional aberto no mesmo ativo, aumentando a necessidade de coordenação.'
-          : 'A manutenção vencida mantém exposição operacional sobre o ativo.',
+          : 'A manutenção mantém exposição operacional sobre o ativo.',
       recommendedAction:
         openWorkOrders.length > 0
           ? `Rever a manutenção do ativo ${asset.name} em conjunto com as ordens de trabalho abertas.`
-          : `Rever a manutenção vencida do ativo ${asset.name} e confirmar a próxima intervenção.`,
+          : `Rever a manutenção do ativo ${asset.name} e confirmar a próxima intervenção.`,
       nodes,
       edges,
     };
@@ -591,7 +621,7 @@ export class CooDecisionEngine {
           : 'Requer atenção hoje: a data final já foi ultrapassada.';
 
     if (highPriorityOpen.length > 0) {
-      urgency += ` Existem ${highPriorityOpen.length} ordem(ns) de alta prioridade aberta(s) associada(s).`;
+      urgency += ` Existem ${highPriorityOpen.length} ${this.associatedHighPriorityWorkOrderPhrase(highPriorityOpen.length)}.`;
     }
 
     return urgency;
@@ -618,15 +648,15 @@ export class CooDecisionEngine {
     );
 
     if (unassignedHighPriority.length > 0) {
-      return `O projeto está ${overdueDays} dia(s) além da data final registada, com ${highPriorityOpen.length} ordem(ns) de alta prioridade aberta(s), incluindo ${unassignedHighPriority.length} ordem de alta prioridade sem responsável.`;
+      return `O projeto está ${overdueDays} dia(s) além da data final registada, com ${highPriorityOpen.length} ${this.highPriorityOpenWorkOrderPhrase(highPriorityOpen.length)}, incluindo ${unassignedHighPriority.length} ${this.highPriorityUnassignedWorkOrderPhrase(unassignedHighPriority.length)}.`;
     }
 
     if (highPriorityOpen.length > 0) {
-      return `O projeto está ${overdueDays} dia(s) além da data final registada, com ${highPriorityOpen.length} ordem(ns) de alta prioridade aberta(s).`;
+      return `O projeto está ${overdueDays} dia(s) além da data final registada, com ${highPriorityOpen.length} ${this.highPriorityOpenWorkOrderPhrase(highPriorityOpen.length)}.`;
     }
 
     if (projectWorkOrders.length > 0) {
-      return `O projeto está ${overdueDays} dia(s) além da data final registada, com ${projectWorkOrders.length} ordem(ns) de trabalho aberta(s).`;
+      return `O projeto está ${overdueDays} dia(s) além da data final registada, com ${projectWorkOrders.length} ${this.openWorkOrderPhrase(projectWorkOrders.length)}.`;
     }
 
     return `O projeto está ${overdueDays} dia(s) além da data final registada e permanece com ${project.progress}% de progresso.`;
@@ -666,14 +696,14 @@ export class CooDecisionEngine {
         orders.some((order) => order.priority === 'CRITICAL') || orders.length >= 5
           ? 'CRITICAL'
           : 'HIGH',
-      title: `${orders.length} ordem(ns) de alta prioridade continuam abertas`,
+      title: `${orders.length} ${this.highPriorityOpenWorkOrderPhrase(orders.length)}`,
       explanation:
         'Existem trabalhos classificados como alta prioridade que ainda não foram concluídos.',
       evidence: orders.slice(0, 5).map((order) => order.title),
       urgency:
         orders.length >= 5
           ? `Requer atenção imediata: existem ${orders.length} ordens de alta prioridade abertas.`
-          : `Requer atenção hoje: existem ${orders.length} ordem(ns) de alta prioridade abertas.`,
+          : `Requer atenção hoje: existem ${orders.length} ${this.highPriorityOpenWorkOrderPhrase(orders.length)}.`,
       impact:
         'Existem ordens de trabalho de alta prioridade que continuam abertas e requerem resolução operacional.',
       recommendedAction:
@@ -744,8 +774,8 @@ export class CooDecisionEngine {
 
     const recommendedAction =
       highPriorityAssetWorkOrders.length > 0
-        ? `Rever primeiro as ${highPriorityAssetWorkOrders.length} ordem(ns) de alta prioridade associadas ao equipamento e coordenar a intervenção de manutenção.`
-        : `Coordenar as ${assetWorkOrders.length} ordem(ns) de trabalho abertas com a intervenção de manutenção prevista.`;
+        ? `Rever primeiro as ${highPriorityAssetWorkOrders.length} ${this.highPriorityOpenWorkOrderPhrase(highPriorityAssetWorkOrders.length)} ${highPriorityAssetWorkOrders.length === 1 ? 'associada' : 'associadas'} ao equipamento e coordenar a intervenção de manutenção.`
+        : `Coordenar as ${assetWorkOrders.length} ${this.openWorkOrderPhrase(assetWorkOrders.length)} com a intervenção de manutenção prevista.`;
 
     const maintenanceAsset = asset;
 
@@ -772,14 +802,14 @@ export class CooDecisionEngine {
       evidence,
       urgency:
         highPriorityAssetWorkOrders.length > 0
-          ? `Requer coordenação prioritária: existem ${highPriorityAssetWorkOrders.length} ordem(ns) de alta prioridade associadas ao equipamento.`
+          ? `Requer coordenação prioritária: existem ${highPriorityAssetWorkOrders.length} ${this.associatedHighPriorityWorkOrderPhrase(highPriorityAssetWorkOrders.length)} ao equipamento.`
           : daysUntilDue <= 7
             ? 'Requer coordenação esta semana: a manutenção aproxima-se e existem ordens de trabalho abertas associadas.'
             : 'Requer coordenação: a manutenção aproxima-se e existem ordens de trabalho abertas associadas.',
       impact:
         highPriorityAssetWorkOrders.length > 0
-          ? `A intervenção de manutenção aproxima-se e pode interferir com ${assetWorkOrders.length} ordem(ns) de trabalho abertas, incluindo ${highPriorityAssetWorkOrders.length} de alta prioridade.`
-          : `A intervenção de manutenção aproxima-se e pode interferir com ${assetWorkOrders.length} ordem(ns) de trabalho abertas no mesmo equipamento.`,
+          ? `A intervenção de manutenção aproxima-se e pode interferir com ${assetWorkOrders.length} ${this.openWorkOrderPhrase(assetWorkOrders.length)}, incluindo ${highPriorityAssetWorkOrders.length} de alta prioridade.`
+          : `A intervenção de manutenção aproxima-se e pode interferir com ${assetWorkOrders.length} ${this.openWorkOrderPhrase(assetWorkOrders.length)} no mesmo equipamento.`,
       recommendedAction,
       ...(maintenanceChain ? { chain: maintenanceChain } : {}),
       decision: {
@@ -850,9 +880,9 @@ export class CooDecisionEngine {
       'Agendar ou atualizar a intervenção de manutenção e confirmar o próximo passo.';
 
     if (highPriorityAssetWorkOrders.length > 0) {
-      recommendedAction = `Rever primeiro as ${highPriorityAssetWorkOrders.length} ordem(ns) de alta prioridade abertas associadas ao equipamento e confirmar a intervenção de manutenção.`;
+      recommendedAction = `Rever primeiro as ${highPriorityAssetWorkOrders.length} ${this.highPriorityOpenWorkOrderPhrase(highPriorityAssetWorkOrders.length)} ${highPriorityAssetWorkOrders.length === 1 ? 'associada' : 'associadas'} ao equipamento e confirmar a intervenção de manutenção.`;
     } else if (assetWorkOrders.length > 0) {
-      recommendedAction = `Rever as ${assetWorkOrders.length} ordem(ns) de trabalho abertas associadas ao equipamento e confirmar a intervenção de manutenção.`;
+      recommendedAction = `Rever as ${assetWorkOrders.length} ${this.associatedOpenWorkOrderPhrase(assetWorkOrders.length)} ao equipamento e confirmar a intervenção de manutenção.`;
     }
 
     const maintenanceAsset = assets.find((asset) => asset.id === plan.assetId);
@@ -884,7 +914,7 @@ export class CooDecisionEngine {
             : 'Requer atenção hoje: a data prevista de manutenção já foi ultrapassada.',
       impact:
         assetWorkOrders.length > 0
-          ? `A manutenção está ${overdueDays} dia(s) em atraso e existem ${assetWorkOrders.length} ordem(ns) de trabalho aberta(s) associada(s) ao ativo.`
+          ? `A manutenção está ${overdueDays} dia(s) em atraso e existem ${assetWorkOrders.length} ${this.associatedOpenWorkOrderPhrase(assetWorkOrders.length)} ao ativo.`
           : `A manutenção está ${overdueDays} dia(s) em atraso.`,
       recommendedAction,
       ...(maintenanceChain ? { chain: maintenanceChain } : {}),
