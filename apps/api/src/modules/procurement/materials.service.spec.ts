@@ -120,7 +120,7 @@ describe('MaterialsService', () => {
   it('creates a material with a supplier from the same organization', async () => {
     prisma.suppliers.findFirst.mockResolvedValue({
       id: 'supplier-1',
-    });
+    } as never);
 
     prisma.materials.create.mockResolvedValue(material);
 
@@ -181,7 +181,7 @@ describe('MaterialsService', () => {
     prisma.materials.findFirst.mockResolvedValue(material);
     prisma.suppliers.findFirst.mockResolvedValue({
       id: 'supplier-2',
-    });
+    } as never);
     prisma.materials.update.mockResolvedValue({
       ...material,
       name: 'Updated Cement',

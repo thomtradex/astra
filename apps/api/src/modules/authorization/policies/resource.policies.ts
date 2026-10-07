@@ -109,6 +109,24 @@ export const CanManageMaterials = new PermissionBackedPolicy('CanManageMaterials
   PERMISSIONS.MATERIAL_WRITE,
 ]);
 
+export const CanReadInventory = new PermissionBackedPolicy('CanReadInventory', [
+  PERMISSIONS.INVENTORY_READ,
+]);
+
+export const CanManageInventory = new PermissionBackedPolicy('CanManageInventory', [
+  PERMISSIONS.INVENTORY_WRITE,
+]);
+
+export const CanReadWorkOrderMaterials = new PermissionBackedPolicy(
+  'CanReadWorkOrderMaterials',
+  [PERMISSIONS.WORK_ORDER_MATERIAL_READ],
+);
+
+export const CanManageWorkOrderMaterials = new PermissionBackedPolicy(
+  'CanManageWorkOrderMaterials',
+  [PERMISSIONS.WORK_ORDER_MATERIAL_WRITE],
+);
+
 export const CanReadAudit = new PermissionBackedPolicy('CanReadAudit', [PERMISSIONS.AUDIT_READ]);
 
 export const CanManageBilling = new PermissionBackedPolicy('CanManageBilling', [
