@@ -4,6 +4,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AiService } from '../ai/ai.service';
 import { IntelligenceAiContextBuilder } from '../ai/context/intelligence-ai-context.builder';
+import { UsageLimitExceededException } from '../billing/usage/usage-limit-exceeded.exception';
 
 import { DailyBriefingService } from './daily-briefing.service';
 import { CooDecisionEngine } from './engines/intelligence.engine';
@@ -195,7 +196,10 @@ export class IntelligenceService {
 
     const signals = await Promise.all(
       briefing.signals.map(async (signal) => {
-        const enrichedSignal = await this.enrichSignalWithAi(signal);
+        const enrichedSignal = await this.enrichSignalWithAi(
+          organizationId,
+          signal,
+        );
 
         return {
           ...enrichedSignal,
@@ -237,7 +241,10 @@ export class IntelligenceService {
     };
   }
 
-  private async enrichSignalWithAi(signal: IntelligenceSignal): Promise<IntelligenceSignal> {
+  private async enrichSignalWithAi(
+    organizationId: string,
+    signal: IntelligenceSignal,
+  ): Promise<IntelligenceSignal> {
     const context = this.aiContextBuilder.build(signal);
 
     if (!context) {
@@ -245,13 +252,32 @@ export class IntelligenceService {
     }
 
     try {
-      const aiAnalysis = await this.aiService.analyze(context);
+      const aiAnalysis = await this.aiService.analyze(
+        organizationId,
+        context,
+      );
 
       return {
         ...signal,
         aiAnalysis,
       };
-    } catch {
+    } catch (error) {
+      if (error instanceof UsageLimitExceededException) {
+        return {
+          ...signal,
+          aiAnalysis: {
+            status: 'UNAVAILABLE',
+            summary: 'O limite mensal de pedidos AI deste plano foi atingido.',
+            rationale:
+              'A análise operacional determinística continua disponível. O pedido AI não foi enviado ao provider porque a quota mensal do plano foi atingida.',
+            confidence: 0,
+            confidenceSource: 'UNAVAILABLE',
+            provider: 'unavailable',
+            unavailableReason: 'MONTHLY_LIMIT_REACHED',
+          },
+        };
+      }
+
       return {
         ...signal,
         aiAnalysis: {
@@ -262,6 +288,7 @@ export class IntelligenceService {
           confidence: 0,
           confidenceSource: 'UNAVAILABLE',
           provider: 'unavailable',
+          unavailableReason: 'PROVIDER_UNAVAILABLE',
         },
       };
     }

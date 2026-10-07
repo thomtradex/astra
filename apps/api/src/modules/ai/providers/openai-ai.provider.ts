@@ -68,6 +68,10 @@ export class OpenAiAiProvider implements AIProvider {
     }
   }
 
+  isBillable(): boolean {
+    return this.client !== undefined;
+  }
+
   async analyze(input: AIAnalysisInput): Promise<AIAnalysis> {
     if (!this.client) {
       return this.unavailable(
@@ -102,7 +106,11 @@ export class OpenAiAiProvider implements AIProvider {
 
       const parsed: unknown = JSON.parse(rawOutput);
 
-      validateLlmAnalysisOutput(parsed, input.decisionContext);
+      validateLlmAnalysisOutput(
+        parsed,
+        input.decisionContext,
+        input.signalSource,
+      );
 
       return this.toAnalysis(parsed, input);
     } catch (error) {

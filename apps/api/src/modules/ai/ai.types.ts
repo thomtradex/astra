@@ -11,6 +11,10 @@ export interface AIAnalysisInput {
   urgency: string;
   impact: string;
   recommendedAction: string;
+  signalSource: {
+    resource: string;
+    resourceId?: string;
+  };
   decisionContext: IntelligenceDecisionContext;
 }
 
@@ -21,6 +25,10 @@ export type AIAnalysisConfidenceSource =
   | 'LLM'
   | 'UNAVAILABLE';
 
+export type AIAnalysisUnavailableReason =
+  | 'PROVIDER_UNAVAILABLE'
+  | 'MONTHLY_LIMIT_REACHED';
+
 export interface AIAnalysis {
   status: AIAnalysisStatus;
   summary: string;
@@ -29,4 +37,5 @@ export interface AIAnalysis {
   confidence: number;
   confidenceSource: AIAnalysisConfidenceSource;
   provider: string;
+  unavailableReason?: AIAnalysisUnavailableReason;
 }

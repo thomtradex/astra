@@ -20,6 +20,6 @@ import { IntelligenceService } from './intelligence.service';
     CooActionExecutorService,
     DailyBriefingService,
   ],
-  exports: [CooActionExecutorService],
+  exports: [CooActionExecutorService, IntelligenceService],
 })
 export class IntelligenceModule {}

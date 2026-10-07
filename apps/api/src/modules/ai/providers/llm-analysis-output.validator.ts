@@ -12,6 +12,10 @@ export class LlmAnalysisOutputValidationError extends Error {
 export function validateLlmAnalysisOutput(
   output: unknown,
   decisionContext: IntelligenceDecisionContext,
+  signalSource: {
+    resource: string;
+    resourceId?: string;
+  },
 ): asserts output is LlmAnalysisOutput {
   if (!isRecord(output)) {
     throw new LlmAnalysisOutputValidationError(
@@ -55,15 +59,28 @@ export function validateLlmAnalysisOutput(
   }
 
   if (output.recommendedRecommendationId !== null) {
-    const recommendationExists =
-      decisionContext.recommendations.some(
-        (recommendation) =>
-          recommendation.id === output.recommendedRecommendationId,
-      );
+    const recommendation = decisionContext.recommendations.find(
+      (item) => item.id === output.recommendedRecommendationId,
+    );
 
-    if (!recommendationExists) {
+    if (!recommendation) {
       throw new LlmAnalysisOutputValidationError(
         'O LLM referenciou uma recommendation inexistente.',
+      );
+    }
+
+    if (!recommendation.executable) {
+      throw new LlmAnalysisOutputValidationError(
+        'O LLM selecionou uma recommendation não executável.',
+      );
+    }
+
+    if (
+      recommendation.resource !== signalSource.resource ||
+      recommendation.resourceId !== signalSource.resourceId
+    ) {
+      throw new LlmAnalysisOutputValidationError(
+        'O LLM selecionou uma recommendation incompatível com o recurso do sinal.',
       );
     }
   }

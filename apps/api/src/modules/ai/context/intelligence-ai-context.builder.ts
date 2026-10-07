@@ -19,6 +19,7 @@ export class IntelligenceAiContextBuilder {
       urgency: signal.urgency,
       impact: signal.impact,
       recommendedAction: signal.recommendedAction,
+      signalSource: signal.source,
       decisionContext: signal.decisionContext,
     };
   }

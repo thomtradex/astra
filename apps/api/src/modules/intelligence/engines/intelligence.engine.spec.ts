@@ -1056,6 +1056,61 @@ describe('CooDecisionEngine', () => {
     expect(unassignedSignal!.evidence).toContain('Ordem de trabalho: Substituição urgente');
   });
 
+  it('removes an unassigned high-priority signal after the work order receives a responsible person', () => {
+    const engine = new CooDecisionEngine();
+    const now = new Date('2026-09-08T10:00:00.000Z');
+
+    const input = {
+      workOrders: [
+        {
+          id: 'wo-resolution-assignment',
+          title: 'Intervenção urgente',
+          status: 'OPEN',
+          priority: 'CRITICAL',
+          assigned_to_id: null,
+          project_id: null,
+          asset_id: null,
+          updated_at: now,
+        },
+      ],
+      maintenancePlans: [],
+      assets: [],
+      sites: [],
+      projects: [],
+      now,
+    };
+
+    const before = engine.analyze(input);
+
+    expect(
+      before.signals.some(
+        (item) =>
+          item.type === 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER' &&
+          item.source.resourceId === 'wo-resolution-assignment',
+      ),
+    ).toBe(true);
+
+    Object.assign(input.workOrders[0]!, { assigned_to_id: 'user-1' });
+
+    const after = engine.analyze(input);
+
+    expect(
+      after.signals.some(
+        (item) =>
+          item.type === 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER' &&
+          item.source.resourceId === 'wo-resolution-assignment',
+      ),
+    ).toBe(false);
+
+    expect(
+      after.signals.some(
+        (item) =>
+          item.type === 'UNASSIGNED_WORK_ORDER' &&
+          item.source.resourceId === 'wo-resolution-assignment',
+      ),
+    ).toBe(false);
+  });
+
   it('adds project context to an unassigned work order decision', () => {
     const now = new Date('2026-09-08T10:00:00.000Z');
 
@@ -1429,6 +1484,59 @@ describe('CooDecisionEngine', () => {
           (item) =>
             item.type === 'OVERDUE_MAINTENANCE' &&
             item.source.resourceId === 'maintenance-boundary',
+        ),
+      ).toBe(false);
+    });
+
+    it('removes an overdue maintenance signal after the intervention is rescheduled into the future', () => {
+      const engine = new CooDecisionEngine();
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const input = {
+        now,
+        workOrders: [],
+        maintenancePlans: [
+          {
+            id: 'maintenance-resolution',
+            plan: 'Manutenção corretiva',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-09-01T10:00:00.000Z'),
+            assetId: 'asset-resolution',
+          },
+        ],
+        assets: [
+          {
+            id: 'asset-resolution',
+            name: 'Escavadora de teste',
+            code: 'ESC-RESOLUTION',
+            serial_number: null,
+            status: 'ACTIVE',
+            site_id: null,
+          },
+        ],
+        sites: [],
+        projects: [],
+      };
+
+      const before = engine.analyze(input);
+
+      expect(
+        before.signals.some(
+          (item) =>
+            item.type === 'OVERDUE_MAINTENANCE' &&
+            item.source.resourceId === 'maintenance-resolution',
+        ),
+      ).toBe(true);
+
+      input.maintenancePlans[0]!.nextDue = new Date('2026-10-15T10:00:00.000Z');
+
+      const after = engine.analyze(input);
+
+      expect(
+        after.signals.some(
+          (item) =>
+            item.type === 'OVERDUE_MAINTENANCE' &&
+            item.source.resourceId === 'maintenance-resolution',
         ),
       ).toBe(false);
     });

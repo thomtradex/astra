@@ -3,6 +3,10 @@ import type { AIAnalysis, AIAnalysisInput } from '../ai.types';
 import type { AIProvider } from './ai.provider';
 
 export class DeterministicAiProvider implements AIProvider {
+  isBillable(): boolean {
+    return false;
+  }
+
   analyze(input: AIAnalysisInput): Promise<AIAnalysis> {
     const recommendation = input.decisionContext.recommendations.find(
       (item) => item.executable,

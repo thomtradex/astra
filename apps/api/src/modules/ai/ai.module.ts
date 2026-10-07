@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
+import { BillingModule } from '../billing/billing.module';
+
 import { AiController } from './ai.controller';
 import { AiService, AI_PROVIDER } from './ai.service';
 import { IntelligenceAiContextBuilder } from './context/intelligence-ai-context.builder';
@@ -9,7 +11,7 @@ import { DeterministicAiProvider } from './providers/deterministic-ai.provider';
 import { OpenAiAiProvider } from './providers/openai-ai.provider';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, BillingModule],
   providers: [
     AiService,
     IntelligenceAiContextBuilder,

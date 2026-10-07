@@ -2,6 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
+import { UsageLimitExceededException } from '../billing/usage/usage-limit-exceeded.exception';
+
 import { DailyBriefingService } from './daily-briefing.service';
 import { IntelligenceService } from './intelligence.service';
 import type { IntelligenceSignal } from './intelligence.types';
@@ -20,6 +22,245 @@ describe('IntelligenceService', () => {
     aiContextBuilder: {
       build: jest.fn().mockReturnValue(null),
     },
+  });
+
+  it('passes the organization id to the AI service when enriching a signal', async () => {
+    const prisma: any = {
+      work_orders: { findMany: jest.fn().mockResolvedValue([]) },
+      maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
+      assets: { findMany: jest.fn().mockResolvedValue([]) },
+      sites: { findMany: jest.fn().mockResolvedValue([]) },
+      projects: { findMany: jest.fn().mockResolvedValue([]) },
+      auditLog: { findMany: jest.fn().mockResolvedValue([]) },
+    };
+
+    const engine: any = {
+      analyze: jest.fn().mockReturnValue({
+        generatedAt: '2026-09-05T10:00:00.000Z',
+        signalCount: 1,
+        signals: [
+          {
+            id: 'signal-1',
+            type: 'TEST_SIGNAL',
+            severity: 'HIGH',
+            title: 'Signal test',
+            explanation: 'Signal test',
+            urgency: 'high',
+            impact: 'impact',
+            recommendedAction: 'action',
+            source: {
+              resource: 'work_orders',
+              resourceId: 'wo-1',
+            },
+            action: undefined,
+          },
+        ],
+      }),
+    };
+
+    const aiService: any = {
+      analyze: jest.fn().mockResolvedValue({
+        status: 'GENERATED',
+        summary: 'Análise AI.',
+        rationale: 'Contexto analisado.',
+        confidence: 1,
+        confidenceSource: 'DETERMINISTIC_RULE',
+        provider: 'deterministic',
+      }),
+    };
+
+    const aiContextBuilder: any = {
+      build: jest.fn().mockReturnValue({
+        signalId: 'signal-1',
+        signalType: 'TEST_SIGNAL',
+        severity: 'HIGH',
+        title: 'Signal test',
+        explanation: 'Signal test',
+        urgency: 'high',
+        impact: 'impact',
+        recommendedAction: 'action',
+        evidence: [],
+        operationalContext: {},
+        recommendations: [],
+        decisionContext: {
+          evidence: [],
+          operationalContext: {},
+          recommendations: [],
+          confidence: 1,
+        },
+      }),
+    };
+
+    const service = new IntelligenceService(
+      prisma as never,
+      engine as never,
+      new DailyBriefingService(),
+      aiService,
+      aiContextBuilder,
+    );
+
+    await service.analyze('org-1');
+
+    expect(aiService.analyze).toHaveBeenCalledWith(
+      'org-1',
+      expect.objectContaining({
+        signalId: 'signal-1',
+      }),
+    );
+  });
+
+  it('returns a distinct AI analysis state when the monthly AI quota is exhausted', async () => {
+    const prisma: any = {
+      work_orders: { findMany: jest.fn().mockResolvedValue([]) },
+      maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
+      assets: { findMany: jest.fn().mockResolvedValue([]) },
+      sites: { findMany: jest.fn().mockResolvedValue([]) },
+      projects: { findMany: jest.fn().mockResolvedValue([]) },
+      auditLog: { findMany: jest.fn().mockResolvedValue([]) },
+    };
+
+    const engine: any = {
+      analyze: jest.fn().mockReturnValue({
+        generatedAt: '2026-09-05T10:00:00.000Z',
+        signalCount: 1,
+        signals: [
+          {
+            id: 'signal-quota',
+            type: 'TEST_SIGNAL',
+            severity: 'HIGH',
+            title: 'Signal quota',
+            explanation: 'Signal quota',
+            urgency: 'high',
+            impact: 'impact',
+            recommendedAction: 'action',
+            source: {
+              resource: 'work_orders',
+              resourceId: 'wo-quota',
+            },
+            action: undefined,
+          },
+        ],
+      }),
+    };
+
+    const aiService: any = {
+      analyze: jest.fn().mockRejectedValue(new UsageLimitExceededException('aiRequestsPerMonth')),
+    };
+
+    const aiContextBuilder: any = {
+      build: jest.fn().mockReturnValue({
+        signalId: 'signal-quota',
+        signalType: 'TEST_SIGNAL',
+        severity: 'HIGH',
+        title: 'Signal quota',
+        explanation: 'Signal quota',
+        urgency: 'high',
+        impact: 'impact',
+        recommendedAction: 'action',
+        evidence: [],
+        operationalContext: {},
+        recommendations: [],
+        decisionContext: {
+          evidence: [],
+          operationalContext: {},
+          recommendations: [],
+          confidence: 1,
+        },
+      }),
+    };
+
+    const service = new IntelligenceService(
+      prisma as never,
+      engine as never,
+      new DailyBriefingService(),
+      aiService,
+      aiContextBuilder,
+    );
+
+    const result = await service.analyze('org-1');
+
+    expect(result.signals[0]?.aiAnalysis).toMatchObject({
+      status: 'UNAVAILABLE',
+      provider: 'unavailable',
+      unavailableReason: 'MONTHLY_LIMIT_REACHED',
+    });
+  });
+
+  it('keeps provider unavailability distinct from monthly quota exhaustion', async () => {
+    const prisma: any = {
+      work_orders: { findMany: jest.fn().mockResolvedValue([]) },
+      maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
+      assets: { findMany: jest.fn().mockResolvedValue([]) },
+      sites: { findMany: jest.fn().mockResolvedValue([]) },
+      projects: { findMany: jest.fn().mockResolvedValue([]) },
+      auditLog: { findMany: jest.fn().mockResolvedValue([]) },
+    };
+
+    const engine: any = {
+      analyze: jest.fn().mockReturnValue({
+        generatedAt: '2026-09-05T10:00:00.000Z',
+        signalCount: 1,
+        signals: [
+          {
+            id: 'signal-provider',
+            type: 'TEST_SIGNAL',
+            severity: 'HIGH',
+            title: 'Signal provider',
+            explanation: 'Signal provider',
+            urgency: 'high',
+            impact: 'impact',
+            recommendedAction: 'action',
+            source: {
+              resource: 'work_orders',
+              resourceId: 'wo-provider',
+            },
+            action: undefined,
+          },
+        ],
+      }),
+    };
+
+    const aiService: any = {
+      analyze: jest.fn().mockRejectedValue(new Error('provider unavailable')),
+    };
+
+    const aiContextBuilder: any = {
+      build: jest.fn().mockReturnValue({
+        signalId: 'signal-provider',
+        signalType: 'TEST_SIGNAL',
+        severity: 'HIGH',
+        title: 'Signal provider',
+        explanation: 'Signal provider',
+        urgency: 'high',
+        impact: 'impact',
+        recommendedAction: 'action',
+        evidence: [],
+        operationalContext: {},
+        recommendations: [],
+        decisionContext: {
+          evidence: [],
+          operationalContext: {},
+          recommendations: [],
+          confidence: 1,
+        },
+      }),
+    };
+
+    const service = new IntelligenceService(
+      prisma as never,
+      engine as never,
+      new DailyBriefingService(),
+      aiService,
+      aiContextBuilder,
+    );
+
+    const result = await service.analyze('org-1');
+
+    expect(result.signals[0]?.aiAnalysis).toMatchObject({
+      status: 'UNAVAILABLE',
+      provider: 'unavailable',
+      unavailableReason: 'PROVIDER_UNAVAILABLE',
+    });
   });
 
   it('passes organization-scoped project work order context to the COO engine', async () => {
@@ -464,8 +705,7 @@ describe('IntelligenceService', () => {
     expect(result.decisionHistory[0]?.verification).toEqual({
       status: 'VERIFIED',
       label: 'Resultado confirmado',
-      explanation:
-        'O estado definido pela decisão está atualmente aplicado ao projeto.',
+      explanation: 'O estado definido pela decisão está atualmente aplicado ao projeto.',
       checkedAt: '2026-09-05T12:00:00.000Z',
     });
   });
@@ -540,8 +780,7 @@ describe('IntelligenceService', () => {
     expect(result.decisionHistory[0]?.verification).toEqual({
       status: 'VERIFIED',
       label: 'Resultado confirmado',
-      explanation:
-        'A data definida pela decisão está atualmente aplicada ao plano de manutenção.',
+      explanation: 'A data definida pela decisão está atualmente aplicada ao plano de manutenção.',
       checkedAt: '2026-09-05T12:00:00.000Z',
     });
   });
@@ -849,17 +1088,17 @@ describe('IntelligenceService', () => {
       prisma,
       engine,
       dailyBriefingService,
-      { analyze: jest.fn().mockResolvedValue({
-        status: 'GENERATED',
-        summary: 'Análise AI determinística.',
-        rationale: 'Contexto operacional analisado.',
-        confidence: 1,
-        provider: 'deterministic',
-      }) },
+      {
+        analyze: jest.fn().mockResolvedValue({
+          status: 'GENERATED',
+          summary: 'Análise AI determinística.',
+          rationale: 'Contexto operacional analisado.',
+          confidence: 1,
+          provider: 'deterministic',
+        }),
+      },
       { build: jest.fn().mockReturnValue(null) },
-    ).analyze(
-      'org-1',
-    );
+    ).analyze('org-1');
     expect(result.decisionMetrics).toEqual({ executed: 1, denied: 1, failed: 2 });
     const firstSignal = result.signals[0];
     expect(firstSignal).toBeDefined();
@@ -985,8 +1224,8 @@ describe('IntelligenceService', () => {
     };
 
     const service = new IntelligenceService(
-      prisma,
-      engine,
+      prisma as never,
+      engine as never,
       new DailyBriefingService(),
       aiService,
       aiContextBuilder,
@@ -1001,6 +1240,7 @@ describe('IntelligenceService', () => {
     );
 
     expect(aiService.analyze).toHaveBeenCalledWith(
+      'org-1',
       expect.objectContaining({
         signalId: 'signal-ai-1',
         signalType: 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER',
@@ -1017,14 +1257,71 @@ describe('IntelligenceService', () => {
     };
 
     expect(result.signals[0]?.aiAnalysis).toEqual(expectedAiAnalysis);
-    expect(result.daily.priorities[0]?.aiAnalysis).toEqual(
-      expectedAiAnalysis,
-    );
+    expect(result.daily.priorities[0]?.aiAnalysis).toEqual(expectedAiAnalysis);
   });
 
+  it('does not call AI when a signal has no decision context', async () => {
+    const prisma: any = {
+      projects: { findMany: jest.fn().mockResolvedValue([]) },
+      work_orders: { findMany: jest.fn().mockResolvedValue([]) },
+      maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
+      assets: { findMany: jest.fn().mockResolvedValue([]) },
+      sites: { findMany: jest.fn().mockResolvedValue([]) },
+      auditLog: { findMany: jest.fn().mockResolvedValue([]) },
+    };
+
+    const signal = {
+      id: 'signal-ai-no-context-1',
+      type: 'HIGH_PRIORITY_WORK_ORDER',
+      severity: 'HIGH',
+      title: 'Ordem prioritária',
+      explanation: 'Existe uma ordem prioritária.',
+      urgency: 'Alta',
+      impact: 'Requer atenção.',
+      recommendedAction: 'Rever a ordem.',
+      source: {
+        resource: 'work_orders',
+        resourceId: 'wo-no-context-1',
+      },
+      evidence: [],
+      status: 'OPEN',
+      timestamp: '2026-09-26T10:00:00.000Z',
+    } as unknown as IntelligenceSignal;
+
+    const engine: any = {
+      analyze: jest.fn().mockReturnValue({
+        generatedAt: '2026-09-26T10:00:00.000Z',
+        signalCount: 1,
+        signals: [signal],
+      }),
+    };
+
+    const aiService = {
+      analyze: jest.fn(),
+    };
+
+    const aiContextBuilder = {
+      build: jest.fn().mockReturnValue(undefined),
+    };
+
+    const service = new IntelligenceService(
+      prisma as never,
+      engine as never,
+      new DailyBriefingService(),
+      aiService,
+      aiContextBuilder,
+    );
+
+    const result = await service.analyze('org-1');
+
+    expect(aiContextBuilder.build).toHaveBeenCalledWith(signal);
+    expect(aiService.analyze).not.toHaveBeenCalled();
+    expect(result.signals[0]).toEqual(signal);
+    expect(result.signals[0]?.aiAnalysis).toBeUndefined();
+  });
 
   it('keeps deterministic intelligence available when AI analysis fails', async () => {
-    const signal: IntelligenceSignal = {
+    const signal = {
       id: 'signal-ai-unavailable-1',
       type: 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER',
       severity: 'HIGH',
@@ -1049,7 +1346,7 @@ describe('IntelligenceService', () => {
         factors: [],
         evidence: [],
       },
-    };
+    } as unknown as IntelligenceSignal;
 
     const prisma = {
       work_orders: {
@@ -1080,9 +1377,7 @@ describe('IntelligenceService', () => {
     };
 
     const aiService = {
-      analyze: jest
-        .fn()
-        .mockRejectedValue(new Error('AI provider unavailable')),
+      analyze: jest.fn().mockRejectedValue(new Error('AI provider unavailable')),
     };
 
     const aiContextBuilder = {
@@ -1103,8 +1398,8 @@ describe('IntelligenceService', () => {
     };
 
     const service = new IntelligenceService(
-      prisma,
-      engine,
+      prisma as never,
+      engine as never,
       new DailyBriefingService(),
       aiService,
       aiContextBuilder,
@@ -1112,9 +1407,7 @@ describe('IntelligenceService', () => {
 
     const result = await service.analyze('org-1');
 
-    expect(result.signals[0]?.title).toBe(
-      'Ordem de alta prioridade sem responsável',
-    );
+    expect(result.signals[0]?.title).toBe('Ordem de alta prioridade sem responsável');
 
     expect(result.signals[0]?.aiAnalysis).toEqual({
       status: 'UNAVAILABLE',
@@ -1124,15 +1417,11 @@ describe('IntelligenceService', () => {
       confidence: 0,
       confidenceSource: 'UNAVAILABLE',
       provider: 'unavailable',
+      unavailableReason: 'PROVIDER_UNAVAILABLE',
     });
 
-    expect(result.daily.priorities[0]?.title).toBe(
-      'Ordem de alta prioridade sem responsável',
-    );
+    expect(result.daily.priorities[0]?.title).toBe('Ordem de alta prioridade sem responsável');
 
-    expect(result.daily.priorities[0]?.aiAnalysis).toEqual(
-      result.signals[0]?.aiAnalysis,
-    );
+    expect(result.daily.priorities[0]?.aiAnalysis).toEqual(result.signals[0]?.aiAnalysis);
   });
-
 });

@@ -33,6 +33,10 @@ describe('OpenAiAiProvider', () => {
     urgency: 'Alta',
     impact: 'Pode atrasar a execução operacional.',
     recommendedAction: 'Atribuir um responsável.',
+    signalSource: {
+      resource: 'work_orders',
+      resourceId: 'work-order-1',
+    },
     decisionContext: {
       confidence: 0.72,
       evidence: [
@@ -138,7 +142,7 @@ describe('OpenAiAiProvider', () => {
 
     expect(create).toHaveBeenCalledTimes(1);
 
-    const request = create.mock.calls[0][0];
+    const request = create.mock.calls[0]![0];
 
     expect(request.model).toBe('gpt-5-mini');
     expect(request.text.format).toMatchObject({

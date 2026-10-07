@@ -17,6 +17,10 @@ describe('DeterministicAiProvider', () => {
       urgency: 'Requer atenção hoje.',
       impact: 'Pode atrasar a operação.',
       recommendedAction: 'Atribuir um responsável.',
+      signalSource: {
+        resource: 'work_orders',
+        resourceId: 'wo-1',
+      },
       decisionContext: {
         evidence: [
           {
@@ -86,6 +90,10 @@ describe('DeterministicAiProvider', () => {
       urgency: 'Requer acompanhamento.',
       impact: 'Pode exigir coordenação.',
       recommendedAction: 'Rever a operação.',
+      signalSource: {
+        resource: 'maintenance_plans',
+        resourceId: 'maintenance-1',
+      },
       decisionContext: {
         evidence: [],
         operationalContext: {
@@ -142,6 +150,10 @@ describe('DeterministicAiProvider', () => {
         'A ordem permanece sem responsável, deixando a responsabilidade operacional por definir.',
       recommendedAction:
         'Atribuir um responsável e confirmar a próxima ação operacional.',
+      signalSource: {
+        resource: 'work_orders',
+        resourceId: 'wo-3',
+      },
       decisionContext: {
         evidence: [
           {
