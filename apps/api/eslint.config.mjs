@@ -1,8 +1,12 @@
-/** @type {import('eslint').Linter.Config[]} */
+import rootConfig from '../../eslint.config.mjs';
+
 export default [
+  ...rootConfig,
+
   {
     ignores: ['dist/**', 'node_modules/**', 'coverage/**'],
   },
+
   {
     files: ['**/*.ts'],
     rules: {
