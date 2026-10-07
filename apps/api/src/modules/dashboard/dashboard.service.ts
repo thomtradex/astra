@@ -1,17 +1,29 @@
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import { IntelligenceService } from '../intelligence/intelligence.service';
 
 @Injectable()
 export class DashboardService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly intelligenceService: IntelligenceService,
+  ) {}
 
-  async overview(orgId: string) {
+  private getMonthStart(now = new Date()): Date {
+    const monthStart = new Date(now);
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+    return monthStart;
+  }
+
+  async overview(orgId: string, includeIntelligence = false) {
     const [
       customers,
       sites,
       assets,
       openOrders,
+      workOrdersThisMonth,
       highPriority,
       criticalOpen,
       activeAssets,
@@ -34,6 +46,13 @@ export class DashboardService {
         where: {
           organization_id: orgId,
           status: 'OPEN',
+        },
+      }),
+
+      this.prisma.work_orders.count({
+        where: {
+          organization_id: orgId,
+          created_at: { gte: this.getMonthStart() },
         },
       }),
 
@@ -87,12 +106,17 @@ export class DashboardService {
       }),
     ]);
 
+    const intelligence = includeIntelligence
+      ? await this.intelligenceService.analyze(orgId)
+      : undefined;
+
     return {
       customers,
       sites,
       assets,
       workOrders: {
         open: openOrders,
+        thisMonth: workOrdersThisMonth,
         highPriority,
         criticalOpen,
       },
@@ -104,6 +128,7 @@ export class DashboardService {
         overdue: overdueMaintenance,
       },
       recentActivity: recentAuditLogs,
+      ...(intelligence ? { intelligence } : {}),
 
       generatedAt: new Date(),
     };

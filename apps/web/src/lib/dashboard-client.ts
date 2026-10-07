@@ -10,6 +10,7 @@ export interface DashboardOverview {
   assets: number;
   workOrders: {
     open: number;
+    thisMonth: number;
     highPriority: number;
     criticalOpen: number;
   };
