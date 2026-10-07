@@ -1,13 +1,10 @@
 import { cookies } from 'next/headers';
 
 import { getApiBaseUrl } from './api-client';
-import { ACCESS_TOKEN_COOKIE } from './auth-constants';
-import type { MaintenancePlan } from './maintenance-client';
 import { getAssets, type Asset } from './assets-client';
-import {
-  getIntelligenceBriefing,
-  type IntelligenceBriefing,
-} from './intelligence-client';
+import { ACCESS_TOKEN_COOKIE } from './auth-constants';
+import { getIntelligenceBriefing, type IntelligenceBriefing } from './intelligence-client';
+import type { MaintenancePlan } from './maintenance-client';
 
 async function getAccessToken(): Promise<string | undefined> {
   const cookieStore = await cookies();
@@ -39,9 +36,7 @@ export async function getMaintenanceOperationalData(): Promise<MaintenanceOperat
     cache: 'no-store',
   });
 
-  const plans = response.ok
-    ? ((await response.json()) as MaintenancePlan[])
-    : [];
+  const plans = response.ok ? ((await response.json()) as MaintenancePlan[]) : [];
 
   let assets: Asset[] = [];
 

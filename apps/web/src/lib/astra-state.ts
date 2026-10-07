@@ -20,14 +20,11 @@ interface AstraStateInput {
   customers: number;
   assets: number;
   openWorkOrders: number;
-  highPriorityWorkOrders: number;
-  criticalOpenWorkOrders: number;
 }
 
 export function deriveAstraState(input: AstraStateInput): AstraState {
   const signals = input.briefing?.signals ?? [];
   const criticalCount = signals.filter((signal) => signal.severity === 'CRITICAL').length;
-  const totalCritical = criticalCount + input.criticalOpenWorkOrders;
   const highCount = signals.filter((signal) => signal.severity === 'HIGH').length;
   const mediumCount = signals.filter((signal) => signal.severity === 'MEDIUM').length;
 
@@ -51,18 +48,13 @@ export function deriveAstraState(input: AstraStateInput): AstraState {
     };
   }
 
-  if (totalCritical > 0) {
+  if (criticalCount > 0) {
     return {
       state: 'CRITICAL',
       label: 'Risco crítico',
-      summary:
-        input.criticalOpenWorkOrders > 0
-          ? `Existem ${input.criticalOpenWorkOrders} ordens de trabalho críticas em aberto que exigem decisão.`
-          : `${criticalCount} situação(ões) crítica(s) exigem decisão.`,
+      summary: `${criticalCount} situação(ões) crítica(s) exigem decisão.`,
       reason:
-        input.criticalOpenWorkOrders > 0
-          ? 'Existem ordens de trabalho críticas em aberto que podem comprometer diretamente a continuidade ou o controlo da operação.'
-          : 'Existem sinais críticos que podem comprometer diretamente a continuidade ou o controlo da operação.',
+        'Existem sinais críticos identificados pela inteligência operacional que podem comprometer diretamente a continuidade ou o controlo da operação.',
       signalCount: signals.length,
       criticalCount,
       highCount,
@@ -71,18 +63,13 @@ export function deriveAstraState(input: AstraStateInput): AstraState {
     };
   }
 
-  if (highCount > 0 || input.highPriorityWorkOrders > 0) {
+  if (highCount > 0) {
     return {
       state: 'ATTENTION',
       label: 'Requer atenção',
-      summary:
-        input.highPriorityWorkOrders > 0
-          ? `Existem ${input.highPriorityWorkOrders} ordens de trabalho prioritárias em aberto que exigem acompanhamento.`
-          : `${highCount} situação(ões) de alta prioridade exigem acompanhamento.`,
+      summary: `${highCount} situação(ões) de alta prioridade exigem acompanhamento.`,
       reason:
-        input.highPriorityWorkOrders > 0
-          ? 'A Astra detetou trabalho prioritário em aberto que requer atenção operacional.'
-          : 'Existem sinais de alta prioridade que devem ser revistos antes de se tornarem problemas operacionais maiores.',
+        'Existem sinais de alta prioridade identificados pela inteligência operacional que devem ser revistos antes de se tornarem problemas operacionais maiores.',
       signalCount: signals.length,
       criticalCount,
       highCount,

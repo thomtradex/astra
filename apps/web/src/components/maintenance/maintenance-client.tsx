@@ -1,16 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
 import Link from 'next/link';
-
-import { type MaintenancePlan } from '@/lib/maintenance-client';
-import type { Asset } from '@/lib/assets-client';
-import type {
-  IntelligenceBriefing,
-  IntelligenceSignal,
-} from '@/lib/intelligence-client';
+import { useMemo, useState } from 'react';
 
 import { MaintenanceDecisionAction } from '@/app/intelligence/maintenance-decision-action';
+import type { Asset } from '@/lib/assets-client';
+import type { IntelligenceBriefing, IntelligenceSignal } from '@/lib/intelligence-client';
+import { type MaintenancePlan } from '@/lib/maintenance-client';
 
 function isOverdue(nextDue: string) {
   return new Date(nextDue).getTime() < Date.now();
@@ -38,16 +34,14 @@ function MaintenanceSituationCard({
   const siteName = context?.site?.name;
   const maintenanceDue = context?.maintenance?.nextDue;
 
-  const overdueDays =
-    maintenanceDue
-      ? Math.max(
-          0,
-          Math.floor(
-            (new Date().getTime() - new Date(maintenanceDue).getTime()) /
-              (1000 * 60 * 60 * 24),
-          ),
-        )
-      : null;
+  const overdueDays = maintenanceDue
+    ? Math.max(
+        0,
+        Math.floor(
+          (new Date().getTime() - new Date(maintenanceDue).getTime()) / (1000 * 60 * 60 * 24),
+        ),
+      )
+    : null;
 
   const severityLabel =
     signal.severity === 'CRITICAL'
@@ -71,7 +65,7 @@ function MaintenanceSituationCard({
               <span className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
                 {overdueDays === 0
                   ? 'Vencida hoje'
-                  : `${overdueDays} dia(s) em atraso`}
+                  : `${overdueDays} ${overdueDays === 1 ? 'dia' : 'dias'} em atraso`}
               </span>
             ) : null}
           </div>
@@ -80,9 +74,7 @@ function MaintenanceSituationCard({
             {signal.title}
           </h3>
 
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-            {signal.explanation}
-          </p>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{signal.explanation}</p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-xl bg-slate-50 p-3">
@@ -107,9 +99,7 @@ function MaintenanceSituationCard({
               <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                 Ordens abertas
               </p>
-              <p className="mt-1 text-sm font-semibold text-slate-900">
-                {workOrders?.open ?? 0}
-              </p>
+              <p className="mt-1 text-sm font-semibold text-slate-900">{workOrders?.open ?? 0}</p>
             </div>
 
             <div className="rounded-xl bg-slate-50 p-3">
@@ -127,18 +117,14 @@ function MaintenanceSituationCard({
               <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                 Porque importa
               </p>
-              <p className="mt-1.5 text-sm leading-6 text-slate-700">
-                {signal.impact}
-              </p>
+              <p className="mt-1.5 text-sm leading-6 text-slate-700">{signal.impact}</p>
             </div>
 
             <div className="rounded-xl border border-slate-900 bg-slate-950 p-4 text-white">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                 Ação recomendada
               </p>
-              <p className="mt-1.5 text-sm font-semibold leading-6">
-                {signal.recommendedAction}
-              </p>
+              <p className="mt-1.5 text-sm font-semibold leading-6">{signal.recommendedAction}</p>
             </div>
           </div>
 
@@ -148,13 +134,9 @@ function MaintenanceSituationCard({
                 Contexto operacional
               </p>
 
-              <p className="mt-1 text-sm font-semibold text-slate-900">
-                {signal.chain.title}
-              </p>
+              <p className="mt-1 text-sm font-semibold text-slate-900">{signal.chain.title}</p>
 
-              <p className="mt-1 text-sm leading-6 text-slate-600">
-                {signal.chain.explanation}
-              </p>
+              <p className="mt-1 text-sm leading-6 text-slate-600">{signal.chain.explanation}</p>
 
               <div className="mt-3 flex flex-wrap gap-2">
                 {signal.chain.nodes.map((node) => (
@@ -172,9 +154,7 @@ function MaintenanceSituationCard({
 
         {signal.action ? (
           <div className="w-full shrink-0 lg:w-72">
-            <MaintenanceDecisionAction
-              maintenancePlanId={signal.action.resourceId}
-            />
+            <MaintenanceDecisionAction maintenancePlanId={signal.action.resourceId} />
           </div>
         ) : null}
       </div>
@@ -193,10 +173,7 @@ export function MaintenanceClient({
 }) {
   const [plans] = useState(initialPlans);
 
-  const assetsById = useMemo(
-    () => new Map(assets.map((asset) => [asset.id, asset])),
-    [assets],
-  );
+  const assetsById = useMemo(() => new Map(assets.map((asset) => [asset.id, asset])), [assets]);
 
   const maintenanceSituations = useMemo(
     () =>
@@ -228,21 +205,13 @@ export function MaintenanceClient({
       .filter((plan) => {
         const due = new Date(plan.nextDue).getTime();
 
-        return (
-          due >= now &&
-          due <= thirtyDays &&
-          plan.status.toUpperCase() === 'ACTIVE'
-        );
+        return due >= now && due <= thirtyDays && plan.status.toUpperCase() === 'ACTIVE';
       })
-      .sort(
-        (a, b) =>
-          new Date(a.nextDue).getTime() - new Date(b.nextDue).getTime(),
-      )
+      .sort((a, b) => new Date(a.nextDue).getTime() - new Date(b.nextDue).getTime())
       .map((plan) => ({
         plan,
         asset: assetsById.get(plan.assetId),
-        withinSevenDays:
-          new Date(plan.nextDue).getTime() <= sevenDays,
+        withinSevenDays: new Date(plan.nextDue).getTime() <= sevenDays,
       }));
   }, [assetsById, plans]);
 
@@ -281,8 +250,8 @@ export function MaintenanceClient({
                   O que precisa de atenção?
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-                  Situações de manutenção que a Astra detetou e que podem
-                  exigir uma decisão sobre a operação.
+                  Situações de manutenção que a Astra detetou e que podem exigir uma decisão sobre a
+                  operação.
                 </p>
               </div>
 
@@ -303,11 +272,7 @@ export function MaintenanceClient({
               const workOrders = context?.workOrders;
 
               return (
-                <MaintenanceSituationCard
-                  key={signal.id}
-                  signal={signal}
-                  workOrders={workOrders}
-                />
+                <MaintenanceSituationCard key={signal.id} signal={signal} workOrders={workOrders} />
               );
             })}
           </div>
@@ -320,16 +285,11 @@ export function MaintenanceClient({
           ['Ativas', metrics.active, 'Planos em execução'],
           ['Em atraso', metrics.overdue, 'Intervenções que precisam de atenção'],
         ].map(([label, value, description]) => (
-          <div
-            key={label}
-            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-          >
+          <div key={label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
               {label}
             </p>
-            <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
-              {value}
-            </p>
+            <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">{value}</p>
             <p className="mt-1 text-xs text-slate-500">{description}</p>
           </div>
         ))}
@@ -355,9 +315,7 @@ export function MaintenanceClient({
                 <p className="text-2xl font-semibold tracking-tight text-slate-950">
                   {upcomingInterventions.length}
                 </p>
-                <p className="text-xs text-slate-400">
-                  intervenção(ões) programada(s)
-                </p>
+                <p className="text-xs text-slate-400">intervenção(ões) programada(s)</p>
               </div>
             </div>
           </div>
@@ -366,9 +324,7 @@ export function MaintenanceClient({
             <div className="px-6 py-5">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-950">
-                    Próximos 7 dias
-                  </h3>
+                  <h3 className="text-sm font-semibold text-slate-950">Próximos 7 dias</h3>
                   <p className="mt-1 text-xs text-slate-500">
                     Intervenções que podem exigir preparação imediata.
                   </p>
@@ -419,16 +375,12 @@ export function MaintenanceClient({
                         )}
 
                         {asset?.sites?.name ? (
-                          <p className="mt-1 truncate text-xs text-slate-500">
-                            {asset.sites.name}
-                          </p>
+                          <p className="mt-1 truncate text-xs text-slate-500">{asset.sites.name}</p>
                         ) : null}
                       </div>
 
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-slate-800">
-                          {plan.plan}
-                        </p>
+                        <p className="truncate text-sm font-medium text-slate-800">{plan.plan}</p>
                         <p className="mt-1 text-xs text-slate-500">
                           {formatFrequency(plan.frequency)}
                         </p>
@@ -444,12 +396,11 @@ export function MaintenanceClient({
                                 ),
                             ) ?? [];
 
-                          const highPriorityWorkOrders =
-                            openWorkOrders.filter((workOrder) =>
-                              ['CRITICAL', 'URGENT', 'HIGH'].includes(
-                                workOrder.priority.toUpperCase(),
-                              ),
-                            );
+                          const highPriorityWorkOrders = openWorkOrders.filter((workOrder) =>
+                            ['CRITICAL', 'URGENT', 'HIGH'].includes(
+                              workOrder.priority.toUpperCase(),
+                            ),
+                          );
 
                           if (highPriorityWorkOrders.length > 0) {
                             return (
@@ -506,9 +457,7 @@ export function MaintenanceClient({
             <div className="px-6 py-5">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-950">
-                    8–30 dias
-                  </h3>
+                  <h3 className="text-sm font-semibold text-slate-950">8–30 dias</h3>
                   <p className="mt-1 text-xs text-slate-500">
                     Intervenções para preparar com antecedência.
                   </p>
@@ -530,9 +479,7 @@ export function MaintenanceClient({
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                           {formatDate(plan.nextDue)}
                         </p>
-                        <p className="mt-1 text-[11px] font-medium text-slate-400">
-                          Preparação
-                        </p>
+                        <p className="mt-1 text-[11px] font-medium text-slate-400">Preparação</p>
                       </div>
 
                       <div className="min-w-0">
@@ -550,16 +497,12 @@ export function MaintenanceClient({
                         )}
 
                         {asset?.sites?.name ? (
-                          <p className="mt-1 truncate text-xs text-slate-500">
-                            {asset.sites.name}
-                          </p>
+                          <p className="mt-1 truncate text-xs text-slate-500">{asset.sites.name}</p>
                         ) : null}
                       </div>
 
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-slate-800">
-                          {plan.plan}
-                        </p>
+                        <p className="truncate text-sm font-medium text-slate-800">{plan.plan}</p>
                         <p className="mt-1 text-xs text-slate-500">
                           {formatFrequency(plan.frequency)}
                         </p>
@@ -575,12 +518,11 @@ export function MaintenanceClient({
                                 ),
                             ) ?? [];
 
-                          const highPriorityWorkOrders =
-                            openWorkOrders.filter((workOrder) =>
-                              ['CRITICAL', 'URGENT', 'HIGH'].includes(
-                                workOrder.priority.toUpperCase(),
-                              ),
-                            );
+                          const highPriorityWorkOrders = openWorkOrders.filter((workOrder) =>
+                            ['CRITICAL', 'URGENT', 'HIGH'].includes(
+                              workOrder.priority.toUpperCase(),
+                            ),
+                          );
 
                           if (highPriorityWorkOrders.length > 0) {
                             return (
@@ -654,8 +596,8 @@ export function MaintenanceClient({
                 O que precisa de decisão?
               </h2>
               <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">
-                Exceções de manutenção que podem exigir coordenação, revisão
-                ou intervenção da operação.
+                Exceções de manutenção que podem exigir coordenação, revisão ou intervenção da
+                operação.
               </p>
             </div>
             <span className="text-sm text-slate-500">
@@ -671,8 +613,8 @@ export function MaintenanceClient({
                 Sem situações que exijam decisão agora
               </p>
               <p className="mt-1 max-w-2xl text-sm leading-6 text-emerald-800/80">
-                Não existem manutenções em atraso registadas. As intervenções
-                previstas estão dentro do planeamento operacional.
+                Não existem manutenções em atraso registadas. As intervenções previstas estão dentro
+                do planeamento operacional.
               </p>
             </div>
           </div>
@@ -709,34 +651,24 @@ export function MaintenanceClient({
                     </div>
 
                     <h3 className="mt-2 text-base font-semibold text-slate-950">
-                      {asset?.name ??
-                        situation.operationalContext?.asset?.name ??
-                        situation.title}
+                      {asset?.name ?? situation.operationalContext?.asset?.name ?? situation.title}
                     </h3>
 
                     <p className="mt-1 text-sm text-slate-500">
-                      {asset?.sites?.name
-                        ? `${asset.sites.name} · `
-                        : ''}
+                      {asset?.sites?.name ? `${asset.sites.name} · ` : ''}
                       {situation.explanation}
                     </p>
 
                     {situation.impact && (
-                      <p className="mt-2 text-sm font-medium text-slate-700">
-                        {situation.impact}
-                      </p>
+                      <p className="mt-2 text-sm font-medium text-slate-700">{situation.impact}</p>
                     )}
                   </div>
 
                   <div className="flex shrink-0 flex-wrap items-center gap-3">
                     {situation.action ? (
-                      <MaintenanceDecisionAction
-                        maintenancePlanId={situation.action.resourceId}
-                      />
+                      <MaintenanceDecisionAction maintenancePlanId={situation.action.resourceId} />
                     ) : (
-                      <span className="text-sm text-slate-400">
-                        Sem ação disponível
-                      </span>
+                      <span className="text-sm text-slate-400">Sem ação disponível</span>
                     )}
                   </div>
                 </div>

@@ -199,6 +199,7 @@ export interface DailyBriefingPriority {
   recommendations?: IntelligenceRecommendation[];
   decisionContext?: IntelligenceDecisionContext;
   action?: IntelligenceSignal['action'];
+  aiAnalysis?: AIAnalysis;
 }
 
 export interface DailyBriefing {
