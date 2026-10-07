@@ -2,20 +2,19 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
 
+import type { AuthenticatedUser } from '../../modules/auth/interfaces/authenticated-user.interface';
 import { BillingService } from '../../modules/billing/billing.service';
 import {
   BILLING_FEATURE_KEY,
 } from '../decorators/billing-entitlement.decorator';
 
 type BillingRequest = Request & {
-  user?: {
-    organizationId?: string;
-    organization_id?: string;
-  };
+  user?: AuthenticatedUser;
 };
 
 @Injectable()
@@ -36,11 +35,12 @@ export class BillingEntitlementGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<BillingRequest>();
-    const organizationId =
-      request.user?.organizationId ?? request.user?.organization_id;
+    const organizationId = request.user?.organizationId;
 
     if (!organizationId) {
-      return true;
+      throw new UnauthorizedException(
+        'Authenticated user organization is required for billing entitlement checks.',
+      );
     }
 
     await this.billingService.assertFeature(

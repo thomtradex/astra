@@ -2,24 +2,19 @@ import { Module } from '@nestjs/common';
 
 import { BillingController } from './billing.controller';
 import { BillingService } from './billing.service';
-import { BillingAccessService } from './core/billing-access.service';
 import { PaymentModule } from './payment/payment.module';
-import { SubscriptionService } from './subscriptions/subscription.service';
 import { UsageService } from './usage/usage.service';
+import { BillingWebhookModule } from './webhooks/billing-webhook.module';
 @Module({
   controllers: [BillingController],
-  imports: [PaymentModule],
+  imports: [PaymentModule, BillingWebhookModule],
   providers: [
     BillingService,
-    SubscriptionService,
     UsageService,
-    BillingAccessService,
   ],
   exports: [
     BillingService,
-    SubscriptionService,
     UsageService,
-    BillingAccessService,
   ],
 })
 export class BillingModule {}

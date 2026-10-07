@@ -50,17 +50,17 @@ export class StripeProvider implements PaymentProvider {
           quantity: 1,
         },
       ],
-      ...(input.trialDays > 0
-        ? {
-            subscription_data: {
+      subscription_data: {
+        ...(input.trialDays > 0
+          ? {
               trial_period_days: input.trialDays,
-              metadata: {
-                organizationId: input.organizationId,
-                planCode: input.planCode,
-              },
-            },
-          }
-        : {}),
+            }
+          : {}),
+        metadata: {
+          organizationId: input.organizationId,
+          planCode: input.planCode,
+        },
+      },
       metadata: {
         organizationId: input.organizationId,
         planCode: input.planCode,

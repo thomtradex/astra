@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 
+import { UsageService } from '../../src/modules/billing/usage/usage.service';
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { apiRequest } from '../helpers/http-client';
 import { apiPath, createTestApp } from '../helpers/test-app';
@@ -93,6 +94,59 @@ describe('Billing entitlements (integration)', () => {
       );
     }
   }
+
+  it('allows only one concurrent AI reservation against the real database', async () => {
+    const usageService = new UsageService(prisma);
+
+    const periodStart = new Date(
+      Date.UTC(
+        new Date().getUTCFullYear(),
+        new Date().getUTCMonth(),
+        1,
+      ),
+    );
+
+    await prisma.organizationMonthlyUsage.deleteMany({
+      where: {
+        organizationId,
+        periodStart,
+      },
+    });
+
+    const results = await Promise.allSettled([
+      usageService.reserveAiRequest(organizationId, 1),
+      usageService.reserveAiRequest(organizationId, 1),
+    ]);
+
+    const fulfilled = results.filter(
+      (result) => result.status === 'fulfilled',
+    );
+
+    const rejected = results.filter(
+      (result) => result.status === 'rejected',
+    );
+
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+
+    const usage = await prisma.organizationMonthlyUsage.findUnique({
+      where: {
+        organizationId_periodStart: {
+          organizationId,
+          periodStart,
+        },
+      },
+    });
+
+    expect(usage?.aiRequests).toBe(1);
+
+    await prisma.organizationMonthlyUsage.deleteMany({
+      where: {
+        organizationId,
+        periodStart,
+      },
+    });
+  });
 
   it('blocks intelligence when the organization plan does not include it', async () => {
     await setPlan('TEST_BILLING_NO_INTELLIGENCE', {
