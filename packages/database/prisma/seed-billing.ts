@@ -94,7 +94,7 @@ const PLANS: BillingPlanSeed[] = [
       basicReports: true,
       aiAssistant: true,
       forecasting: false,
-      intelligence: true,
+      intelligence: false,
       cooActions: false,
       advancedAnalytics: false,
       apiAccess: false,
