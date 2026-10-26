@@ -25,14 +25,22 @@ export class BillingEntitlementGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredFeature = this.reflector.getAllAndOverride<string>(
+    const requiredFeatures = this.reflector.getAllAndOverride<
+      string | string[]
+    >(
       BILLING_FEATURE_KEY,
       [context.getHandler(), context.getClass()],
     );
 
-    if (!requiredFeature) {
+    if (!requiredFeatures || (
+      Array.isArray(requiredFeatures) && requiredFeatures.length === 0
+    )) {
       return true;
     }
+
+    const features = Array.isArray(requiredFeatures)
+      ? requiredFeatures
+      : [requiredFeatures];
 
     const request = context.switchToHttp().getRequest<BillingRequest>();
     const organizationId = request.user?.organizationId;
@@ -43,10 +51,9 @@ export class BillingEntitlementGuard implements CanActivate {
       );
     }
 
-    await this.billingService.assertFeature(
-      organizationId,
-      requiredFeature,
-    );
+    for (const feature of features) {
+      await this.billingService.assertFeature(organizationId, feature);
+    }
 
     return true;
   }

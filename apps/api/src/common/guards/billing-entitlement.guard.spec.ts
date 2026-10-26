@@ -23,7 +23,7 @@ describe('BillingEntitlementGuard', () => {
   } as unknown as BillingService;
 
   const getAllAndOverride = jest.fn<
-    string | undefined,
+    string | string[] | undefined,
     [string, unknown[]]
   >();
 
@@ -130,4 +130,42 @@ describe('BillingEntitlementGuard', () => {
 
     expect(assertFeature).not.toHaveBeenCalled();
   });
+
+  it('checks every required billing feature for the organization', async () => {
+    getAllAndOverride.mockReturnValue(['intelligence', 'cooActions']);
+    assertFeature.mockResolvedValue(undefined);
+
+    await expect(
+      guard.canActivate(
+        createContext({ organizationId: 'org-alpha' }),
+      ),
+    ).resolves.toBe(true);
+
+    expect(assertFeature).toHaveBeenNthCalledWith(
+      1, 'org-alpha', 'intelligence',
+    );
+    expect(assertFeature).toHaveBeenNthCalledWith(
+      2, 'org-alpha', 'cooActions',
+    );
+    expect(assertFeature).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops checking features when the first entitlement is denied', async () => {
+    getAllAndOverride.mockReturnValue(['intelligence', 'cooActions']);
+
+    const entitlementError = new Error('Intelligence unavailable');
+    assertFeature.mockRejectedValueOnce(entitlementError);
+
+    await expect(
+      guard.canActivate(
+        createContext({ organizationId: 'org-alpha' }),
+      ),
+    ).rejects.toBe(entitlementError);
+
+    expect(assertFeature).toHaveBeenCalledTimes(1);
+    expect(assertFeature).toHaveBeenCalledWith(
+      'org-alpha', 'intelligence',
+    );
+  });
+
 });
