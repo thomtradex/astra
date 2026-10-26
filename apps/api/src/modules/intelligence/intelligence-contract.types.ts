@@ -35,6 +35,26 @@ export interface OperationalContext {
     id: string;
     nextDue?: string;
   };
+  inventory?: {
+    material: {
+      id: string;
+      name?: string;
+      code?: string;
+      unit?: string;
+    };
+    site: {
+      id: string;
+      name?: string;
+      code?: string;
+    };
+    onHand: number;
+    reserved: number;
+    available: number;
+    outstandingDemand: number;
+    projectedAvailable: number;
+    reorderPoint: number;
+    reorderQuantity?: number;
+  };
   workOrders: {
     open: number;
     highPriorityOpen: number;

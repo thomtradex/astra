@@ -29,8 +29,17 @@ export class IntelligenceService {
   ) {}
 
   async analyze(organizationId: string) {
-    const [workOrders, maintenancePlans, assets, sites, projects, recentAuditLogs] =
-      await Promise.all([
+    const [
+      workOrders,
+      maintenancePlans,
+      assets,
+      sites,
+      projects,
+      materials,
+      inventoryStock,
+      workOrderMaterials,
+      recentAuditLogs,
+    ] = await Promise.all([
         this.prisma.work_orders.findMany({
           where: {
             organization_id: organizationId,
@@ -93,6 +102,51 @@ export class IntelligenceService {
             end_date: true,
           },
         }),
+        this.prisma.materials.findMany({
+          where: {
+            organization_id: organizationId,
+            active: true,
+            reorder_point: {
+              not: null,
+            },
+          },
+          select: {
+            id: true,
+            code: true,
+            name: true,
+            unit: true,
+            reorder_point: true,
+            reorder_quantity: true,
+            active: true,
+          },
+        }),
+        this.prisma.inventory_stock.findMany({
+          where: {
+            organization_id: organizationId,
+          },
+          select: {
+            id: true,
+            site_id: true,
+            material_id: true,
+            quantity_on_hand: true,
+            quantity_reserved: true,
+          },
+        }),
+        this.prisma.work_order_materials.findMany({
+          where: {
+            organization_id: organizationId,
+          },
+          select: {
+            id: true,
+            work_order_id: true,
+            material_id: true,
+            site_id: true,
+            required_quantity: true,
+            reserved_quantity: true,
+            consumed_quantity: true,
+            status: true,
+          },
+        }),
         this.prisma.auditLog.findMany({
           where: {
             organizationId,
@@ -139,6 +193,22 @@ export class IntelligenceService {
       assets,
       sites,
       projects,
+      materials: materials.map((material) => ({
+        ...material,
+        reorder_point: material.reorder_point?.toNumber() ?? null,
+        reorder_quantity: material.reorder_quantity?.toNumber() ?? null,
+      })),
+      inventoryStock: inventoryStock.map((stock) => ({
+        ...stock,
+        quantity_on_hand: stock.quantity_on_hand.toNumber(),
+        quantity_reserved: stock.quantity_reserved.toNumber(),
+      })),
+      workOrderMaterials: workOrderMaterials.map((item) => ({
+        ...item,
+        required_quantity: item.required_quantity.toNumber(),
+        reserved_quantity: item.reserved_quantity.toNumber(),
+        consumed_quantity: item.consumed_quantity.toNumber(),
+      })),
     });
 
     const lastCooActions = new Map<

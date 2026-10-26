@@ -17,7 +17,8 @@ export type IntelligenceSignalType =
   | 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER'
   | 'UNASSIGNED_WORK_ORDER'
   | 'OVERDUE_PROJECT'
-  | 'STALE_OPEN_WORK_ORDER';
+  | 'STALE_OPEN_WORK_ORDER'
+  | 'STOCK_RISK';
 
 export interface IntelligenceChange {
   id: string;
@@ -113,4 +114,5 @@ export interface IntelligenceSignal {
     resource: string;
     resourceId?: string;
   };
+  stockRiskContext?: { siteId: string; materialId: string };
 }

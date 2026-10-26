@@ -31,6 +31,9 @@ describe('IntelligenceService', () => {
       assets: { findMany: jest.fn().mockResolvedValue([]) },
       sites: { findMany: jest.fn().mockResolvedValue([]) },
       projects: { findMany: jest.fn().mockResolvedValue([]) },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: { findMany: jest.fn().mockResolvedValue([]) },
     };
 
@@ -116,6 +119,9 @@ describe('IntelligenceService', () => {
       assets: { findMany: jest.fn().mockResolvedValue([]) },
       sites: { findMany: jest.fn().mockResolvedValue([]) },
       projects: { findMany: jest.fn().mockResolvedValue([]) },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: { findMany: jest.fn().mockResolvedValue([]) },
     };
 
@@ -193,6 +199,9 @@ describe('IntelligenceService', () => {
       assets: { findMany: jest.fn().mockResolvedValue([]) },
       sites: { findMany: jest.fn().mockResolvedValue([]) },
       projects: { findMany: jest.fn().mockResolvedValue([]) },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: { findMany: jest.fn().mockResolvedValue([]) },
     };
 
@@ -298,6 +307,9 @@ describe('IntelligenceService', () => {
           },
         ]),
       },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: { findMany: jest.fn().mockResolvedValue([]) },
     };
 
@@ -428,6 +440,9 @@ describe('IntelligenceService', () => {
       maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
       assets: { findMany: jest.fn().mockResolvedValue([]) },
       sites: { findMany: jest.fn().mockResolvedValue([]) },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: { findMany: jest.fn().mockResolvedValue([]) },
     };
 
@@ -538,6 +553,9 @@ describe('IntelligenceService', () => {
       maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
       assets: { findMany: jest.fn().mockResolvedValue([]) },
       sites: { findMany: jest.fn().mockResolvedValue([]) },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: {
         findMany: jest.fn().mockResolvedValue([
           {
@@ -656,6 +674,9 @@ describe('IntelligenceService', () => {
       maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
       assets: { findMany: jest.fn().mockResolvedValue([]) },
       sites: { findMany: jest.fn().mockResolvedValue([]) },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: {
         findMany: jest.fn().mockResolvedValue([
           {
@@ -731,6 +752,9 @@ describe('IntelligenceService', () => {
       },
       assets: { findMany: jest.fn().mockResolvedValue([]) },
       sites: { findMany: jest.fn().mockResolvedValue([]) },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: {
         findMany: jest.fn().mockResolvedValue([
           {
@@ -800,6 +824,9 @@ describe('IntelligenceService', () => {
       maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
       assets: { findMany: jest.fn().mockResolvedValue([]) },
       sites: { findMany: jest.fn().mockResolvedValue([]) },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: {
         findMany: jest.fn().mockResolvedValue([
           {
@@ -869,6 +896,9 @@ describe('IntelligenceService', () => {
       maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
       assets: { findMany: jest.fn().mockResolvedValue([]) },
       sites: { findMany: jest.fn().mockResolvedValue([]) },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: {
         findMany: jest.fn().mockResolvedValue([
           {
@@ -938,6 +968,9 @@ describe('IntelligenceService', () => {
       maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
       assets: { findMany: jest.fn().mockResolvedValue([]) },
       sites: { findMany: jest.fn().mockResolvedValue([]) },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: {
         findMany: jest.fn().mockResolvedValue([
           {
@@ -997,6 +1030,9 @@ describe('IntelligenceService', () => {
       maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
       assets: { findMany: jest.fn().mockResolvedValue([]) },
       sites: { findMany: jest.fn().mockResolvedValue([]) },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: {
         findMany: jest.fn().mockResolvedValue([
           {
@@ -1112,6 +1148,9 @@ describe('IntelligenceService', () => {
       maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
       assets: { findMany: jest.fn().mockResolvedValue([]) },
       sites: { findMany: jest.fn().mockResolvedValue([]) },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: { findMany: jest.fn().mockResolvedValue([]) },
     };
 
@@ -1267,6 +1306,9 @@ describe('IntelligenceService', () => {
       maintenance_plans: { findMany: jest.fn().mockResolvedValue([]) },
       assets: { findMany: jest.fn().mockResolvedValue([]) },
       sites: { findMany: jest.fn().mockResolvedValue([]) },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: { findMany: jest.fn().mockResolvedValue([]) },
     };
 
@@ -1364,6 +1406,9 @@ describe('IntelligenceService', () => {
       projects: {
         findMany: jest.fn().mockResolvedValue([]),
       },
+      materials: { findMany: jest.fn().mockResolvedValue([]) },
+      inventory_stock: { findMany: jest.fn().mockResolvedValue([]) },
+      work_order_materials: { findMany: jest.fn().mockResolvedValue([]) },
       auditLog: {
         findMany: jest.fn().mockResolvedValue([]),
       },

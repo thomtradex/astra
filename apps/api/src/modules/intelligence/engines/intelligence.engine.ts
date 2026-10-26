@@ -56,12 +56,44 @@ type Project = {
   end_date: Date | null;
 };
 
+type InventoryMaterial = {
+  id: string;
+  code: string;
+  name: string;
+  unit: string;
+  reorder_point: number | null;
+  reorder_quantity: number | null;
+  active: boolean;
+};
+
+type InventoryStock = {
+  id: string;
+  site_id: string;
+  material_id: string;
+  quantity_on_hand: number;
+  quantity_reserved: number;
+};
+
+type WorkOrderMaterial = {
+  id: string;
+  work_order_id: string;
+  material_id: string;
+  site_id: string;
+  required_quantity: number;
+  reserved_quantity: number;
+  consumed_quantity: number;
+  status: string;
+};
+
 type CooDecisionInput = {
   workOrders: WorkOrder[];
   maintenancePlans: MaintenancePlan[];
   assets: Asset[];
   sites: Site[];
   projects: Project[];
+  materials?: InventoryMaterial[];
+  inventoryStock?: InventoryStock[];
+  workOrderMaterials?: WorkOrderMaterial[];
   now?: Date;
 };
 
@@ -161,6 +193,9 @@ export class CooDecisionEngine {
         ),
       );
     }
+
+    const stockRiskSignals = this.buildStockRiskSignals(input, now);
+    signals.push(...stockRiskSignals);
 
     const overdueProjects = input.projects.filter(
       (project) => project.progress < 100 && project.end_date !== null && project.end_date < now,
@@ -937,6 +972,178 @@ export class CooDecisionEngine {
     };
   }
 
+  private buildStockRiskSignals(
+    input: CooDecisionInput,
+    now: Date,
+  ): IntelligenceSignal[] {
+    const materials = input.materials ?? [];
+    const inventoryStock = input.inventoryStock ?? [];
+    const workOrderMaterials = input.workOrderMaterials ?? [];
+
+    if (materials.length === 0) {
+      return [];
+    }
+
+    const openWorkOrderIds = new Set(
+      input.workOrders
+        .filter((order) => this.isOpenWorkOrder(order.status))
+        .map((order) => order.id),
+    );
+
+    const stockByKey = new Map(
+      inventoryStock.map((stock) => [
+        `${stock.site_id}:${stock.material_id}`,
+        stock,
+      ]),
+    );
+
+    const demandByKey = new Map<string, number>();
+
+    for (const workOrderMaterial of workOrderMaterials) {
+      if (!openWorkOrderIds.has(workOrderMaterial.work_order_id)) {
+        continue;
+      }
+
+      const remainingDemand = Math.max(
+        0,
+        workOrderMaterial.required_quantity -
+          workOrderMaterial.reserved_quantity -
+          workOrderMaterial.consumed_quantity,
+      );
+
+      if (remainingDemand <= 0) {
+        continue;
+      }
+
+      const key = `${workOrderMaterial.site_id}:${workOrderMaterial.material_id}`;
+      demandByKey.set(
+        key,
+        (demandByKey.get(key) ?? 0) + remainingDemand,
+      );
+    }
+
+    const sitesById = new Map(input.sites.map((site) => [site.id, site]));
+
+    const signals: IntelligenceSignal[] = [];
+
+    for (const material of materials) {
+      if (!material.active || material.reorder_point === null) {
+        continue;
+      }
+
+      const relevantSiteIds = new Set<string>();
+
+      for (const stock of inventoryStock) {
+        if (stock.material_id === material.id) {
+          relevantSiteIds.add(stock.site_id);
+        }
+      }
+
+      for (const workOrderMaterial of workOrderMaterials) {
+        if (
+          workOrderMaterial.material_id === material.id &&
+          openWorkOrderIds.has(workOrderMaterial.work_order_id)
+        ) {
+          relevantSiteIds.add(workOrderMaterial.site_id);
+        }
+      }
+
+      for (const siteId of relevantSiteIds) {
+        const key = `${siteId}:${material.id}`;
+        const stock = stockByKey.get(key);
+        const onHand = stock?.quantity_on_hand ?? 0;
+        const reserved = stock?.quantity_reserved ?? 0;
+        const available = onHand - reserved;
+        const outstandingDemand = demandByKey.get(key) ?? 0;
+        const projectedAvailable = available - outstandingDemand;
+
+        if (available > material.reorder_point && projectedAvailable > material.reorder_point) {
+          continue;
+        }
+
+        const site = sitesById.get(siteId);
+
+        const severity: IntelligenceSeverity =
+          projectedAvailable < 0
+            ? 'CRITICAL'
+            : projectedAvailable <= material.reorder_point
+              ? outstandingDemand > 0
+                ? 'HIGH'
+                : 'MEDIUM'
+              : 'MEDIUM';
+
+        const title = `Stock em risco — ${material.name} · ${site?.name ?? siteId}`;
+
+        const evidence = [
+          `Material: ${material.name} (${material.code})`,
+          `Site: ${site?.name ?? siteId}`,
+          `Stock físico: ${onHand} ${material.unit}`,
+          `Stock reservado: ${reserved} ${material.unit}`,
+          `Stock disponível: ${available} ${material.unit}`,
+          `Procura pendente: ${outstandingDemand} ${material.unit}`,
+          `Disponibilidade projetada: ${projectedAvailable} ${material.unit}`,
+          `Ponto de reposição: ${material.reorder_point} ${material.unit}`,
+        ];
+
+        if (material.reorder_quantity !== null) {
+          evidence.push(
+            `Quantidade de reposição configurada: ${material.reorder_quantity} ${material.unit}`,
+          );
+        }
+
+        const urgency =
+          projectedAvailable < 0
+            ? `Requer atenção imediata: faltam ${Math.abs(projectedAvailable)} ${material.unit} para cobrir a procura operacional pendente.`
+            : outstandingDemand > 0
+              ? 'Requer revisão prioritária: a disponibilidade projetada está no ou abaixo do ponto de reposição.'
+              : 'Requer revisão: o stock disponível está no ou abaixo do ponto de reposição.';
+
+        const impact =
+          projectedAvailable < 0
+            ? `A disponibilidade atual não cobre a procura pendente de ${outstandingDemand} ${material.unit}, criando risco operacional para ordens de trabalho abertas.`
+            : `A posição de stock para este material está no ou abaixo do ponto de reposição e pode comprometer a continuidade operacional se não houver reposição.`;
+
+        signals.push({
+          id: `stock-risk-${siteId}-${material.id}`,
+          type: 'STOCK_RISK',
+          severity,
+          priorityContext: {
+            openWorkOrders: workOrderMaterials.filter(
+              (item) =>
+                item.site_id === siteId &&
+                item.material_id === material.id &&
+                openWorkOrderIds.has(item.work_order_id),
+            ).length,
+          },
+          title,
+          explanation:
+            'A posição de stock está abaixo do nível operacional definido para reposição.',
+          evidence,
+          urgency,
+          impact,
+          recommendedAction:
+            `Rever o aprovisionamento de ${material.name} para ${site?.name ?? siteId} e confirmar a próxima reposição.`,
+          decision: {
+            type: 'REVIEW',
+            label: 'Rever aprovisionamento',
+          },
+          status: 'OPEN',
+          timestamp: now.toISOString(),
+          stockRiskContext: {
+            siteId,
+            materialId: material.id,
+          },
+          source: {
+            resource: 'inventory_stock',
+            resourceId: stock?.id,
+          },
+        });
+      }
+    }
+
+    return signals;
+  }
+
   private isOpenWorkOrder(status: string): boolean {
     return !['COMPLETED', 'CLOSED', 'CANCELLED'].includes(status.toUpperCase());
   }
@@ -1108,6 +1315,94 @@ export class CooDecisionEngine {
       return context;
     }
 
+    if (resource === 'inventory_stock') {
+      const stockMetadata = signal.stockRiskContext;
+
+      const selectedStock = resourceId
+        ? input.inventoryStock?.find((item) => item.id === resourceId)
+        : stockMetadata
+          ? (input.inventoryStock ?? []).find(
+              (item) =>
+                item.site_id === stockMetadata.siteId &&
+                item.material_id === stockMetadata.materialId,
+            )
+          : undefined;
+
+      const materialId =
+        stockMetadata?.materialId ?? selectedStock?.material_id;
+      const siteId = stockMetadata?.siteId ?? selectedStock?.site_id;
+
+      if (!materialId || !siteId) {
+        return context;
+      }
+
+      const material = input.materials?.find(
+        (item) => item.id === materialId,
+      );
+      const site = input.sites.find((item) => item.id === siteId);
+
+      if (!material || !site || material.reorder_point === null) {
+        return context;
+      }
+
+      const onHand = selectedStock?.quantity_on_hand ?? 0;
+      const reserved = selectedStock?.quantity_reserved ?? 0;
+      const available = onHand - reserved;
+
+      const outstandingDemand = (input.workOrderMaterials ?? [])
+        .filter(
+          (item) =>
+            item.material_id === materialId &&
+            item.site_id === siteId &&
+            this.isOpenWorkOrder(
+              input.workOrders.find(
+                (order) => order.id === item.work_order_id,
+              )?.status ?? 'CLOSED',
+            ),
+        )
+        .reduce(
+          (total, item) =>
+            total +
+            Math.max(
+              0,
+              item.required_quantity -
+                item.reserved_quantity -
+                item.consumed_quantity,
+            ),
+          0,
+        );
+
+      context.site = {
+        id: site.id,
+        name: site.name,
+      };
+
+      context.inventory = {
+        material: {
+          id: material.id,
+          name: material.name,
+          code: material.code,
+          unit: material.unit,
+        },
+        site: {
+          id: site.id,
+          name: site.name,
+          code: site.code,
+        },
+        onHand,
+        reserved,
+        available,
+        outstandingDemand,
+        projectedAvailable: available - outstandingDemand,
+        reorderPoint: material.reorder_point,
+        ...(material.reorder_quantity !== null
+          ? { reorderQuantity: material.reorder_quantity }
+          : {}),
+      };
+
+      return context;
+    }
+
     if (resource === 'maintenance_plans' && resourceId) {
       const maintenance = input.maintenancePlans.find(
         (item) => item.id === resourceId,
@@ -1262,6 +1557,21 @@ export class CooDecisionEngine {
 
       case 'HIGH_PRIORITY_WORK_ORDER':
         return 15;
+
+      case 'STOCK_RISK':
+        if (signal.severity === 'CRITICAL') {
+          return 32;
+        }
+
+        if (signal.severity === 'HIGH') {
+          return 27;
+        }
+
+        if (signal.severity === 'MEDIUM') {
+          return 16;
+        }
+
+        return 8;
 
       default:
         return 0;

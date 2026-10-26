@@ -1696,6 +1696,304 @@ describe('CooDecisionEngine', () => {
 
 });
 
+
+describe('stock risk intelligence', () => {
+  const now = new Date('2026-09-18T12:00:00Z');
+
+  const baseInput = {
+    workOrders: [
+      {
+        id: 'stock-wo-1',
+        title: 'Aplicação de material',
+        priority: 'NORMAL',
+        status: 'OPEN',
+        asset_id: null,
+        project_id: null,
+        assigned_to_id: 'user-1',
+        updated_at: now,
+      },
+    ],
+    maintenancePlans: [],
+    assets: [],
+    sites: [
+      {
+        id: 'stock-site-1',
+        name: 'Obra Stock',
+        code: 'STOCK-01',
+      },
+    ],
+    projects: [],
+    materials: [
+      {
+        id: 'stock-material-1',
+        code: 'MAT-001',
+        name: 'Cimento',
+        unit: 'saco',
+        reorder_point: 20,
+        reorder_quantity: 50,
+        active: true,
+      },
+    ],
+    inventoryStock: [
+      {
+        id: 'stock-row-1',
+        site_id: 'stock-site-1',
+        material_id: 'stock-material-1',
+        quantity_on_hand: 15,
+        quantity_reserved: 0,
+      },
+    ],
+    workOrderMaterials: [],
+    now,
+  };
+
+  it('creates a medium stock risk when available stock is at or below reorder point without pending demand', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze(baseInput);
+
+    const signal = result.signals.find(
+      (item) => item.type === 'STOCK_RISK',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.severity).toBe('MEDIUM');
+    expect(signal!.source.resource).toBe('inventory_stock');
+    expect(signal!.source.resourceId).toBe('stock-row-1');
+    expect(signal!.decision).toEqual({
+      type: 'REVIEW',
+      label: 'Rever aprovisionamento',
+    });
+    expect(signal!.recommendations).toEqual([
+      expect.objectContaining({
+        type: 'MONITOR',
+        executable: false,
+      }),
+    ]);
+  });
+
+  it('creates a high stock risk when pending demand pushes projected availability to the reorder point', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      ...baseInput,
+      inventoryStock: [
+        {
+          ...baseInput.inventoryStock[0],
+          quantity_on_hand: 30,
+          quantity_reserved: 0,
+        },
+      ],
+      workOrderMaterials: [
+        {
+          id: 'stock-wom-1',
+          work_order_id: 'stock-wo-1',
+          material_id: 'stock-material-1',
+          site_id: 'stock-site-1',
+          required_quantity: 10,
+          reserved_quantity: 0,
+          consumed_quantity: 0,
+          status: 'REQUIRED',
+        },
+      ],
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'STOCK_RISK',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.severity).toBe('HIGH');
+    expect(signal!.operationalContext?.inventory).toEqual(
+      expect.objectContaining({
+        onHand: 30,
+        reserved: 0,
+        available: 30,
+        outstandingDemand: 10,
+        projectedAvailable: 20,
+        reorderPoint: 20,
+        reorderQuantity: 50,
+      }),
+    );
+  });
+
+  it('creates a critical stock risk when projected availability is negative', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      ...baseInput,
+      inventoryStock: [
+        {
+          ...baseInput.inventoryStock[0],
+          quantity_on_hand: 10,
+          quantity_reserved: 0,
+        },
+      ],
+      workOrderMaterials: [
+        {
+          id: 'stock-wom-2',
+          work_order_id: 'stock-wo-1',
+          material_id: 'stock-material-1',
+          site_id: 'stock-site-1',
+          required_quantity: 25,
+          reserved_quantity: 0,
+          consumed_quantity: 0,
+          status: 'REQUIRED',
+        },
+      ],
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'STOCK_RISK',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.severity).toBe('CRITICAL');
+    expect(signal!.operationalContext?.inventory).toEqual(
+      expect.objectContaining({
+        available: 10,
+        outstandingDemand: 25,
+        projectedAvailable: -15,
+      }),
+    );
+  });
+
+  it('does not count reserved stock as available stock', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      ...baseInput,
+      inventoryStock: [
+        {
+          ...baseInput.inventoryStock[0],
+          quantity_on_hand: 30,
+          quantity_reserved: 15,
+        },
+      ],
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'STOCK_RISK',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.severity).toBe('MEDIUM');
+    expect(signal!.operationalContext?.inventory).toEqual(
+      expect.objectContaining({
+        onHand: 30,
+        reserved: 15,
+        available: 15,
+      }),
+    );
+  });
+
+  it('creates a critical stock risk when pending demand exists without an inventory stock row', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      ...baseInput,
+      inventoryStock: [],
+      workOrderMaterials: [
+        {
+          id: 'stock-wom-3',
+          work_order_id: 'stock-wo-1',
+          material_id: 'stock-material-1',
+          site_id: 'stock-site-1',
+          required_quantity: 25,
+          reserved_quantity: 0,
+          consumed_quantity: 0,
+          status: 'REQUIRED',
+        },
+      ],
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'STOCK_RISK',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.severity).toBe('CRITICAL');
+    expect(signal!.source.resource).toBe('inventory_stock');
+    expect(signal!.source.resourceId).toBeUndefined();
+    expect(signal!.operationalContext?.inventory).toEqual(
+      expect.objectContaining({
+        onHand: 0,
+        reserved: 0,
+        available: 0,
+        outstandingDemand: 25,
+        projectedAvailable: -25,
+      }),
+    );
+  });
+
+  it('ignores materials without a reorder point', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      ...baseInput,
+      materials: [
+        {
+          ...baseInput.materials[0],
+          reorder_point: null,
+        },
+      ],
+    });
+
+    expect(
+      result.signals.some((item) => item.type === 'STOCK_RISK'),
+    ).toBe(false);
+  });
+
+  it('ignores inactive materials even when stock is below the configured reorder point', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      ...baseInput,
+      materials: [
+        {
+          ...baseInput.materials[0],
+          active: false,
+        },
+      ],
+    });
+
+    expect(
+      result.signals.some((item) => item.type === 'STOCK_RISK'),
+    ).toBe(false);
+  });
+
+  it('does not create a stock risk when available and projected stock are both above reorder point', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      ...baseInput,
+      inventoryStock: [
+        {
+          ...baseInput.inventoryStock[0],
+          quantity_on_hand: 100,
+          quantity_reserved: 10,
+        },
+      ],
+      workOrderMaterials: [
+        {
+          id: 'stock-wom-4',
+          work_order_id: 'stock-wo-1',
+          material_id: 'stock-material-1',
+          site_id: 'stock-site-1',
+          required_quantity: 10,
+          reserved_quantity: 0,
+          consumed_quantity: 0,
+          status: 'REQUIRED',
+        },
+      ],
+    });
+
+    expect(
+      result.signals.some((item) => item.type === 'STOCK_RISK'),
+    ).toBe(false);
+  });
+});
+
 describe('Operational Intelligence V4 contract', () => {
   it('exposes structured evidence for every generated signal', () => {
     const engine = new CooDecisionEngine();
