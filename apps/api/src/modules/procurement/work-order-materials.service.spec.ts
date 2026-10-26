@@ -480,6 +480,9 @@ describe('WorkOrderMaterialsService', () => {
 
   describe('reserve', () => {
     const tx = {
+      work_orders: {
+        findFirst: jest.fn(),
+      },
       work_order_materials: {
         findFirst: jest.fn(),
         update: jest.fn(),
@@ -502,6 +505,10 @@ describe('WorkOrderMaterialsService', () => {
       transactionMock.mockImplementation(
         async (callback: (transaction: typeof tx) => Promise<unknown>) => callback(tx),
       );
+      tx.work_orders.findFirst.mockResolvedValue({
+        id: 'wo-1',
+        status: 'OPEN',
+      });
 
       tx.work_order_materials.findFirst.mockResolvedValue({
         id: 'wom-1',
@@ -527,6 +534,33 @@ describe('WorkOrderMaterialsService', () => {
         status: 'RESERVED',
       });
     });
+
+    it.each(['CANCELLED', 'COMPLETED', 'CLOSED'])(
+      'rejects reservation when the work order is %s',
+      async (status) => {
+        tx.work_orders.findFirst.mockResolvedValue({
+          id: 'wo-1',
+          status,
+        });
+
+        await expect(
+          service.reserve(
+            {
+              workOrderMaterialId: 'wom-1',
+              quantity: 1,
+            },
+            'org-1',
+          ),
+        ).rejects.toThrow(
+          'Cannot reserve or consume materials for a closed work order',
+        );
+
+        expect(tx.inventory_stock.findFirst).not.toHaveBeenCalled();
+        expect(tx.inventory_stock.update).not.toHaveBeenCalled();
+        expect(tx.inventory_movements.create).not.toHaveBeenCalled();
+        expect(tx.work_order_materials.update).not.toHaveBeenCalled();
+      },
+    );
 
     it('rejects reservation above remaining quantity after consumption', async () => {
       tx.work_order_materials.findFirst.mockResolvedValue({
@@ -574,6 +608,37 @@ describe('WorkOrderMaterialsService', () => {
 
       expect(tx.inventory_stock.update).toHaveBeenCalledTimes(1);
       expect(tx.work_order_materials.update).toHaveBeenCalledTimes(1);
+    });
+
+    it('marks material as reserved when consumed and newly reserved quantities cover the requirement', async () => {
+      tx.work_order_materials.findFirst.mockResolvedValue({
+        id: 'wom-1',
+        organization_id: 'org-1',
+        material_id: 'material-1',
+        site_id: 'site-1',
+        required_quantity: new Prisma.Decimal(10),
+        reserved_quantity: new Prisma.Decimal(0),
+        consumed_quantity: new Prisma.Decimal(5),
+        status: 'REQUIRED',
+      });
+
+      await service.reserve(
+        {
+          workOrderMaterialId: 'wom-1',
+          quantity: 5,
+        },
+        'org-1',
+      );
+
+      expect(tx.work_order_materials.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          data: expect.objectContaining({
+            reserved_quantity: new Prisma.Decimal(5),
+            status: 'RESERVED',
+          }),
+        }),
+      );
     });
 
     it('rejects reservation above available stock', async () => {
@@ -631,6 +696,9 @@ describe('WorkOrderMaterialsService', () => {
 
   describe('consume', () => {
     const tx = {
+      work_orders: {
+        findFirst: jest.fn(),
+      },
       work_order_materials: {
         findFirst: jest.fn(),
         update: jest.fn(),
@@ -653,6 +721,10 @@ describe('WorkOrderMaterialsService', () => {
       transactionMock.mockImplementation(
         async (callback: (transaction: typeof tx) => Promise<unknown>) => callback(tx),
       );
+      tx.work_orders.findFirst.mockResolvedValue({
+        id: 'wo-1',
+        status: 'OPEN',
+      });
 
       tx.work_order_materials.findFirst.mockResolvedValue({
         id: 'wom-1',
@@ -684,6 +756,33 @@ describe('WorkOrderMaterialsService', () => {
         status: 'RESERVED',
       });
     });
+
+    it.each(['CANCELLED', 'COMPLETED', 'CLOSED'])(
+      'rejects consumption when the work order is %s',
+      async (status) => {
+        tx.work_orders.findFirst.mockResolvedValue({
+          id: 'wo-1',
+          status,
+        });
+
+        await expect(
+          service.consume(
+            {
+              workOrderMaterialId: 'wom-1',
+              quantity: 1,
+            },
+            'org-1',
+          ),
+        ).rejects.toThrow(
+          'Cannot reserve or consume materials for a closed work order',
+        );
+
+        expect(tx.inventory_stock.findFirst).not.toHaveBeenCalled();
+        expect(tx.inventory_stock.update).not.toHaveBeenCalled();
+        expect(tx.inventory_movements.create).not.toHaveBeenCalled();
+        expect(tx.work_order_materials.update).not.toHaveBeenCalled();
+      },
+    );
 
     it('consumes reserved inventory atomically', async () => {
       await expect(

@@ -11,8 +11,8 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 import { ConsumeInventoryDto } from './dto/consume-inventory.dto';
 import { CreateWorkOrderMaterialDto } from './dto/create-work-order-material.dto';
-import { UpdateWorkOrderMaterialDto } from './dto/update-work-order-material.dto';
 import { ReserveInventoryDto} from './dto/reserve-inventory.dto';
+import { UpdateWorkOrderMaterialDto } from './dto/update-work-order-material.dto';
 import { withSerializableRetry } from './utils/serializable-retry';
 
 type WorkOrderMaterialModel =
@@ -321,6 +321,31 @@ export class WorkOrderMaterialsService {
         );
       }
 
+      const workOrder = await tx.work_orders.findFirst({
+        where: {
+          id: workOrderMaterial.work_order_id,
+          organization_id: organizationId,
+        },
+        select: {
+          id: true,
+          status: true,
+        },
+      });
+
+      if (!workOrder) {
+        throw new NotFoundException('Work order not found');
+      }
+
+      if (
+        ['CANCELLED', 'COMPLETED', 'CLOSED'].includes(
+          workOrder.status.toUpperCase(),
+        )
+      ) {
+        throw new BadRequestException(
+          'Cannot reserve or consume materials for a closed work order',
+        );
+      }
+
       const remainingRequired = new Prisma.Decimal(
         workOrderMaterial.required_quantity,
       )
@@ -372,7 +397,11 @@ export class WorkOrderMaterialsService {
         workOrderMaterial.reserved_quantity,
       ).plus(requestedQuantity);
 
-      const nextStatus = nextReservedMaterial.greaterThanOrEqualTo(
+      const nextAllocatedQuantity = nextReservedMaterial.plus(
+        workOrderMaterial.consumed_quantity,
+      );
+
+      const nextStatus = nextAllocatedQuantity.greaterThanOrEqualTo(
         workOrderMaterial.required_quantity,
       )
         ? 'RESERVED'
@@ -417,6 +446,31 @@ export class WorkOrderMaterialsService {
       if (!workOrderMaterial) {
         throw new NotFoundException(
           'Work order material not found',
+        );
+      }
+
+      const workOrder = await tx.work_orders.findFirst({
+        where: {
+          id: workOrderMaterial.work_order_id,
+          organization_id: organizationId,
+        },
+        select: {
+          id: true,
+          status: true,
+        },
+      });
+
+      if (!workOrder) {
+        throw new NotFoundException('Work order not found');
+      }
+
+      if (
+        ['CANCELLED', 'COMPLETED', 'CLOSED'].includes(
+          workOrder.status.toUpperCase(),
+        )
+      ) {
+        throw new BadRequestException(
+          'Cannot reserve or consume materials for a closed work order',
         );
       }
 

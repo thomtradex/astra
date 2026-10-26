@@ -5,6 +5,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { BillingService } from '../billing/billing.service';
+import { releaseWorkOrderReservations } from '../procurement/utils/release-work-order-reservations';
+import { withSerializableRetry } from '../procurement/utils/serializable-retry';
 
 import { CreateWorkOrderDto } from './dto/create-work-order.dto';
 import { UpdateWorkOrderDto } from './dto/update-work-order.dto';
@@ -225,20 +227,49 @@ export class WorkOrdersService {
       }
     }
 
-    return this.prisma.work_orders.update({
-      where: {
-        id,
-      },
-      data: {
-        title: data.title,
-        description: data.description,
-        status: data.status,
-        priority: data.priority,
-        asset_id: data.assetId,
-        assigned_to_id: data.assignedToId,
-        project_id: data.projectId,
-        updated_at: new Date(),
-      },
+    return withSerializableRetry(this.prisma, async (tx) => {
+      const current = await tx.work_orders.findFirst({
+        where: {
+          id,
+          organization_id: organizationId,
+        },
+        select: {
+          id: true,
+          status: true,
+        },
+      });
+
+      if (!current) {
+        throw new NotFoundException('Work order not found');
+      }
+
+      const nextStatus = data.status?.toUpperCase();
+      const terminalStatuses = ['CANCELLED', 'COMPLETED', 'CLOSED'];
+
+      if (nextStatus && terminalStatuses.includes(nextStatus)) {
+        await releaseWorkOrderReservations(
+          tx,
+          organizationId,
+          id,
+          `Work order ${nextStatus.toLowerCase()}: reservations released`,
+        );
+      }
+
+      return tx.work_orders.update({
+        where: {
+          id,
+        },
+        data: {
+          title: data.title,
+          description: data.description,
+          status: data.status,
+          priority: data.priority,
+          asset_id: data.assetId,
+          assigned_to_id: data.assignedToId,
+          project_id: data.projectId,
+          updated_at: new Date(),
+        },
+      });
     });
   }
 
@@ -257,10 +288,33 @@ export class WorkOrdersService {
       throw new NotFoundException('Work order not found');
     }
 
-    return this.prisma.work_orders.delete({
-      where: {
+    return withSerializableRetry(this.prisma, async (tx) => {
+      const current = await tx.work_orders.findFirst({
+        where: {
+          id,
+          organization_id: organizationId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!current) {
+        throw new NotFoundException('Work order not found');
+      }
+
+      await releaseWorkOrderReservations(
+        tx,
+        organizationId,
         id,
-      },
+        'Work order deleted: reservations released',
+      );
+
+      return tx.work_orders.delete({
+        where: {
+          id,
+        },
+      });
     });
   }
 }

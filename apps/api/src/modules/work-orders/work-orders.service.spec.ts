@@ -1,3 +1,5 @@
+import { Prisma } from '@astra/database';
+
 import { PrismaService } from '../../prisma/prisma.service';
 
 import { WorkOrdersService } from './work-orders.service';
@@ -11,7 +13,20 @@ describe('WorkOrdersService', () => {
       findMany: jest.fn(),
       count: jest.fn(),
       deleteMany: jest.fn(),
+      delete: jest.fn(),
     },
+    work_order_materials: {
+      findMany: jest.fn(),
+      update: jest.fn(),
+    },
+    inventory_stock: {
+      findFirst: jest.fn(),
+      update: jest.fn(),
+    },
+    inventory_movements: {
+      create: jest.fn(),
+    },
+    $transaction: jest.fn(),
     projects: {
       findFirst: jest.fn(),
     },
@@ -27,6 +42,11 @@ describe('WorkOrdersService', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    prisma.$transaction.mockImplementation(
+      async (
+        callback: (tx: Prisma.TransactionClient) => Promise<unknown>,
+      ) => callback(prisma as unknown as Prisma.TransactionClient),
+    );
     service = new WorkOrdersService(prisma as unknown as PrismaService);
   });
 
@@ -310,4 +330,104 @@ describe('WorkOrdersService', () => {
       });
     });
   });
+
+  describe('reservation release on terminal work orders', () => {
+    const setupReservation = (stockReserved = 3) => {
+      prisma.work_order_materials.findMany.mockResolvedValue([
+        {
+          id: 'wom-1',
+          site_id: 'site-1',
+          material_id: 'material-1',
+          required_quantity: new Prisma.Decimal(10),
+          reserved_quantity: new Prisma.Decimal(3),
+          consumed_quantity: new Prisma.Decimal(2),
+        },
+      ]);
+
+      prisma.inventory_stock.findFirst.mockResolvedValue({
+        id: 'stock-1',
+        quantity_reserved: new Prisma.Decimal(stockReserved),
+      });
+    };
+
+    it.each(['CANCELLED', 'COMPLETED', 'CLOSED'])(
+      'releases reservations and records movement when status becomes %s',
+      async (status) => {
+        prisma.work_orders.findFirst.mockResolvedValue({ id: 'wo-1' });
+        setupReservation(8);
+        prisma.work_orders.update.mockResolvedValue({
+          id: 'wo-1',
+          status,
+        });
+
+        await expect(
+          service.update('wo-1', 'org-1', { status }),
+        ).resolves.toEqual({ id: 'wo-1', status });
+
+        expect(prisma.inventory_stock.update).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { id: 'stock-1' },
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            data: expect.objectContaining({
+              quantity_reserved: new Prisma.Decimal(5),
+            }),
+          }),
+        );
+
+        expect(prisma.work_order_materials.update).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { id: 'wom-1' },
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            data: expect.objectContaining({
+              reserved_quantity: new Prisma.Decimal(0),
+              status: 'REQUIRED',
+            }),
+          }),
+        );
+
+        expect(prisma.inventory_movements.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            data: expect.objectContaining({
+              organization_id: 'org-1',
+              movement_type: 'RESERVATION_RELEASE',
+              quantity: new Prisma.Decimal(3),
+              reference_id: 'wom-1',
+            }),
+          }),
+        );
+      },
+    );
+
+    it('releases reservations before deleting the work order', async () => {
+      prisma.work_orders.findFirst.mockResolvedValue({ id: 'wo-1' });
+      setupReservation(8);
+      prisma.work_orders.delete.mockResolvedValue({ id: 'wo-1' });
+
+      await expect(
+        service.remove('wo-1', 'org-1'),
+      ).resolves.toEqual({ id: 'wo-1' });
+
+      expect(prisma.inventory_stock.update).toHaveBeenCalledTimes(1);
+      expect(prisma.inventory_movements.create).toHaveBeenCalledTimes(1);
+      expect(prisma.work_orders.delete).toHaveBeenCalledWith({
+        where: { id: 'wo-1' },
+      });
+    });
+
+    it('rejects an inconsistent inventory reservation without updating or deleting the order', async () => {
+      prisma.work_orders.findFirst.mockResolvedValue({ id: 'wo-1' });
+      setupReservation(2);
+
+      await expect(
+        service.update('wo-1', 'org-1', { status: 'CANCELLED' }),
+      ).rejects.toThrow('inventory reservation is inconsistent');
+
+      expect(prisma.inventory_stock.update).not.toHaveBeenCalled();
+      expect(prisma.work_order_materials.update).not.toHaveBeenCalled();
+      expect(prisma.inventory_movements.create).not.toHaveBeenCalled();
+      expect(prisma.work_orders.update).not.toHaveBeenCalled();
+    });
+  });
+
 });

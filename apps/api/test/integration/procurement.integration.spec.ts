@@ -1,5 +1,7 @@
+import { Prisma } from '@astra/database';
 import { INestApplication } from '@nestjs/common';
 
+import { releaseWorkOrderReservations } from '../../src/modules/procurement/utils/release-work-order-reservations';
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { apiRequest } from '../helpers/http-client';
 import { bodyOf } from '../helpers/http-types';
@@ -357,6 +359,112 @@ describe('Procurement (integration)', () => {
   describe('work order material lifecycle', () => {
     beforeEach(async () => {
       await setProcurementPlan(`TEST_PROCUREMENT_WORK_ORDER_${crypto.randomUUID()}`, true);
+    });
+
+    it('rolls back reservation release, stock movement, and work order status atomically', async () => {
+      const site = await createAlphaSite();
+      const material = await createAlphaMaterial();
+      const workOrder = await createAlphaWorkOrder();
+
+      await apiRequest(app)
+        .post(apiPath('/inventory/movements'))
+        .set('Authorization', `Bearer ${alphaAdminToken}`)
+        .send({
+          siteId: site.id,
+          materialId: material.id,
+          movementType: 'RECEIPT',
+          quantity: 100,
+          reason: 'Reservation release rollback test',
+        })
+        .expect(201);
+
+      const materialResponse = await apiRequest(app)
+        .post(apiPath('/work-order-materials'))
+        .set('Authorization', `Bearer ${alphaAdminToken}`)
+        .send({
+          workOrderId: workOrder.id,
+          materialId: material.id,
+          siteId: site.id,
+          requiredQuantity: 40,
+        })
+        .expect(201);
+
+      const workOrderMaterial = bodyOf<{ id: string }>(materialResponse);
+
+      await apiRequest(app)
+        .post(apiPath('/work-order-materials/reserve'))
+        .set('Authorization', `Bearer ${alphaAdminToken}`)
+        .send({
+          workOrderMaterialId: workOrderMaterial.id,
+          quantity: 40,
+        })
+        .expect(201);
+
+      const releaseReason = 'Forced rollback integration test';
+
+      await expect(
+        prisma.$transaction(
+          async (tx) => {
+            await releaseWorkOrderReservations(
+              tx,
+              organizationId,
+              workOrder.id,
+              releaseReason,
+            );
+
+            await tx.work_orders.update({
+              where: { id: workOrder.id },
+              data: {
+                status: 'CANCELLED',
+                updated_at: new Date(),
+              },
+            });
+
+            throw new Error('Force transaction rollback');
+          },
+          {
+            isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+          },
+        ),
+      ).rejects.toThrow('Force transaction rollback');
+
+      const [stock, reservedMaterial, persistedWorkOrder, releaseMovements] =
+        await Promise.all([
+          prisma.inventory_stock.findFirstOrThrow({
+            where: {
+              organization_id: organizationId,
+              site_id: site.id,
+              material_id: material.id,
+            },
+          }),
+          prisma.work_order_materials.findFirstOrThrow({
+            where: {
+              id: workOrderMaterial.id,
+              organization_id: organizationId,
+            },
+          }),
+          prisma.work_orders.findFirstOrThrow({
+            where: {
+              id: workOrder.id,
+              organization_id: organizationId,
+            },
+          }),
+          prisma.inventory_movements.findMany({
+            where: {
+              organization_id: organizationId,
+              reference_type: 'WORK_ORDER_MATERIAL',
+              reference_id: workOrderMaterial.id,
+              movement_type: 'RESERVATION_RELEASE',
+              reason: releaseReason,
+            },
+          }),
+        ]);
+
+      expect(Number(stock.quantity_reserved)).toBe(40);
+      expect(Number(reservedMaterial.reserved_quantity)).toBe(40);
+      expect(reservedMaterial.status).toBe('RESERVED');
+      expect(persistedWorkOrder.status).toBe('OPEN');
+      expect(releaseMovements).toHaveLength(0);
     });
 
     it('creates, reserves, and consumes a work order material through HTTP', async () => {
