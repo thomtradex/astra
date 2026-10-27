@@ -1779,7 +1779,7 @@ describe('stock risk intelligence', () => {
       ...baseInput,
       inventoryStock: [
         {
-          ...baseInput.inventoryStock[0],
+          ...baseInput.inventoryStock[0]!,
           quantity_on_hand: 30,
           quantity_reserved: 0,
         },
@@ -1824,7 +1824,7 @@ describe('stock risk intelligence', () => {
       ...baseInput,
       inventoryStock: [
         {
-          ...baseInput.inventoryStock[0],
+          ...baseInput.inventoryStock[0]!,
           quantity_on_hand: 10,
           quantity_reserved: 0,
         },
@@ -1865,7 +1865,7 @@ describe('stock risk intelligence', () => {
       ...baseInput,
       inventoryStock: [
         {
-          ...baseInput.inventoryStock[0],
+          ...baseInput.inventoryStock[0]!,
           quantity_on_hand: 30,
           quantity_reserved: 15,
         },
@@ -1933,7 +1933,7 @@ describe('stock risk intelligence', () => {
       ...baseInput,
       materials: [
         {
-          ...baseInput.materials[0],
+          ...baseInput.materials[0]!,
           reorder_point: null,
         },
       ],
@@ -1951,7 +1951,7 @@ describe('stock risk intelligence', () => {
       ...baseInput,
       materials: [
         {
-          ...baseInput.materials[0],
+          ...baseInput.materials[0]!,
           active: false,
         },
       ],
@@ -1969,7 +1969,7 @@ describe('stock risk intelligence', () => {
       ...baseInput,
       inventoryStock: [
         {
-          ...baseInput.inventoryStock[0],
+          ...baseInput.inventoryStock[0]!,
           quantity_on_hand: 100,
           quantity_reserved: 10,
         },

@@ -87,6 +87,74 @@ describe('Resources (integration)', () => {
   });
 
   describe('assets', () => {
+    it('rejects creating an Alpha asset linked to a Beta site', async () => {
+      const betaSite = await prisma.sites.create({
+        data: {
+          id: crypto.randomUUID(),
+          name: 'Beta Site For Asset Isolation',
+          code: 'BETA-ASSET-ISOLATION-SITE',
+          organization_id: orgBetaId,
+          updated_at: new Date(),
+        },
+      });
+
+      await apiRequest(app)
+        .post(apiPath('/assets'))
+        .set('Authorization', `Bearer ${alphaAdminToken}`)
+        .send({
+          name: 'Cross-Tenant Asset',
+          code: 'ALPHA-CROSS-TENANT-ASSET',
+          siteId: betaSite.id,
+        })
+        .expect(404);
+
+      const asset = await prisma.assets.findFirst({
+        where: {
+          organization_id: orgAlphaId,
+          code: 'ALPHA-CROSS-TENANT-ASSET',
+        },
+      });
+
+      expect(asset).toBeNull();
+    });
+
+    it('rejects updating an Alpha asset to use a Beta site', async () => {
+      const betaSite = await prisma.sites.create({
+        data: {
+          id: crypto.randomUUID(),
+          name: 'Beta Site For Asset Update Isolation',
+          code: 'BETA-ASSET-UPDATE-SITE',
+          organization_id: orgBetaId,
+          updated_at: new Date(),
+        },
+      });
+
+      const alphaAsset = await prisma.assets.create({
+        data: {
+          id: crypto.randomUUID(),
+          name: 'Alpha Asset For Update Isolation',
+          code: 'ALPHA-ASSET-UPDATE-ISOLATION',
+          organization_id: orgAlphaId,
+          updated_at: new Date(),
+        },
+      });
+
+      await apiRequest(app)
+        .patch(apiPath(`/assets/${alphaAsset.id}`))
+        .set('Authorization', `Bearer ${alphaAdminToken}`)
+        .send({ siteId: betaSite.id })
+        .expect(404);
+
+      const asset = await prisma.assets.findFirst({
+        where: {
+          id: alphaAsset.id,
+          organization_id: orgAlphaId,
+        },
+      });
+
+      expect(asset?.site_id).toBeNull();
+    });
+
     it('allows admin to create an asset', async () => {
       const response = await apiRequest(app)
         .post(apiPath('/assets'))
