@@ -5,6 +5,7 @@ import { UsageLimitExceededException } from '../billing/usage/usage-limit-exceed
 import { UsageService } from '../billing/usage/usage.service';
 
 import { AI_PROVIDER, AiService } from './ai.service';
+import { DeterministicAiProvider } from './providers/deterministic-ai.provider';
 import type { AIAnalysisInput } from './ai.types';
 
 describe('AiService', () => {
@@ -12,6 +13,9 @@ describe('AiService', () => {
   let provider: {
     analyze: jest.Mock;
     isBillable: jest.Mock;
+  };
+  let deterministicProvider: {
+    analyze: jest.Mock;
   };
   let billingService: {
     getEntitlements: jest.Mock;
@@ -80,6 +84,17 @@ describe('AiService', () => {
       isBillable: jest.fn().mockReturnValue(true),
     };
 
+    deterministicProvider = {
+      analyze: jest.fn().mockResolvedValue({
+        status: 'GENERATED' as const,
+        summary: 'Análise determinística.',
+        rationale: 'Contexto operacional analisado.',
+        confidence: 1,
+        confidenceSource: 'DETERMINISTIC_RULE',
+        provider: 'deterministic',
+      }),
+    };
+
     billingService = {
       getEntitlements: jest.fn().mockResolvedValue({
         plan: {
@@ -108,6 +123,10 @@ describe('AiService', () => {
         {
           provide: AI_PROVIDER,
           useValue: provider,
+        },
+        {
+          provide: DeterministicAiProvider,
+          useValue: deterministicProvider,
         },
         {
           provide: BillingService,
@@ -203,6 +222,43 @@ describe('AiService', () => {
       1000,
     );
     expect(provider.analyze).not.toHaveBeenCalled();
+    expect(deterministicProvider.analyze).not.toHaveBeenCalled();
+  });
+
+  it('falls back to deterministic analysis when the billable provider is unavailable', async () => {
+    provider.analyze.mockResolvedValue({
+      status: 'UNAVAILABLE' as const,
+      summary: 'Análise indisponível.',
+      rationale: 'O provider externo não conseguiu gerar uma análise.',
+      confidence: 0,
+      confidenceSource: 'UNAVAILABLE',
+      provider: 'openai',
+    });
+
+    await expect(
+      service.analyze('org-1', input),
+    ).resolves.toMatchObject({
+      status: 'GENERATED',
+      provider: 'deterministic',
+      confidenceSource: 'DETERMINISTIC_RULE',
+    });
+
+    expect(usageService.reserveAiRequest).toHaveBeenCalledWith('org-1', 1000);
+    expect(deterministicProvider.analyze).toHaveBeenCalledWith(input);
+  });
+
+  it('falls back to deterministic analysis when the billable provider throws', async () => {
+    provider.analyze.mockRejectedValue(new Error('External provider failed'));
+
+    await expect(
+      service.analyze('org-1', input),
+    ).resolves.toMatchObject({
+      status: 'GENERATED',
+      provider: 'deterministic',
+      confidenceSource: 'DETERMINISTIC_RULE',
+    });
+
+    expect(deterministicProvider.analyze).toHaveBeenCalledWith(input);
   });
 
   it('uses an unlimited entitlement when no AI request limit is configured', async () => {

@@ -8,6 +8,7 @@ import type {
   AIAnalysisInput,
 } from './ai.types';
 import type { AIProvider } from './providers/ai.provider';
+import { DeterministicAiProvider } from './providers/deterministic-ai.provider';
 
 export const AI_PROVIDER = Symbol('AI_PROVIDER');
 
@@ -18,6 +19,7 @@ export class AiService {
     private readonly provider: AIProvider,
     private readonly billingService: BillingService,
     private readonly usageService: UsageService,
+    private readonly deterministicProvider: DeterministicAiProvider,
   ) {}
 
   async analyze(
@@ -36,6 +38,16 @@ export class AiService {
       entitlements.limits.aiRequestsPerMonth ?? Infinity,
     );
 
-    return this.provider.analyze(input);
+    try {
+      const analysis = await this.provider.analyze(input);
+
+      if (analysis.status !== 'UNAVAILABLE') {
+        return analysis;
+      }
+    } catch {
+      // Uma falha do provider externo não deve bloquear a análise operacional.
+    }
+
+    return this.deterministicProvider.analyze(input);
   }
 }
