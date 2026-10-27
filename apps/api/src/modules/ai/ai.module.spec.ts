@@ -51,14 +51,9 @@ describe('AiModule', () => {
     expect(provider).toBe(openAiProvider);
   });
 
-  it('should fall back to DeterministicAiProvider for an unknown provider', async () => {
-    const module = await createModule('unknown-provider');
-
-    const provider = module.get<AIProvider>(AI_PROVIDER);
-    const deterministicProvider =
-      module.get(DeterministicAiProvider);
-
-    expect(provider).toBe(deterministicProvider);
+  it('should reject an unknown provider', async () => {
+    await expect(createModule('unknown-provider'))
+      .rejects.toThrow('Unsupported AI provider: unknown-provider');
   });
 
   it('should expose both concrete providers', async () => {

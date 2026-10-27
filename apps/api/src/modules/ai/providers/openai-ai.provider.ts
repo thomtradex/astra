@@ -11,6 +11,8 @@ import {
   validateLlmAnalysisOutput,
 } from './llm-analysis-output.validator';
 
+const MAX_INPUT_CHARACTERS = 32_000;
+
 const LLM_ANALYSIS_SCHEMA = {
   type: 'object',
   additionalProperties: false,
@@ -81,10 +83,19 @@ export class OpenAiAiProvider implements AIProvider {
     }
 
     try {
+      const serializedInput = this.buildInput(input);
+
+      if (serializedInput.length > MAX_INPUT_CHARACTERS) {
+        return this.unavailable(
+          'A análise AI externa excedeu o limite de contexto.',
+          'O contexto operacional excede o tamanho máximo permitido para análise externa. A análise operacional determinística permanece disponível.',
+        );
+      }
+
       const response = await this.client.responses.create({
         model: this.model,
         instructions: this.buildInstructions(),
-        input: this.buildInput(input),
+        input: serializedInput,
         text: {
           format: {
             type: 'json_schema',

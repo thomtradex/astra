@@ -157,6 +157,36 @@ describe('OpenAiAiProvider', () => {
     });
   });
 
+  it('rejects an oversized context without calling OpenAI', async () => {
+    const create = jest.fn();
+
+    (OpenAI as unknown as jest.Mock).mockImplementation(() => ({
+      responses: { create },
+    }));
+
+    const provider = new OpenAiAiProvider(
+      config({
+        'ai.openaiApiKey': 'test-key',
+        'ai.openaiModel': 'gpt-5-mini',
+        'ai.openaiTimeoutMs': 10000,
+      }),
+    );
+
+    const oversizedInput: AIAnalysisInput = {
+      ...input,
+      explanation: 'x'.repeat(33_000),
+    };
+
+    await expect(provider.analyze(oversizedInput)).resolves.toMatchObject({
+      status: 'UNAVAILABLE',
+      confidence: 0,
+      confidenceSource: 'UNAVAILABLE',
+      provider: 'openai',
+    });
+
+    expect(create).not.toHaveBeenCalled();
+  });
+
   it('never allows the LLM to increase deterministic confidence', async () => {
     const create = jest.fn<Promise<MockCreateResponse>, [MockCreateRequest]>().mockResolvedValue({
       output_text: JSON.stringify({

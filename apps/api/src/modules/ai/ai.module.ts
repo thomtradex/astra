@@ -35,7 +35,11 @@ import { OpenAiAiProvider } from './providers/openai-ai.provider';
           return openAiProvider;
         }
 
-        return deterministicProvider;
+        if (provider === undefined || provider === 'deterministic') {
+          return deterministicProvider;
+        }
+
+        throw new Error(`Unsupported AI provider: ${provider}`);
       },
     },
   ],

@@ -2,6 +2,9 @@ import type { IntelligenceDecisionContext } from '../../intelligence/intelligenc
 
 import type { LlmAnalysisOutput } from './llm-analysis-output';
 
+const MAX_SUMMARY_CHARACTERS = 500;
+const MAX_RATIONALE_CHARACTERS = 2_000;
+
 export class LlmAnalysisOutputValidationError extends Error {
   constructor(message: string) {
     super(message);
@@ -35,6 +38,18 @@ export function validateLlmAnalysisOutput(
   ) {
     throw new LlmAnalysisOutputValidationError(
       'O campo rationale é obrigatório.',
+    );
+  }
+
+  if (output.summary.length > MAX_SUMMARY_CHARACTERS) {
+    throw new LlmAnalysisOutputValidationError(
+      `O campo summary excede ${MAX_SUMMARY_CHARACTERS} caracteres.`,
+    );
+  }
+
+  if (output.rationale.length > MAX_RATIONALE_CHARACTERS) {
+    throw new LlmAnalysisOutputValidationError(
+      `O campo rationale excede ${MAX_RATIONALE_CHARACTERS} caracteres.`,
     );
   }
 

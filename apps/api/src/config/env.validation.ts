@@ -1,6 +1,22 @@
 import * as Joi from 'joi';
 
 export const envValidationSchema = Joi.object({
+  AI_PROVIDER: Joi.string()
+    .valid('deterministic', 'openai')
+    .default('deterministic'),
+
+  OPENAI_API_KEY: Joi.string().when('AI_PROVIDER', {
+    is: 'openai',
+    then: Joi.string().trim().min(1).required(),
+    otherwise: Joi.optional(),
+  }),
+
+  OPENAI_MODEL: Joi.string().trim().min(1).default('gpt-5-mini'),
+
+  OPENAI_TIMEOUT_MS: Joi.number()
+    .integer()
+    .min(1000)
+    .default(10000),
   NODE_ENV: Joi.string().valid('development', 'test', 'production').default('development'),
   API_PORT: Joi.number().default(3001),
   API_HOST: Joi.string().default('0.0.0.0'),

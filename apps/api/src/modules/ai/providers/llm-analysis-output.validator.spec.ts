@@ -60,6 +60,46 @@ describe('validateLlmAnalysisOutput', () => {
     ).not.toThrow();
   });
 
+  it('rejects a summary longer than 500 characters', () => {
+    expect(() =>
+      validateLlmAnalysisOutput(
+        { ...validOutput, summary: 'x'.repeat(501) },
+        decisionContext,
+        signalSource,
+      ),
+    ).toThrow('summary excede 500 caracteres');
+  });
+
+  it('accepts a summary of exactly 500 characters', () => {
+    expect(() =>
+      validateLlmAnalysisOutput(
+        { ...validOutput, summary: 'x'.repeat(500) },
+        decisionContext,
+        signalSource,
+      ),
+    ).not.toThrow();
+  });
+
+  it('rejects a rationale longer than 2000 characters', () => {
+    expect(() =>
+      validateLlmAnalysisOutput(
+        { ...validOutput, rationale: 'x'.repeat(2001) },
+        decisionContext,
+        signalSource,
+      ),
+    ).toThrow('rationale excede 2000 caracteres');
+  });
+
+  it('accepts a rationale of exactly 2000 characters', () => {
+    expect(() =>
+      validateLlmAnalysisOutput(
+        { ...validOutput, rationale: 'x'.repeat(2000) },
+        decisionContext,
+        signalSource,
+      ),
+    ).not.toThrow();
+  });
+
   it('rejects invalid confidence', () => {
     expect(() =>
       validateLlmAnalysisOutput(
