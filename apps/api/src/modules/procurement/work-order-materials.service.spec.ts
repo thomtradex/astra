@@ -221,6 +221,47 @@ describe('WorkOrderMaterialsService', () => {
   });
 
   describe('update', () => {
+    beforeEach(() => {
+      const transactionMock = prisma.$transaction as jest.Mock;
+
+      transactionMock.mockImplementation(
+        async (
+          callback: (transaction: typeof prisma) => Promise<unknown>,
+        ) => callback(prisma),
+      );
+    });
+
+    it('runs updates in a serializable transaction', async () => {
+      prisma.work_order_materials.findFirst.mockResolvedValue({
+        id: 'wom-1',
+        organization_id: 'org-1',
+        work_order_id: 'wo-1',
+        material_id: 'material-1',
+        site_id: 'site-1',
+        required_quantity: new Prisma.Decimal(10),
+        reserved_quantity: new Prisma.Decimal(0),
+        consumed_quantity: new Prisma.Decimal(0),
+        status: 'REQUIRED',
+      });
+
+      prisma.work_order_materials.update.mockResolvedValue({
+        id: 'wom-1',
+      });
+
+      await service.update(
+        'wom-1',
+        { requiredQuantity: 20 },
+        'org-1',
+      );
+
+      expect(prisma.$transaction).toHaveBeenCalledWith(
+        expect.any(Function),
+        {
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        },
+      );
+    });
+
     it('updates the required quantity and notes', async () => {
       prisma.work_order_materials.findFirst.mockResolvedValue({
         id: 'wom-1',

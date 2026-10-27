@@ -146,159 +146,161 @@ export class WorkOrderMaterialsService {
     dto: UpdateWorkOrderMaterialDto,
     organizationId: string,
   ): Promise<WorkOrderMaterialModel> {
-    const existing = await this.findOne(id, organizationId);
+    return withSerializableRetry(this.prisma, async (tx) => {
+      const existing = await tx.work_order_materials.findFirst({
+        where: {
+          id,
+          organization_id: organizationId,
+        },
+      });
 
-    const reservedQuantity = new Prisma.Decimal(
-      existing.reserved_quantity,
-    );
-    const consumedQuantity = new Prisma.Decimal(
-      existing.consumed_quantity,
-    );
-    const allocatedQuantity = reservedQuantity.plus(consumedQuantity);
+      if (!existing) {
+        throw new NotFoundException('Work order material not found');
+      }
 
-    const hasInventoryMovement =
-      reservedQuantity.greaterThan(0) || consumedQuantity.greaterThan(0);
-
-    const workOrderChanged =
-      dto.workOrderId !== undefined &&
-      dto.workOrderId !== existing.work_order_id;
-    const materialChanged =
-      dto.materialId !== undefined &&
-      dto.materialId !== existing.material_id;
-    const siteChanged =
-      dto.siteId !== undefined &&
-      dto.siteId !== existing.site_id;
-
-    if (
-      hasInventoryMovement &&
-      (workOrderChanged || materialChanged || siteChanged)
-    ) {
-      throw new BadRequestException(
-        'Cannot change work order, material, or site after inventory has been reserved or consumed',
+      const reservedQuantity = new Prisma.Decimal(
+        existing.reserved_quantity,
       );
-    }
+      const consumedQuantity = new Prisma.Decimal(
+        existing.consumed_quantity,
+      );
+      const allocatedQuantity = reservedQuantity.plus(consumedQuantity);
 
-    if (dto.requiredQuantity !== undefined) {
-      const requiredQuantity = new Prisma.Decimal(dto.requiredQuantity);
+      const hasInventoryMovement =
+        reservedQuantity.greaterThan(0) || consumedQuantity.greaterThan(0);
 
-      if (requiredQuantity.lessThan(allocatedQuantity)) {
+      const workOrderChanged =
+        dto.workOrderId !== undefined &&
+        dto.workOrderId !== existing.work_order_id;
+      const materialChanged =
+        dto.materialId !== undefined &&
+        dto.materialId !== existing.material_id;
+      const siteChanged =
+        dto.siteId !== undefined &&
+        dto.siteId !== existing.site_id;
+
+      if (
+        hasInventoryMovement &&
+        (workOrderChanged || materialChanged || siteChanged)
+      ) {
         throw new BadRequestException(
-          'Required quantity cannot be less than reserved and consumed quantity',
+          'Cannot change work order, material, or site after inventory has been reserved or consumed',
         );
       }
-    }
 
-    if (workOrderChanged) {
-      const workOrder = await this.prisma.work_orders.findFirst({
-        where: {
-          id: dto.workOrderId,
-          organization_id: organizationId,
-        },
-        select: {
-          id: true,
-        },
-      });
+      if (dto.requiredQuantity !== undefined) {
+        const requiredQuantity = new Prisma.Decimal(dto.requiredQuantity);
 
-      if (!workOrder) {
-        throw new NotFoundException(
-          'Work order not found for this organization',
-        );
+        if (requiredQuantity.lessThan(allocatedQuantity)) {
+          throw new BadRequestException(
+            'Required quantity cannot be less than reserved and consumed quantity',
+          );
+        }
       }
-    }
 
-    if (materialChanged) {
-      const material = await this.prisma.materials.findFirst({
-        where: {
-          id: dto.materialId,
-          organization_id: organizationId,
-        },
-        select: {
-          id: true,
-        },
-      });
-
-      if (!material) {
-        throw new NotFoundException(
-          'Material not found for this organization',
-        );
-      }
-    }
-
-    if (siteChanged) {
-      const site = await this.prisma.sites.findFirst({
-        where: {
-          id: dto.siteId,
-          organization_id: organizationId,
-        },
-        select: {
-          id: true,
-        },
-      });
-
-      if (!site) {
-        throw new NotFoundException(
-          'Site not found for this organization',
-        );
-      }
-    }
-
-    const workOrderId = dto.workOrderId ?? existing.work_order_id;
-    const materialId = dto.materialId ?? existing.material_id;
-
-    if (workOrderId !== existing.work_order_id || materialId !== existing.material_id) {
-      const duplicate = await this.prisma.work_order_materials.findFirst({
-        where: {
-          work_order_id: workOrderId,
-          material_id: materialId,
-          organization_id: organizationId,
-          NOT: {
-            id,
+      if (workOrderChanged) {
+        const workOrder = await tx.work_orders.findFirst({
+          where: {
+            id: dto.workOrderId,
+            organization_id: organizationId,
           },
-        },
-        select: {
-          id: true,
+          select: { id: true },
+        });
+
+        if (!workOrder) {
+          throw new NotFoundException(
+            'Work order not found for this organization',
+          );
+        }
+      }
+
+      if (materialChanged) {
+        const material = await tx.materials.findFirst({
+          where: {
+            id: dto.materialId,
+            organization_id: organizationId,
+          },
+          select: { id: true },
+        });
+
+        if (!material) {
+          throw new NotFoundException(
+            'Material not found for this organization',
+          );
+        }
+      }
+
+      if (siteChanged) {
+        const site = await tx.sites.findFirst({
+          where: {
+            id: dto.siteId,
+            organization_id: organizationId,
+          },
+          select: { id: true },
+        });
+
+        if (!site) {
+          throw new NotFoundException(
+            'Site not found for this organization',
+          );
+        }
+      }
+
+      const workOrderId = dto.workOrderId ?? existing.work_order_id;
+      const materialId = dto.materialId ?? existing.material_id;
+
+      if (
+        workOrderId !== existing.work_order_id ||
+        materialId !== existing.material_id
+      ) {
+        const duplicate = await tx.work_order_materials.findFirst({
+          where: {
+            work_order_id: workOrderId,
+            material_id: materialId,
+            organization_id: organizationId,
+            NOT: { id },
+          },
+          select: { id: true },
+        });
+
+        if (duplicate) {
+          throw new BadRequestException(
+            'Material is already associated with this work order',
+          );
+        }
+      }
+
+      const requiredQuantity =
+        dto.requiredQuantity ?? existing.required_quantity;
+
+      const nextStatus = consumedQuantity.greaterThanOrEqualTo(
+        requiredQuantity,
+      )
+        ? 'CONSUMED'
+        : reservedQuantity.greaterThan(0)
+          ? 'RESERVED'
+          : 'REQUIRED';
+
+      return tx.work_order_materials.update({
+        where: { id },
+        data: {
+          ...(dto.workOrderId !== undefined
+            ? { work_order_id: dto.workOrderId }
+            : {}),
+          ...(dto.materialId !== undefined
+            ? { material_id: dto.materialId }
+            : {}),
+          ...(dto.siteId !== undefined
+            ? { site_id: dto.siteId }
+            : {}),
+          ...(dto.requiredQuantity !== undefined
+            ? { required_quantity: dto.requiredQuantity }
+            : {}),
+          ...(dto.notes !== undefined ? { notes: dto.notes } : {}),
+          status: nextStatus,
+          updated_at: new Date(),
         },
       });
-
-      if (duplicate) {
-        throw new BadRequestException(
-          'Material is already associated with this work order',
-        );
-      }
-    }
-
-    const requiredQuantity =
-      dto.requiredQuantity ?? existing.required_quantity;
-
-    const nextStatus = consumedQuantity.greaterThanOrEqualTo(
-      requiredQuantity,
-    )
-      ? 'CONSUMED'
-      : reservedQuantity.greaterThan(0)
-        ? 'RESERVED'
-        : 'REQUIRED';
-
-    return this.prisma.work_order_materials.update({
-      where: {
-        id,
-      },
-      data: {
-        ...(dto.workOrderId !== undefined
-          ? { work_order_id: dto.workOrderId }
-          : {}),
-        ...(dto.materialId !== undefined
-          ? { material_id: dto.materialId }
-          : {}),
-        ...(dto.siteId !== undefined
-          ? { site_id: dto.siteId }
-          : {}),
-        ...(dto.requiredQuantity !== undefined
-          ? { required_quantity: dto.requiredQuantity }
-          : {}),
-        ...(dto.notes !== undefined ? { notes: dto.notes } : {}),
-        status: nextStatus,
-        updated_at: new Date(),
-      },
     });
   }
 
