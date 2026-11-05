@@ -15,6 +15,7 @@ import {
   BillingFeatures,
   BillingLimits,
 } from './interfaces/billing-entitlements.interface';
+import { withSerializableRetry } from '../procurement/utils/serializable-retry';
 import { PaymentProvider } from './payment/interfaces/payment-provider.interface';
 
 @Injectable()
@@ -106,49 +107,68 @@ export class BillingService {
   }
 
   async ensureFreeSubscription(organizationId: string) {
-    const existing = await this.prisma.subscription.findFirst({
-      where: {
-        organizationId,
-        status: {
-          in: [SubscriptionStatus.TRIALING, SubscriptionStatus.ACTIVE, SubscriptionStatus.PAST_DUE],
+    return withSerializableRetry(this.prisma, async (tx) => {
+      // Serialize FREE activation for the same organization.
+      // Lock the existing tenant row before reading subscriptions.
+      const locked = await tx.$queryRaw<Array<{ id: string }>>`
+        SELECT id
+        FROM organizations
+        WHERE id = ${organizationId}
+        FOR UPDATE
+      `;
+
+      if (locked.length !== 1) {
+        throw new NotFoundException('Organization not found');
+      }
+
+      const existing = await tx.subscription.findFirst({
+        where: {
+          organizationId,
+          status: {
+            in: [
+              SubscriptionStatus.TRIALING,
+              SubscriptionStatus.ACTIVE,
+              SubscriptionStatus.PAST_DUE,
+            ],
+          },
         },
-      },
-      include: {
-        plan: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+        include: {
+          plan: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
 
-    if (existing) {
-      return existing;
-    }
+      if (existing) {
+        return existing;
+      }
 
-    const free = await this.prisma.billingPlan.findUnique({
-      where: {
-        code: 'FREE',
-      },
-    });
+      const free = await tx.billingPlan.findUnique({
+        where: {
+          code: 'FREE',
+        },
+      });
 
-    if (!free || !free.isActive || free.monthlyPriceCents !== 0) {
-      throw new ConflictException('FREE billing plan is not available');
-    }
+      if (!free || !free.isActive || free.monthlyPriceCents !== 0) {
+        throw new ConflictException('FREE billing plan is not available');
+      }
 
-    const now = new Date();
+      const now = new Date();
 
-    return this.prisma.subscription.create({
-      data: {
-        organizationId,
-        planId: free.id,
-        status: SubscriptionStatus.ACTIVE,
-        currentPeriodStart: now,
-        currentPeriodEnd: new Date('2099-12-31T23:59:59.999Z'),
-        cancelAtPeriodEnd: false,
-      },
-      include: {
-        plan: true,
-      },
+      return tx.subscription.create({
+        data: {
+          organizationId,
+          planId: free.id,
+          status: SubscriptionStatus.ACTIVE,
+          currentPeriodStart: now,
+          currentPeriodEnd: new Date('2099-12-31T23:59:59.999Z'),
+          cancelAtPeriodEnd: false,
+        },
+        include: {
+          plan: true,
+        },
+      });
     });
   }
 
