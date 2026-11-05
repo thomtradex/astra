@@ -8,6 +8,7 @@
     "dev": "concurrently -k \"pnpm exec tsc -w -p tsconfig.build.json\" \"node --watch dist/main.js\"",
     "start": "node dist/main.js",
     "start:prod": "node dist/main.js",
+    "start:stripe-worker": "node dist/stripe-worker.js",
     "clean": "rimraf dist tsconfig.build.tsbuildinfo",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "lint": "eslint --config ../../eslint.config.mjs .",

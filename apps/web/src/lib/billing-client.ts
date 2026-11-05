@@ -67,15 +67,6 @@ export async function activateFreePlan(): Promise<BillingResponse> {
   return parseResponse<BillingResponse>(response, {});
 }
 
-export async function startTrial(): Promise<BillingResponse> {
-  const response = await fetch('/api/billing/trial', {
-    method: 'POST',
-    credentials: 'include',
-  });
-
-  return parseResponse<BillingResponse>(response, {});
-}
-
 export async function createCheckout(
   planCode: string,
 ): Promise<{ url?: string }> {
@@ -100,7 +91,7 @@ export async function getCurrentSubscription(): Promise<BillingSubscription | nu
     cache: 'no-store',
   });
 
-  if (!response.ok) {
+  if (response.status === 404) {
     return null;
   }
 

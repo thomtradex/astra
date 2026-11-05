@@ -44,10 +44,59 @@ export const envValidationSchema = Joi.object({
     otherwise: Joi.optional(),
   }),
 
-  STRIPE_PRICE_STARTER: Joi.string().optional(),
-  STRIPE_PRICE_PROFESSIONAL: Joi.string().optional(),
-  STRIPE_PRICE_ENTERPRISE: Joi.string().optional(),
+  STRIPE_PRICE_STARTER: Joi.string().trim().min(1).when('NODE_ENV', {
+    is: 'production',
+    then: Joi.required(),
+    otherwise: Joi.optional(),
+  }),
 
-  BILLING_SUCCESS_URL: Joi.string().uri().default('http://localhost:3000/billing/success'),
-  BILLING_CANCEL_URL: Joi.string().uri().default('http://localhost:3000/billing'),
+  STRIPE_PRICE_PROFESSIONAL: Joi.string().trim().min(1).when('NODE_ENV', {
+    is: 'production',
+    then: Joi.required(),
+    otherwise: Joi.optional(),
+  }),
+
+  STRIPE_PRICE_ENTERPRISE: Joi.string().trim().min(1).when('NODE_ENV', {
+    is: 'production',
+    then: Joi.required(),
+    otherwise: Joi.optional(),
+  }),
+
+  BILLING_SUCCESS_URL: Joi.string().uri().when('NODE_ENV', {
+    is: 'production',
+    then: Joi.string()
+      .uri({ scheme: ['https'] })
+      .custom((value: unknown, helpers) => {
+        if (typeof value !== 'string') {
+          return helpers.error('any.invalid');
+        }
+
+        const hostname = new URL(value).hostname.toLowerCase();
+        if (['localhost', '127.0.0.1', '::1'].includes(hostname)) {
+          return helpers.error('any.invalid');
+        }
+        return value;
+      })
+      .required(),
+    otherwise: Joi.string().uri().default('http://localhost:3000/billing/success'),
+  }),
+
+  BILLING_CANCEL_URL: Joi.string().uri().when('NODE_ENV', {
+    is: 'production',
+    then: Joi.string()
+      .uri({ scheme: ['https'] })
+      .custom((value: unknown, helpers) => {
+        if (typeof value !== 'string') {
+          return helpers.error('any.invalid');
+        }
+
+        const hostname = new URL(value).hostname.toLowerCase();
+        if (['localhost', '127.0.0.1', '::1'].includes(hostname)) {
+          return helpers.error('any.invalid');
+        }
+        return value;
+      })
+      .required(),
+    otherwise: Joi.string().uri().default('http://localhost:3000/billing'),
+  }),
 });

@@ -28,11 +28,15 @@ export class StripeProvider implements PaymentProvider {
   }
 
   async createCheckoutSession(input: CreateCheckoutSessionInput): Promise<CheckoutSessionResult> {
-    const priceId = this.resolvePriceId(input.planCode);
-
-    if (!priceId) {
+    if (!input.stripePriceId) {
       throw new InternalServerErrorException(
         `No Stripe price configured for plan ${input.planCode}`,
+      );
+    }
+
+    if (!input.idempotencyKey || !input.checkoutAttemptId) {
+      throw new InternalServerErrorException(
+        'Checkout attempt ID and idempotency key are required.',
       );
     }
 
@@ -40,40 +44,48 @@ export class StripeProvider implements PaymentProvider {
       throw new InternalServerErrorException('Billing is not configured in this environment.');
     }
 
-    const session = await this.stripe.checkout.sessions.create({
-      mode: 'subscription',
-      payment_method_collection: 'always',
-      customer_email: input.customerEmail,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
+    const metadata = {
+      organizationId: input.organizationId,
+      planCode: input.planCode,
+      checkoutAttemptId: input.checkoutAttemptId,
+    };
+
+    const session = await this.stripe.checkout.sessions.create(
+      {
+        mode: 'subscription',
+        payment_method_collection: 'always',
+        customer_email: input.customerEmail,
+        line_items: [
+          {
+            price: input.stripePriceId,
+            quantity: 1,
+          },
+        ],
+        subscription_data: {
+          ...(input.trialDays > 0
+            ? {
+                trial_period_days: input.trialDays,
+              }
+            : {}),
+          metadata,
         },
-      ],
-      subscription_data: {
-        ...(input.trialDays > 0
-          ? {
-              trial_period_days: input.trialDays,
-            }
-          : {}),
-        metadata: {
-          organizationId: input.organizationId,
-          planCode: input.planCode,
-        },
+        metadata,
+        success_url: input.successUrl,
+        cancel_url: input.cancelUrl,
+        allow_promotion_codes: true,
       },
-      metadata: {
-        organizationId: input.organizationId,
-        planCode: input.planCode,
+      {
+        idempotencyKey: input.idempotencyKey,
       },
-      success_url: input.successUrl,
-      cancel_url: input.cancelUrl,
-      allow_promotion_codes: true,
-    });
+    );
 
     return {
       id: session.id,
       url: session.url,
       provider: 'stripe',
+      expiresAt: session.expires_at
+        ? new Date(session.expires_at * 1000)
+        : null,
     };
   }
 
@@ -130,6 +142,10 @@ export class StripeProvider implements PaymentProvider {
         },
       ],
       proration_behavior: prorationBehavior,
+      metadata: {
+        ...subscription.metadata,
+        planCode: planCode.toUpperCase(),
+      },
     });
   }
 

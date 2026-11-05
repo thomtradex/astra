@@ -25,6 +25,7 @@ model Organization {
   sites                sites[]
   projects             projects[]
   subscriptions        Subscription[]
+  checkoutAttempts     CheckoutAttempt[]
   users                User[]
   work_orders          work_orders[]
   monthlyUsage         OrganizationMonthlyUsage[]
@@ -409,20 +410,21 @@ model work_order_materials {
 }
 
 model BillingPlan {
-  id                String         @id @default(cuid())
-  code              String         @unique
+  id                String            @id @default(cuid())
+  code              String            @unique
   name              String
   description       String?
   monthlyPriceCents Int
-  currency          String         @default("EUR")
-  trialDays         Int            @default(0)
-  isActive          Boolean        @default(true) @map("is_active")
-  createdAt         DateTime       @default(now()) @map("created_at")
-  updatedAt         DateTime       @updatedAt @map("updated_at")
-  displayOrder      Int            @default(0) @map("display_order")
-  features          Json           @default("{}")
-  limits            Json           @default("{}")
+  currency          String            @default("EUR")
+  trialDays         Int               @default(0)
+  isActive          Boolean           @default(true) @map("is_active")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  displayOrder      Int               @default(0) @map("display_order")
+  features          Json              @default("{}")
+  limits            Json              @default("{}")
   subscriptions     Subscription[]
+  checkoutAttempts  CheckoutAttempt[]
 
   @@map("billing_plans")
 }
@@ -451,6 +453,55 @@ model Subscription {
   @@index([planId])
   @@index([status])
   @@map("subscriptions")
+}
+
+model CheckoutAttempt {
+  id                   String                @id @default(cuid())
+  organizationId       String                @map("organization_id")
+  planId               String                @map("plan_id")
+  planCode             String                @map("plan_code")
+  customerEmail        String?               @map("customer_email")
+  stripePriceId        String                @map("stripe_price_id")
+  trialDays            Int                   @default(0) @map("trial_days")
+  successUrl           String                @map("success_url")
+  cancelUrl            String                @map("cancel_url")
+  idempotencyKey       String                @unique @map("idempotency_key")
+  stripeSessionId      String?               @unique @map("stripe_session_id")
+  checkoutUrl          String?               @map("checkout_url")
+  status               CheckoutAttemptStatus @default(CREATING)
+  activeOrganizationId String?               @unique @map("active_organization_id")
+  expiresAt            DateTime?             @map("expires_at")
+  failureReason        String?               @map("failure_reason")
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
+  organization         Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan                 BillingPlan           @relation(fields: [planId], references: [id])
+
+  @@index([organizationId, status])
+  @@index([expiresAt])
+  @@map("checkout_attempts")
+}
+
+model StripeWebhookEvent {
+  id             String                   @id @default(cuid())
+  stripeEventId  String                   @unique @map("stripe_event_id")
+  eventType      String                   @map("event_type")
+  status         StripeWebhookEventStatus @default(PENDING)
+  organizationId String?                  @map("organization_id")
+  payload        Json
+  attempts       Int                      @default(0)
+  lastError      String?                  @map("last_error")
+  nextRetryAt    DateTime?                @map("next_retry_at")
+  claimToken     String?                  @map("claim_token")
+  processingAt   DateTime?                @map("processing_at")
+  processedAt    DateTime?                @map("processed_at")
+  createdAt      DateTime                 @default(now()) @map("created_at")
+  updatedAt      DateTime                 @updatedAt @map("updated_at")
+
+  @@index([status, nextRetryAt])
+  @@index([organizationId])
+  @@index([createdAt])
+  @@map("stripe_webhook_events")
 }
 
 model OrganizationMonthlyUsage {
@@ -505,10 +556,38 @@ enum AuditAction {
   PERMISSION_REMOVE
 }
 
+enum CheckoutAttemptStatus {
+  CREATING
+  OPEN
+  COMPLETED
+  EXPIRED
+  FAILED
+}
+
 enum SubscriptionStatus {
   TRIALING
   ACTIVE
   PAST_DUE
   CANCELED
   EXPIRED
+}
+
+enum StripeWebhookEventStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REQUIRES_REVIEW
+}
+
+model StripeSubscriptionSyncLock {
+  subscriptionId String    @id @map("subscription_id")
+  claimToken     String?   @map("claim_token")
+  generation     BigInt    @default(0)
+  expiresAt      DateTime? @map("expires_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@index([expiresAt])
+  @@map("stripe_subscription_sync_locks")
 }

@@ -16,7 +16,13 @@ export async function withSerializableRetry<T>(
     } catch (error) {
       const isSerializationConflict =
         error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2034';
+        (
+          error.code === 'P2034' ||
+          (
+            error.code === 'P2010' &&
+            error.meta?.code === '40001'
+          )
+        );
 
       if (!isSerializationConflict || attempt === maxAttempts) {
         throw error;

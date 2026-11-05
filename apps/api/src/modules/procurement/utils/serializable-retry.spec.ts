@@ -92,4 +92,76 @@ describe('withSerializableRetry', () => {
 
     expect(transaction).toHaveBeenCalledTimes(1);
   });
+
+  it('retries a raw PostgreSQL 40001 serialization conflict', async () => {
+    const conflict = new Prisma.PrismaClientKnownRequestError(
+      'could not serialize access due to concurrent update',
+      {
+        code: 'P2010',
+        clientVersion: 'test',
+        meta: {
+          code: '40001',
+          message: 'could not serialize access due to concurrent update',
+        },
+      },
+    );
+
+    transaction
+      .mockRejectedValueOnce(conflict)
+      .mockResolvedValueOnce('recovered');
+
+    await expect(
+      withSerializableRetry(
+        prisma,
+        jest.fn().mockResolvedValue('result'),
+      ),
+    ).resolves.toBe('recovered');
+
+    expect(transaction).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops after three raw PostgreSQL 40001 conflicts', async () => {
+    const conflict = new Prisma.PrismaClientKnownRequestError(
+      'Serialization conflict',
+      {
+        code: 'P2010',
+        clientVersion: 'test',
+        meta: { code: '40001' },
+      },
+    );
+
+    transaction.mockRejectedValue(conflict);
+
+    await expect(
+      withSerializableRetry(
+        prisma,
+        jest.fn().mockResolvedValue('result'),
+      ),
+    ).rejects.toBe(conflict);
+
+    expect(transaction).toHaveBeenCalledTimes(3);
+  });
+
+  it('does not retry unrelated PostgreSQL raw query errors', async () => {
+    const error = new Prisma.PrismaClientKnownRequestError(
+      'Database error',
+      {
+        code: 'P2010',
+        clientVersion: 'test',
+        meta: { code: '23505' },
+      },
+    );
+
+    transaction.mockRejectedValue(error);
+
+    await expect(
+      withSerializableRetry(
+        prisma,
+        jest.fn().mockResolvedValue('result'),
+      ),
+    ).rejects.toBe(error);
+
+    expect(transaction).toHaveBeenCalledTimes(1);
+  });
+
 });

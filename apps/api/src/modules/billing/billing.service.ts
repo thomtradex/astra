@@ -1,4 +1,5 @@
-import { SubscriptionStatus } from '@astra/database';
+import { randomUUID } from 'node:crypto';
+import { CheckoutAttemptStatus, SubscriptionStatus } from '@astra/database';
 import {
   BadRequestException,
   ConflictException,
@@ -55,6 +56,55 @@ export class BillingService {
     return subscription;
   }
 
+  private async getActivePaidSubscription(organizationId: string) {
+    const subscriptions = await this.prisma.subscription.findMany({
+      where: {
+        organizationId,
+        status: {
+          in: [
+            SubscriptionStatus.TRIALING,
+            SubscriptionStatus.ACTIVE,
+            SubscriptionStatus.PAST_DUE,
+          ],
+        },
+      },
+      include: {
+        plan: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    const paidSubscriptions = subscriptions.filter(
+      (subscription) =>
+        subscription.plan.code !== 'FREE' &&
+        !!subscription.providerSubscriptionId,
+    );
+
+    if (paidSubscriptions.length > 1) {
+      throw new ConflictException(
+        'Multiple active paid subscriptions exist for this organization. Billing changes are blocked until the subscriptions are reconciled.',
+      );
+    }
+
+    if (paidSubscriptions.length === 0) {
+      throw new BadRequestException(
+        'No active paid Stripe subscription exists for this organization.',
+      );
+    }
+
+    const subscription = paidSubscriptions[0];
+
+    if (!subscription) {
+      throw new BadRequestException(
+        'No active paid Stripe subscription exists for this organization.',
+      );
+    }
+
+    return subscription;
+  }
+
   async ensureFreeSubscription(organizationId: string) {
     const existing = await this.prisma.subscription.findFirst({
       where: {
@@ -102,57 +152,6 @@ export class BillingService {
     });
   }
 
-  async ensureTrialSubscription(organizationId: string) {
-    const existing = await this.prisma.subscription.findFirst({
-      where: {
-        organizationId,
-        status: {
-          in: [SubscriptionStatus.TRIALING, SubscriptionStatus.ACTIVE, SubscriptionStatus.PAST_DUE],
-        },
-      },
-      include: {
-        plan: true,
-      },
-    });
-
-    if (existing) {
-      return existing;
-    }
-
-    const starter = await this.prisma.billingPlan.findUnique({
-      where: {
-        code: 'STARTER',
-      },
-    });
-
-    if (!starter || !starter.isActive) {
-      throw new ConflictException('STARTER billing plan is not available');
-    }
-
-    const now = new Date();
-
-    const trialEnd = new Date(now);
-    trialEnd.setDate(trialEnd.getDate() + starter.trialDays);
-
-    const periodEnd = new Date(trialEnd);
-
-    return this.prisma.subscription.create({
-      data: {
-        organizationId,
-        planId: starter.id,
-        status: SubscriptionStatus.TRIALING,
-        trialStart: now,
-        trialEnd,
-        currentPeriodStart: now,
-        currentPeriodEnd: periodEnd,
-        cancelAtPeriodEnd: false,
-      },
-      include: {
-        plan: true,
-      },
-    });
-  }
-
   async getEntitlements(organizationId: string): Promise<BillingEntitlements> {
     let subscription;
 
@@ -160,57 +159,77 @@ export class BillingService {
       subscription = await this.getSubscription(organizationId);
     } catch (error) {
       if (error instanceof NotFoundException) {
-        const freeSubscription = await this.ensureFreeSubscription(organizationId);
-
-        return {
-          plan: {
-            id: freeSubscription.plan.id,
-            code: freeSubscription.plan.code,
-            name: freeSubscription.plan.name,
-            monthlyPriceCents: freeSubscription.plan.monthlyPriceCents,
-            currency: freeSubscription.plan.currency,
-          },
-          limits: freeSubscription.plan.limits as BillingLimits,
-          features: freeSubscription.plan.features as BillingFeatures,
-        };
+        return this.getFreeEntitlements();
       }
-
       throw error;
+    }
+
+    const now = new Date();
+
+    if (subscription.plan.code === 'FREE') {
+      return this.toEntitlements(subscription.plan);
+    }
+
+    if (
+      subscription.status === SubscriptionStatus.ACTIVE &&
+      subscription.currentPeriodEnd &&
+      subscription.currentPeriodEnd > now
+    ) {
+      return this.toEntitlements(subscription.plan);
     }
 
     if (
       subscription.status === SubscriptionStatus.TRIALING &&
       subscription.trialEnd &&
-      subscription.trialEnd <= new Date()
+      subscription.trialEnd > now
     ) {
-      await this.expireSubscription(subscription.id);
-
-      const freeSubscription = await this.ensureFreeSubscription(organizationId);
-
-      return {
-        plan: {
-          id: freeSubscription.plan.id,
-          code: freeSubscription.plan.code,
-          name: freeSubscription.plan.name,
-          monthlyPriceCents: freeSubscription.plan.monthlyPriceCents,
-          currency: freeSubscription.plan.currency,
-        },
-        limits: freeSubscription.plan.limits as BillingLimits,
-        features: freeSubscription.plan.features as BillingFeatures,
-      };
+      return this.toEntitlements(subscription.plan);
     }
 
+    if (
+      (subscription.status === SubscriptionStatus.ACTIVE &&
+        (!subscription.currentPeriodEnd || subscription.currentPeriodEnd <= now)) ||
+      (subscription.status === SubscriptionStatus.TRIALING &&
+        (!subscription.trialEnd || subscription.trialEnd <= now))
+    ) {
+      await this.expireSubscription(subscription.id);
+    }
+
+    return this.getFreeEntitlements();
+  }
+
+  private toEntitlements(plan: {
+    id: string;
+    code: string;
+    name: string;
+    monthlyPriceCents: number;
+    currency: string;
+    limits: unknown;
+    features: unknown;
+  }): BillingEntitlements {
     return {
       plan: {
-        id: subscription.plan.id,
-        code: subscription.plan.code,
-        name: subscription.plan.name,
-        monthlyPriceCents: subscription.plan.monthlyPriceCents,
-        currency: subscription.plan.currency,
+        id: plan.id,
+        code: plan.code,
+        name: plan.name,
+        monthlyPriceCents: plan.monthlyPriceCents,
+        currency: plan.currency,
       },
-      limits: subscription.plan.limits as BillingLimits,
-      features: subscription.plan.features as BillingFeatures,
+      limits: plan.limits as BillingLimits,
+      features: plan.features as BillingFeatures,
     };
+  }
+
+  private async getFreeEntitlements(): Promise<BillingEntitlements> {
+    const freePlan = await this.prisma.billingPlan.findUnique({
+      where: { code: 'FREE' },
+    });
+
+    if (!freePlan || !freePlan.isActive || freePlan.monthlyPriceCents !== 0) {
+      throw new ConflictException('FREE billing plan is not available');
+    }
+
+    return this.toEntitlements(freePlan);
   }
 
   async expireSubscription(subscriptionId: string) {
@@ -263,7 +282,11 @@ export class BillingService {
     };
   }
 
-  async createCheckoutSession(organizationId: string, planCode: string, customerEmail: string) {
+  async createCheckoutSession(
+    organizationId: string,
+    planCode: string,
+    customerEmail: string,
+  ) {
     const normalizedPlanCode = planCode.toUpperCase();
 
     const plan = await this.prisma.billingPlan.findUnique({
@@ -286,32 +309,184 @@ export class BillingService {
       throw new BadRequestException('A paid Stripe checkout is not available for this plan.');
     }
 
-    const subscription = await this.prisma.subscription.findFirst({
+    const subscriptions = await this.prisma.subscription.findMany({
       where: {
         organizationId,
+        status: {
+          in: [
+            SubscriptionStatus.TRIALING,
+            SubscriptionStatus.ACTIVE,
+            SubscriptionStatus.PAST_DUE,
+          ],
+        },
       },
-      orderBy: {
-        createdAt: 'desc',
+      include: {
+        plan: true,
       },
     });
 
-    if (
-      subscription &&
-      subscription.status === SubscriptionStatus.ACTIVE &&
-      subscription.planId === plan.id
-    ) {
-      throw new ConflictException('The organization is already subscribed to this plan.');
+    if (subscriptions.some((subscription) => subscription.plan.code !== 'FREE')) {
+      throw new ConflictException(
+        'An existing paid subscription must be changed through the plan change flow.',
+      );
     }
 
-    const result = await this.paymentProvider.createCheckoutSession({
-      organizationId,
-      organizationName: organizationId,
-      planCode: normalizedPlanCode,
-      customerEmail,
-      successUrl: process.env.BILLING_SUCCESS_URL || 'http://localhost:3000/billing/success',
-      cancelUrl: process.env.BILLING_CANCEL_URL || 'http://localhost:3000/billing/cancel',
-      trialDays: plan.code === 'STARTER' ? plan.trialDays : 0,
+    const stripePriceIds: Record<string, string | undefined> = {
+      STARTER: process.env.STRIPE_PRICE_STARTER,
+      PROFESSIONAL: process.env.STRIPE_PRICE_PROFESSIONAL,
+      ENTERPRISE: process.env.STRIPE_PRICE_ENTERPRISE,
+    };
+
+    const stripePriceId = stripePriceIds[normalizedPlanCode];
+
+    if (!stripePriceId) {
+      throw new BadRequestException(
+        `Stripe price is not configured for plan ${normalizedPlanCode}.`,
+      );
+    }
+
+    const successUrl =
+      process.env.BILLING_SUCCESS_URL || 'http://localhost:3000/billing/success';
+    const cancelUrl =
+      process.env.BILLING_CANCEL_URL || 'http://localhost:3000/billing/cancel';
+    const trialDays = plan.code === 'STARTER' ? plan.trialDays : 0;
+    const now = new Date();
+    const idempotencySafeWindowMs = 23 * 60 * 60 * 1000;
+
+    let attempt = await this.prisma.checkoutAttempt.findUnique({
+      where: {
+        activeOrganizationId: organizationId,
+      },
     });
+
+    if (!attempt) {
+      try {
+        attempt = await this.prisma.checkoutAttempt.create({
+          data: {
+            organizationId,
+            planId: plan.id,
+            planCode: normalizedPlanCode,
+            customerEmail,
+            stripePriceId,
+            trialDays,
+            successUrl,
+            cancelUrl,
+            idempotencyKey: randomUUID(),
+            activeOrganizationId: organizationId,
+            status: CheckoutAttemptStatus.CREATING,
+          },
+        });
+      } catch (error) {
+        const isUniqueConstraintError =
+          typeof error === 'object' &&
+          error !== null &&
+          'code' in error &&
+          error.code === 'P2002';
+
+        if (!isUniqueConstraintError) {
+          throw error;
+        }
+
+        // Another request may have acquired the organization's unique checkout slot.
+        attempt = await this.prisma.checkoutAttempt.findUnique({
+          where: {
+            activeOrganizationId: organizationId,
+          },
+        });
+
+        if (!attempt) {
+          throw error;
+        }
+      }
+    }
+
+    if (attempt.planCode !== normalizedPlanCode) {
+      throw new ConflictException(
+        'A checkout attempt for another plan is already active. Complete or expire it before selecting another plan.',
+      );
+    }
+
+    if (attempt.status === CheckoutAttemptStatus.OPEN) {
+      if (
+        attempt.checkoutUrl &&
+        (!attempt.expiresAt || attempt.expiresAt > now)
+      ) {
+        return {
+          id: attempt.stripeSessionId,
+          url: attempt.checkoutUrl,
+          provider: 'stripe',
+          expiresAt: attempt.expiresAt,
+        };
+      }
+
+      throw new ConflictException(
+        'An existing checkout session is expired or awaiting webhook reconciliation.',
+      );
+    }
+
+    if (attempt.status !== CheckoutAttemptStatus.CREATING) {
+      throw new ConflictException(
+        'The existing checkout attempt must be reconciled before another checkout can be created.',
+      );
+    }
+
+    if (
+      now.getTime() - attempt.createdAt.getTime() >= idempotencySafeWindowMs
+    ) {
+      throw new ConflictException(
+        'The checkout attempt is too old for a safe Stripe retry and requires reconciliation.',
+      );
+    }
+
+    // Reuse the persisted snapshot and key. Never generate a new key for this attempt.
+    const result = await this.paymentProvider.createCheckoutSession({
+      organizationId: attempt.organizationId,
+      organizationName: attempt.organizationId,
+      planCode: attempt.planCode,
+      stripePriceId: attempt.stripePriceId,
+      checkoutAttemptId: attempt.id,
+      idempotencyKey: attempt.idempotencyKey,
+      customerEmail: attempt.customerEmail ?? customerEmail,
+      successUrl: attempt.successUrl,
+      cancelUrl: attempt.cancelUrl,
+      trialDays: attempt.trialDays,
+    });
+
+    // A webhook may complete the attempt while the Stripe request is in flight.
+    // Conditional update prevents this response from regressing COMPLETED to OPEN.
+    const transition = await this.prisma.checkoutAttempt.updateMany({
+      where: {
+        id: attempt.id,
+        status: CheckoutAttemptStatus.CREATING,
+      },
+      data: {
+        status: CheckoutAttemptStatus.OPEN,
+        stripeSessionId: result.id,
+        checkoutUrl: result.url ?? null,
+        expiresAt: result.expiresAt ?? null,
+      },
+    });
+
+    if (transition.count !== 1) {
+      const latestAttempt = await this.prisma.checkoutAttempt.findUnique({
+        where: { id: attempt.id },
+      });
+
+      const sameSession =
+        latestAttempt?.stripeSessionId === result.id;
+
+      const alreadyCompleted =
+        latestAttempt?.status === CheckoutAttemptStatus.COMPLETED;
+
+      const alreadyOpen =
+        latestAttempt?.status === CheckoutAttemptStatus.OPEN;
+
+      if (!sameSession || (!alreadyCompleted && !alreadyOpen)) {
+        throw new ConflictException(
+          'Checkout session could not be persisted consistently; Stripe reconciliation required.',
+        );
+      }
+    }
 
     return result;
   }
@@ -335,7 +510,7 @@ export class BillingService {
       );
     }
 
-    const subscription = await this.getSubscription(organizationId);
+    const subscription = await this.getActivePaidSubscription(organizationId);
 
     if (
       subscription.planId === targetPlan.id &&
@@ -406,7 +581,7 @@ export class BillingService {
   }
 
   async cancelAtPeriodEnd(organizationId: string) {
-    const subscription = await this.getSubscription(organizationId);
+    const subscription = await this.getActivePaidSubscription(organizationId);
 
     if (!subscription.providerSubscriptionId) {
       throw new BadRequestException('This subscription is not connected to a Stripe subscription.');
@@ -429,7 +604,7 @@ export class BillingService {
   }
 
   async reactivate(organizationId: string) {
-    const subscription = await this.getSubscription(organizationId);
+    const subscription = await this.getActivePaidSubscription(organizationId);
 
     if (subscription.status === SubscriptionStatus.EXPIRED) {
       throw new BadRequestException(
@@ -458,7 +633,7 @@ export class BillingService {
   }
 
   async createCustomerPortalSession(organizationId: string, returnUrl: string) {
-    const subscription = await this.getSubscription(organizationId);
+    const subscription = await this.getActivePaidSubscription(organizationId);
 
     if (!subscription.providerCustomerId) {
       throw new BadRequestException('This organization does not have a Stripe customer yet.');

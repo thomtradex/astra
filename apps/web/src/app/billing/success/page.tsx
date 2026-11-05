@@ -10,10 +10,19 @@ export default function BillingSuccessPage() {
   const [status, setStatus] = useState('A confirmar a sua subscrição…');
   const [error, setError] = useState(false);
 
+  const [retryAttempt, setRetryAttempt] = useState(0);
+  const [isChecking, setIsChecking] = useState(true);
+
   useEffect(() => {
     let active = true;
+    let retryTimer: number | undefined;
+    let redirectTimer: number | undefined;
 
     async function confirmSubscription() {
+      setIsChecking(true);
+      setError(false);
+      setStatus('A confirmar a sua subscrição…');
+
       try {
         const subscription = await getCurrentSubscription();
 
@@ -21,7 +30,7 @@ export default function BillingSuccessPage() {
 
         if (subscription) {
           setStatus('Subscrição confirmada. A preparar a sua empresa…');
-          window.setTimeout(() => {
+          redirectTimer = window.setTimeout(() => {
             if (active) {
               router.replace('/onboarding');
               router.refresh();
@@ -30,35 +39,26 @@ export default function BillingSuccessPage() {
           return;
         }
 
-        setStatus('Estamos a sincronizar a confirmação do pagamento…');
-
-        window.setTimeout(() => {
-          void (async () => {
-            try {
-              const retry = await getCurrentSubscription();
-
-              if (!active) return;
-
-              if (retry) {
-                router.replace('/onboarding');
-                router.refresh();
-                return;
-              }
-
-              setError(true);
-              setStatus('A confirmação ainda não ficou disponível.');
-            } catch {
-              if (active) {
-                setError(true);
-                setStatus('Não foi possível confirmar a subscrição.');
-              }
+        if (retryAttempt === 0) {
+          setStatus('Estamos a sincronizar a confirmação do pagamento…');
+          retryTimer = window.setTimeout(() => {
+            if (active) {
+              setRetryAttempt(1);
             }
-          })();
-        }, 2500);
+          }, 2500);
+          return;
+        }
+
+        setError(true);
+        setStatus('A confirmação ainda não ficou disponível.');
       } catch {
         if (active) {
           setError(true);
-          setStatus('Não foi possível confirmar a subscrição.');
+          setStatus('Não foi possível confirmar a subscrição. Verifique a sessão e tente novamente.');
+        }
+      } finally {
+        if (active) {
+          setIsChecking(false);
         }
       }
     }
@@ -67,8 +67,16 @@ export default function BillingSuccessPage() {
 
     return () => {
       active = false;
+
+      if (retryTimer !== undefined) {
+        window.clearTimeout(retryTimer);
+      }
+
+      if (redirectTimer !== undefined) {
+        window.clearTimeout(redirectTimer);
+      }
     };
-  }, [router]);
+  }, [router, retryAttempt]);
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 px-6 text-white">
@@ -87,10 +95,11 @@ export default function BillingSuccessPage() {
         {error && (
           <button
             type="button"
-            onClick={() => router.refresh()}
-            className="mt-6 rounded-xl bg-white px-5 py-3 text-sm font-medium text-slate-950 transition hover:bg-slate-200"
+            onClick={() => setRetryAttempt((current) => current + 1)}
+            disabled={isChecking}
+            className="mt-6 rounded-xl bg-white px-5 py-3 text-sm font-medium text-slate-950 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Tentar novamente
+            {isChecking ? 'A verificar…' : 'Tentar novamente'}
           </button>
         )}
       </div>
