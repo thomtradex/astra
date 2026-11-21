@@ -1,5 +1,7 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
+
 import { executeCooAction } from '@/lib/intelligence-client';
 import { listOrganizationUsers } from '@/lib/users-client';
 
@@ -25,6 +27,9 @@ export async function assignWorkOrder(workOrderId: string, assignedToId: string)
   if (!outcome.allowed || outcome.status !== 'EXECUTED') {
     throw new Error(outcome.message);
   }
+
+  revalidatePath('/intelligence');
+  revalidatePath(`/work-orders/${workOrderId}`);
 
   return outcome;
 }

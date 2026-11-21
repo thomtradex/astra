@@ -67,3 +67,6 @@ backups/
 
 deploy/production/.env
 apps/api/.env
+
+# PostgreSQL temporário para testes de locks Stripe
+/apps/api/test/.stripe-lock-postgres.env

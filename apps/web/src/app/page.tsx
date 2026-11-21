@@ -34,7 +34,7 @@ const flow = [
   ['01', 'Observar', 'Astra reúne os dados operacionais disponíveis.'],
   ['02', 'Detetar', 'Encontra situações que merecem atenção.'],
   ['03', 'Priorizar', 'Separa o importante do que pode esperar.'],
-  ['04', 'Explicar', 'Mostra por que razão cada sinal importa.'],
+  ['04', 'Explicar', 'Mostra por que razão cada situação importa.'],
   ['05', 'Recomendar', 'Indica a ação que deve ser considerada.'],
   ['06', 'Agir', 'Leva a decisão até ao responsável e à ação.'],
 ];
@@ -60,7 +60,7 @@ export default function HomePage() {
             </h1>
 
             <p className="mt-8 max-w-3xl text-xl leading-relaxed text-astra-600">
-              A Astra transforma os dados da sua operação em sinais, prioridades, decisões e
+              A Astra transforma os dados da sua operação em situações, prioridades, decisões e
               ações — para que cada responsável saiba onde deve concentrar o seu tempo.
             </p>
 
@@ -89,7 +89,7 @@ export default function HomePage() {
           <div className="mt-20 rounded-3xl border border-astra-100 bg-astra-50 p-8 md:p-12">
             <div className="max-w-3xl">
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-astra-500">
-                O briefing operacional
+                O resumo da operação
               </p>
 
               <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">

@@ -5,6 +5,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { BillingService } from '../billing/billing.service';
+import { releaseWorkOrderReservations } from '../procurement/utils/release-work-order-reservations';
+import { withSerializableRetry } from '../procurement/utils/serializable-retry';
 
 import { CreateWorkOrderDto } from './dto/create-work-order.dto';
 import { UpdateWorkOrderDto } from './dto/update-work-order.dto';
@@ -24,6 +26,24 @@ export class WorkOrdersService {
       orderBy: {
         created_at: 'desc',
       },
+      include: {
+        assets: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            status: true,
+          },
+        },
+        project: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            status: true,
+          },
+        },
+      },
     });
   }
 
@@ -42,7 +62,7 @@ export class WorkOrdersService {
       });
 
       if (!project) {
-        throw new Error('Project not found for this organization');
+        throw new NotFoundException('Project not found for this organization');
       }
     }
 
@@ -58,31 +78,44 @@ export class WorkOrdersService {
       });
 
       if (!asset) {
-        throw new Error('Asset not found for this organization');
+        throw new NotFoundException('Asset not found for this organization');
+      }
+    }
+
+    if (dto.assignedToId) {
+      const user = await this.prisma.user.findFirst({
+        where: {
+          id: dto.assignedToId,
+          organizationId: organizationId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found for this organization');
       }
     }
 
     const monthStart = new Date();
-        monthStart.setDate(1);
-        monthStart.setHours(0, 0, 0, 0);
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
 
-        if (this.billingService) {
-          const currentUsage = await this.prisma.work_orders.count({
-              where: {
-                organization_id: organizationId,
-                created_at: { gte: monthStart },
-            },
-        });
+    if (this.billingService) {
+      const currentUsage = await this.prisma.work_orders.count({
+        where: {
+          organization_id: organizationId,
+          created_at: { gte: monthStart },
+        },
+      });
 
-        await this.billingService.assertLimit(
-            organizationId,
-            'workOrdersPerMonth',
-            currentUsage,
-        );
-
-
-        }
-
+      await this.billingService.assertLimit(
+        organizationId,
+        'workOrdersPerMonth',
+        currentUsage,
+      );
+    }
 
     return this.prisma.work_orders.create({
       data: {
@@ -105,6 +138,24 @@ export class WorkOrdersService {
       where: {
         id,
         organization_id: organizationId,
+      },
+      include: {
+        assets: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            status: true,
+          },
+        },
+        project: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            status: true,
+          },
+        },
       },
     });
   }
@@ -140,7 +191,7 @@ export class WorkOrdersService {
       });
 
       if (!project) {
-        throw new Error('Project not found for this organization');
+        throw new NotFoundException('Project not found for this organization');
       }
     }
 
@@ -156,7 +207,7 @@ export class WorkOrdersService {
       });
 
       if (!asset) {
-        throw new Error('Asset not found for this organization');
+        throw new NotFoundException('Asset not found for this organization');
       }
     }
 
@@ -176,20 +227,49 @@ export class WorkOrdersService {
       }
     }
 
-    return this.prisma.work_orders.update({
-      where: {
-        id,
-      },
-      data: {
-        title: data.title,
-        description: data.description,
-        status: data.status,
-        priority: data.priority,
-        asset_id: data.assetId,
-        assigned_to_id: data.assignedToId,
-        project_id: data.projectId,
-        updated_at: new Date(),
-      },
+    return withSerializableRetry(this.prisma, async (tx) => {
+      const current = await tx.work_orders.findFirst({
+        where: {
+          id,
+          organization_id: organizationId,
+        },
+        select: {
+          id: true,
+          status: true,
+        },
+      });
+
+      if (!current) {
+        throw new NotFoundException('Work order not found');
+      }
+
+      const nextStatus = data.status?.toUpperCase();
+      const terminalStatuses = ['CANCELLED', 'COMPLETED', 'CLOSED'];
+
+      if (nextStatus && terminalStatuses.includes(nextStatus)) {
+        await releaseWorkOrderReservations(
+          tx,
+          organizationId,
+          id,
+          `Work order ${nextStatus.toLowerCase()}: reservations released`,
+        );
+      }
+
+      return tx.work_orders.update({
+        where: {
+          id,
+        },
+        data: {
+          title: data.title,
+          description: data.description,
+          status: data.status,
+          priority: data.priority,
+          asset_id: data.assetId,
+          assigned_to_id: data.assignedToId,
+          project_id: data.projectId,
+          updated_at: new Date(),
+        },
+      });
     });
   }
 
@@ -208,10 +288,33 @@ export class WorkOrdersService {
       throw new NotFoundException('Work order not found');
     }
 
-    return this.prisma.work_orders.delete({
-      where: {
+    return withSerializableRetry(this.prisma, async (tx) => {
+      const current = await tx.work_orders.findFirst({
+        where: {
+          id,
+          organization_id: organizationId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!current) {
+        throw new NotFoundException('Work order not found');
+      }
+
+      await releaseWorkOrderReservations(
+        tx,
+        organizationId,
         id,
-      },
+        'Work order deleted: reservations released',
+      );
+
+      return tx.work_orders.delete({
+        where: {
+          id,
+        },
+      });
     });
   }
 }

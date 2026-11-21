@@ -45,7 +45,7 @@ export function CompanySetup() {
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={(event) => void handleSubmit(event)}
       className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm"
     >
       <div className="grid gap-7">

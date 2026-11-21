@@ -2,9 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getApiBaseUrl } from '@/lib/api-client';
 
+interface RegisterResponse {
+  accessToken?: string;
+  refreshToken?: string;
+  expiresIn?: number;
+  message?: string;
+  [key: string]: unknown;
+}
 
 export async function POST(request: NextRequest) {
-  const body = await request.json().catch(() => null);
+  const body: unknown = await request.json().catch(() => null);
 
   if (!body || typeof body !== 'object') {
     return NextResponse.json(
@@ -22,17 +29,22 @@ export async function POST(request: NextRequest) {
     cache: 'no-store',
   });
 
-  const data = await response.json().catch(() => null);
+  const responseData: unknown = await response.json().catch(() => null);
+
+  const data: RegisterResponse =
+    responseData && typeof responseData === 'object'
+      ? (responseData as RegisterResponse)
+      : {};
 
   const nextResponse = NextResponse.json(data, {
     status: response.status,
   });
 
   const accessToken =
-    data && typeof data.accessToken === 'string' ? data.accessToken : null;
+    typeof data.accessToken === 'string' ? data.accessToken : null;
 
   const refreshToken =
-    data && typeof data.refreshToken === 'string' ? data.refreshToken : null;
+    typeof data.refreshToken === 'string' ? data.refreshToken : null;
 
   if (accessToken) {
     nextResponse.cookies.set('astra_access_token', accessToken, {

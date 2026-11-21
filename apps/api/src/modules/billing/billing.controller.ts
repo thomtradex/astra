@@ -46,14 +46,6 @@ export class BillingController {
     return this.billingService.ensureFreeSubscription(user.organizationId);
   }
 
-  @Post('trial')
-  @Authenticated()
-  @ApiOperation({ summary: 'Start free trial subscription' })
-  @RequirePolicy(CanManageBilling.name)
-  startTrial(@CurrentUser() user: AuthenticatedUser) {
-    return this.billingService.ensureTrialSubscription(user.organizationId);
-  }
-
   @Post('checkout')
   @Authenticated()
   @ApiOperation({ summary: 'Create Stripe Checkout session' })

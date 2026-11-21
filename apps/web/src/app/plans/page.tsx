@@ -119,12 +119,12 @@ const PLAN_CONTENT: Record<Plan['code'], {
   },
   PROFESSIONAL: {
     eyebrow: 'Mais popular',
-    headline: 'Passe da operação à decisão com a Astra COO.',
+    headline: 'Passe da operação à decisão com a Astra.',
     bullets: [
       'Tudo do Starter',
       'Mais utilizadores, sites e capacidade',
-      'Inteligência operacional e briefing COO',
-      'Sinais, prioridades e recomendações operacionais',
+      'Inteligência operacional orientada à decisão',
+      'Situações, prioridades e recomendações operacionais',
       'Maior capacidade para equipas e operações',
     ],
     accent: 'A escolha para empresas que precisam de decidir melhor e mais cedo.',
@@ -171,7 +171,7 @@ export default function PlansPage() {
 
         if (!response.ok) throw new Error('Não foi possível carregar os planos.');
 
-        const data = await response.json();
+        const data: unknown = await response.json();
 
         if (active && Array.isArray(data) && data.length) {
           setPlans(
@@ -187,7 +187,7 @@ export default function PlansPage() {
       }
     }
 
-    loadPlans();
+    void loadPlans();
 
     return () => {
       active = false;
@@ -203,7 +203,7 @@ export default function PlansPage() {
     [plans],
   );
 
-  async function choosePlan(plan: Plan) {
+  function choosePlan(plan: Plan) {
     const code = plan.code;
 
     if (code === 'ENTERPRISE') {

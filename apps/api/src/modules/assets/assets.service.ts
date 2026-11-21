@@ -24,6 +24,11 @@ export class AssetsService {
       where: {
         organization_id,
       },
+      include: {
+        sites: true,
+        maintenance_plans: true,
+        work_orders: true,
+      },
       orderBy: {
         created_at: 'desc',
       },
@@ -36,10 +41,29 @@ export class AssetsService {
         id,
         organization_id,
       },
+      include: {
+        sites: true,
+        maintenance_plans: true,
+        work_orders: true,
+      },
     });
   }
 
   async create(dto: CreateAssetDto, organization_id: string): Promise<AssetModel> {
+    if (dto.siteId) {
+      const site = await this.prisma.sites.findFirst({
+        where: {
+          id: dto.siteId,
+          organization_id,
+        },
+        select: { id: true },
+      });
+
+      if (!site) {
+        throw new NotFoundException('Site not found');
+      }
+    }
+
     if (this.billingService) {
       const currentUsage = await this.prisma.assets.count({
         where: {
@@ -70,21 +94,40 @@ export class AssetsService {
   }
 
   async update(id: string, dto: UpdateAssetDto, organization_id: string) {
-    const asset = await this.prisma.assets.findUnique({
+    const asset = await this.prisma.assets.findFirst({
       where: {
         id,
         organization_id,
       },
     });
 
-    if (!asset || asset.organization_id !== organization_id) {
+    if (!asset) {
       throw new NotFoundException('Asset not found');
+    }
+
+    if (dto.siteId !== undefined && dto.siteId !== null) {
+      const site = await this.prisma.sites.findFirst({
+        where: {
+          id: dto.siteId,
+          organization_id,
+        },
+        select: { id: true },
+      });
+
+      if (!site) {
+        throw new NotFoundException('Site not found');
+      }
     }
 
     return this.prisma.assets.update({
       where: { id },
       data: {
-        ...dto,
+        name: dto.name,
+        code: dto.code,
+        serial_number: dto.serialNumber,
+        description: dto.description,
+        status: dto.status,
+        site_id: dto.siteId,
         updated_at: new Date(),
       },
     });

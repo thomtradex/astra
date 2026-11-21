@@ -176,7 +176,20 @@ export default function BillingPage() {
       let data: { url?: string; message?: string } = {};
 
       try {
-        data = body ? JSON.parse(body) : {};
+        const parsed: unknown = body ? JSON.parse(body) : {};
+
+          if (typeof parsed === 'object' && parsed !== null) {
+            const value = parsed as {
+              url?: unknown;
+              message?: unknown;
+            };
+
+            data = {
+              url: typeof value.url === 'string' ? value.url : undefined,
+              message:
+                typeof value.message === 'string' ? value.message : undefined,
+            };
+          }
       } catch {
         data = {};
       }
@@ -228,7 +241,16 @@ export default function BillingPage() {
       let data: { message?: string } = {};
 
       try {
-        data = body ? JSON.parse(body) : {};
+        const parsed: unknown = body ? JSON.parse(body) : {};
+
+          if (typeof parsed === 'object' && parsed !== null) {
+            const value = parsed as { message?: unknown };
+
+            data = {
+              message:
+                typeof value.message === 'string' ? value.message : undefined,
+            };
+          }
       } catch {
         data = {};
       }
@@ -269,7 +291,16 @@ export default function BillingPage() {
       let data: { message?: string } = {};
 
       try {
-        data = body ? JSON.parse(body) : {};
+        const parsed: unknown = body ? JSON.parse(body) : {};
+
+          if (typeof parsed === 'object' && parsed !== null) {
+            const value = parsed as { message?: unknown };
+
+            data = {
+              message:
+                typeof value.message === 'string' ? value.message : undefined,
+            };
+          }
       } catch {
         data = {};
       }

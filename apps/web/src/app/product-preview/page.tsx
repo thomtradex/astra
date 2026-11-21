@@ -10,7 +10,7 @@ import { ReportCenter } from '@/components/dashboard/reports/report-center';
 import { RiskPanel } from '@/components/dashboard/risk/risk-panel';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 
-export default async function ProductPreviewPage() {
+export default function ProductPreviewPage() {
   const overview = {
     customers: 24,
     sites: 8,
@@ -95,7 +95,7 @@ export default async function ProductPreviewPage() {
       <section>
         <h2>Astra Command Center</h2>
 
-        <p>Astra COO — operational decision intelligence.</p>
+        <p>Astra COO — inteligência operacional orientada à decisão.</p>
 
         <KpiGrid overview={overview} />
 

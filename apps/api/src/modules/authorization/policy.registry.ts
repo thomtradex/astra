@@ -17,6 +17,14 @@ import {
   CanReadMaintenance,
   CanReadAudit,
   CanReadCustomers,
+  CanReadSuppliers,
+  CanManageSuppliers,
+  CanReadMaterials,
+  CanManageMaterials,
+  CanReadInventory,
+  CanManageInventory,
+  CanReadWorkOrderMaterials,
+  CanManageWorkOrderMaterials,
   CanReadOrganizations,
   CanReadProjects,
   CanReadUsers,
@@ -39,6 +47,17 @@ export class PolicyRegistry {
     [CanManageProjects.name, CanManageProjects],
 
     [CanReadAudit.name, CanReadAudit],
+    [CanReadSuppliers.name, CanReadSuppliers],
+    [CanManageSuppliers.name, CanManageSuppliers],
+
+    [CanReadMaterials.name, CanReadMaterials],
+    [CanManageMaterials.name, CanManageMaterials],
+
+    [CanReadInventory.name, CanReadInventory],
+    [CanManageInventory.name, CanManageInventory],
+    [CanReadWorkOrderMaterials.name, CanReadWorkOrderMaterials],
+    [CanManageWorkOrderMaterials.name, CanManageWorkOrderMaterials],
+
     [CanReadDashboard.name, CanReadDashboard],
 
     [CanReadAssets.name, CanReadAssets],

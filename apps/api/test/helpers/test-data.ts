@@ -134,6 +134,7 @@ export async function seedBillingPlans(prisma: PrismaService): Promise<void> {
         dedicatedSupport: false,
         multiSiteOperations: true,
         advancedAutomation: false,
+        procurementManagement: true,
       },
       limits: {
         users: 5,
@@ -175,6 +176,7 @@ export async function seedBillingPlans(prisma: PrismaService): Promise<void> {
         dedicatedSupport: false,
         multiSiteOperations: true,
         advancedAutomation: false,
+        procurementManagement: true,
       },
       limits: {
         users: 5,

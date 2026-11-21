@@ -22,6 +22,7 @@ import { HealthModule } from './modules/health/health.module';
 import { IntelligenceModule } from './modules/intelligence/intelligence.module';
 import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
+import { ProcurementModule } from './modules/procurement/procurement.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { ScoringModule } from './modules/scoring/scoring.module';
 import { SitesModule } from './modules/sites/sites.module';
@@ -32,6 +33,7 @@ import { PrismaModule } from './prisma/prisma.module';
 @Module({
   imports: [
     ProjectsModule,
+    ProcurementModule,
     AuthorizationModule,
     BillingModule,
     AppConfigModule,

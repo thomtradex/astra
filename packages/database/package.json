@@ -31,7 +31,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "db:push": "prisma db push",
-    "test": "node -e \"process.exit(0)\""
+    "test": "node -e \"process.exit(0)\"",
+    "db:seed:rbac": "tsx prisma/seed-rbac.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3"

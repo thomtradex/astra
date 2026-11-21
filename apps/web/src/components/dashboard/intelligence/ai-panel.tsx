@@ -14,7 +14,7 @@ export function AiPanel({ assets, risks }: AiPanelProps) {
       </p>
 
       <p>
-        {assets} ativos em contexto · {risks} sinais identificados
+        {assets} ativos em contexto · {risks} situações identificados
       </p>
     </section>
   );

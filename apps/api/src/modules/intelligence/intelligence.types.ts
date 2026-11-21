@@ -1,14 +1,24 @@
-import { OperationalChain } from './operational-chain.types';
+import type { AIAnalysis } from '../ai/ai.types';
+
+import type {
+  IntelligenceDecisionContext,
+  IntelligenceEvidence,
+  IntelligenceRecommendation,
+  OperationalContext,
+} from './intelligence-contract.types';
+import type { OperationalChain } from './operational-chain.types';
 
 export type IntelligenceSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 
 export type IntelligenceSignalType =
   | 'HIGH_PRIORITY_WORK_ORDER'
   | 'OVERDUE_MAINTENANCE'
+  | 'MAINTENANCE_OPERATIONAL_CONFLICT'
   | 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER'
   | 'UNASSIGNED_WORK_ORDER'
   | 'OVERDUE_PROJECT'
-  | 'STALE_OPEN_WORK_ORDER';
+  | 'STALE_OPEN_WORK_ORDER'
+  | 'STOCK_RISK';
 
 export interface IntelligenceChange {
   id: string;
@@ -17,8 +27,13 @@ export interface IntelligenceChange {
   title: string;
   explanation: string;
   evidence: string[];
+  /** Structured operational evidence for future consumers and AI interpretation. */
+  evidenceItems?: IntelligenceEvidence[];
   impact: string;
   recommendedAction: string;
+  operationalContext?: OperationalContext;
+  recommendations?: IntelligenceRecommendation[];
+  decisionContext?: IntelligenceDecisionContext;
   timestamp: string;
   source: {
     resource: string;
@@ -26,15 +41,50 @@ export interface IntelligenceChange {
   };
 }
 
+export interface IntelligenceDecisionVerification {
+  status: 'VERIFIED' | 'STILL_OPEN' | 'NOT_VERIFIED';
+  label: string;
+  explanation: string;
+  checkedAt: string;
+}
+
+export interface IntelligenceDecisionHistory {
+  id: string;
+  timestamp: string;
+  status: 'EXECUTED' | 'DENIED' | 'FAILED';
+  actionType: string;
+  resource: string;
+  resourceId: string;
+  actor?: {
+    id: string;
+    name?: string;
+    email?: string;
+  };
+  message: string;
+  verification?: IntelligenceDecisionVerification;
+}
+
 export interface IntelligenceSignal {
   id: string;
   type: IntelligenceSignalType;
   severity: IntelligenceSeverity;
+  priorityContext?: {
+    openWorkOrders?: number;
+    highPriorityOpenWorkOrders?: number;
+    unassignedHighPriorityWorkOrders?: number;
+    relatedOpenWorkOrders?: number;
+  };
   title: string;
   explanation: string;
   evidence: string[];
+  /** Structured operational evidence for future consumers and AI interpretation. */
+  evidenceItems?: IntelligenceEvidence[];
   urgency: string;
   impact: string;
+  operationalContext?: OperationalContext;
+  recommendations?: IntelligenceRecommendation[];
+  decisionContext?: IntelligenceDecisionContext;
+  aiAnalysis?: AIAnalysis;
   owner?: {
     type: 'USER' | 'TEAM' | 'ORGANIZATION';
     id?: string;
@@ -64,4 +114,5 @@ export interface IntelligenceSignal {
     resource: string;
     resourceId?: string;
   };
+  stockRiskContext?: { siteId: string; materialId: string };
 }

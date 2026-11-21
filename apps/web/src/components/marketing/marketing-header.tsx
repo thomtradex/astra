@@ -50,10 +50,35 @@ export function MarketingHeader() {
           return;
         }
 
-        const data = await response.json();
-        const currentUser = data?.user || data?.data?.user || data;
+        const data: unknown = await response.json();
 
-        if (active && currentUser && typeof currentUser === 'object') {
+        let currentUser: HeaderUser | null = null;
+
+        if (typeof data === 'object' && data !== null) {
+          const record = data as Record<string, unknown>;
+          const directUser = record.user;
+
+          if (typeof directUser === 'object' && directUser !== null) {
+            currentUser = directUser;
+          } else {
+            const nestedData = record.data;
+
+            if (typeof nestedData === 'object' && nestedData !== null) {
+              const nestedRecord = nestedData as Record<string, unknown>;
+              const nestedUser = nestedRecord.user;
+
+              if (typeof nestedUser === 'object' && nestedUser !== null) {
+                currentUser = nestedUser;
+              }
+            }
+
+            if (!currentUser) {
+              currentUser = record;
+            }
+          }
+        }
+
+        if (active && currentUser) {
           setUser(currentUser);
         }
       } catch {

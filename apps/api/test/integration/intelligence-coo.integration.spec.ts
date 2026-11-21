@@ -99,6 +99,7 @@ describe('COO intelligence decision loop (integration)', () => {
         isActive: true,
         features: {
           intelligence: true,
+          cooActions: true,
           workOrderManagement: true,
         },
         limits: {},
@@ -114,6 +115,7 @@ describe('COO intelligence decision loop (integration)', () => {
         displayOrder: 999,
         features: {
           intelligence: true,
+          cooActions: true,
           workOrderManagement: true,
         },
         limits: {},
@@ -273,22 +275,56 @@ describe('COO intelligence decision loop (integration)', () => {
       .set('Authorization', `Bearer ${alphaAdminToken}`)
       .expect(200);
 
-    const finalSignals = bodyOf<{
+    const finalBriefingBody = bodyOf<{
       signals: Array<{
         type: string;
         action?: {
           resourceId?: string;
         };
       }>;
-    }>(finalBriefing).signals;
+      decisionHistory: Array<{
+        status: string;
+        actionType: string;
+        resource: string;
+        resourceId: string;
+        verification?: {
+          status: string;
+          label: string;
+          explanation: string;
+          checkedAt: string;
+        };
+      }>;
+    }>(finalBriefing);
 
     expect(
-      finalSignals.some(
+      finalBriefingBody.signals.some(
         (item) =>
           item.type === 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER' &&
           item.action?.resourceId === workOrder.id,
       ),
     ).toBe(false);
+
+    const verifiedDecision = finalBriefingBody.decisionHistory.find(
+      (item) =>
+        item.actionType === 'ASSIGN_WORK_ORDER' &&
+        item.resource === 'work_orders' &&
+        item.resourceId === workOrder.id,
+    );
+
+    expect(verifiedDecision).toMatchObject({
+      status: 'EXECUTED',
+      actionType: 'ASSIGN_WORK_ORDER',
+      resource: 'work_orders',
+      resourceId: workOrder.id,
+      verification: {
+        status: 'VERIFIED',
+        label: 'Resultado confirmado',
+        explanation:
+          'O responsável definido pela decisão está atualmente atribuído à ordem de trabalho.',
+      },
+    });
+
+    expect(verifiedDecision?.verification?.checkedAt).toEqual(expect.any(String));
   });
 
     it('executes SET_PROJECT_STATUS through the HTTP COO action endpoint and audits it', async () => {

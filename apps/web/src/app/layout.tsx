@@ -10,9 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Astra COO | Operational Decision Intelligence',
+  title: 'Astra COO | Inteligência operacional orientada à decisão',
   description:
-    'Astra COO transforma dados operacionais em sinais, prioridades, decisões e ações para empresas com operações complexas.',
+    'Astra COO transforma dados operacionais em situações, prioridades, decisões e ações para empresas com operações complexas.',
   robots: {
     index: true,
     follow: true,

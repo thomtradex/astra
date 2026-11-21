@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
 
+import type {
+  IntelligenceDecisionContext,
+  IntelligenceEvidence,
+  IntelligenceRecommendation,
+  OperationalContext,
+} from '../intelligence-contract.types';
 import { IntelligenceSeverity, IntelligenceSignal } from '../intelligence.types';
-import { OperationalChain } from '../operational-chain.types';
+import type { OperationalChain } from '../operational-chain.types';
 
 type WorkOrder = {
   id: string;
@@ -50,17 +56,79 @@ type Project = {
   end_date: Date | null;
 };
 
+type InventoryMaterial = {
+  id: string;
+  code: string;
+  name: string;
+  unit: string;
+  reorder_point: number | null;
+  reorder_quantity: number | null;
+  active: boolean;
+};
+
+type InventoryStock = {
+  id: string;
+  site_id: string;
+  material_id: string;
+  quantity_on_hand: number;
+  quantity_reserved: number;
+};
+
+type WorkOrderMaterial = {
+  id: string;
+  work_order_id: string;
+  material_id: string;
+  site_id: string;
+  required_quantity: number;
+  reserved_quantity: number;
+  consumed_quantity: number;
+  status: string;
+};
+
 type CooDecisionInput = {
   workOrders: WorkOrder[];
   maintenancePlans: MaintenancePlan[];
   assets: Asset[];
   sites: Site[];
   projects: Project[];
+  materials?: InventoryMaterial[];
+  inventoryStock?: InventoryStock[];
+  workOrderMaterials?: WorkOrderMaterial[];
   now?: Date;
 };
 
 @Injectable()
 export class CooDecisionEngine {
+  private openWorkOrderPhrase(count: number): string {
+    return count === 1
+      ? 'ordem de trabalho aberta'
+      : 'ordens de trabalho abertas';
+  }
+
+  private highPriorityOpenWorkOrderPhrase(count: number): string {
+    return count === 1
+      ? 'ordem de alta prioridade aberta'
+      : 'ordens de alta prioridade abertas';
+  }
+
+  private highPriorityUnassignedWorkOrderPhrase(count: number): string {
+    return count === 1
+      ? 'ordem de alta prioridade sem responsável'
+      : 'ordens de alta prioridade sem responsável';
+  }
+
+  private associatedOpenWorkOrderPhrase(count: number): string {
+    return count === 1
+      ? 'ordem de trabalho aberta associada'
+      : 'ordens de trabalho abertas associadas';
+  }
+
+  private associatedHighPriorityWorkOrderPhrase(count: number): string {
+    return count === 1
+      ? 'ordem de alta prioridade associada'
+      : 'ordens de alta prioridade associadas';
+  }
+
   analyze(input: CooDecisionInput) {
     const now = input.now ?? new Date();
 
@@ -68,10 +136,18 @@ export class CooDecisionEngine {
 
     const highPriorityOpen = input.workOrders.filter(
       (order) =>
-        order.status === 'OPEN' && (order.priority === 'HIGH' || order.priority === 'CRITICAL'),
+        this.isOpenWorkOrder(order.status) && (order.priority === 'HIGH' || order.priority === 'CRITICAL'),
     );
 
-    if (highPriorityOpen.length > 0) {
+    const assignedHighPriorityOpen = highPriorityOpen.filter(
+      (order) => Boolean(order.assigned_to_id),
+    );
+
+    // The per-work-order unassigned signals already represent the complete
+    // operational situation when every high-priority open order is unassigned.
+    // Keep the aggregate signal only when there is assigned high-priority work
+    // that adds distinct operational information.
+    if (assignedHighPriorityOpen.length > 0) {
       signals.push(this.createHighPriorityWorkOrderSignal(highPriorityOpen, now));
     }
 
@@ -84,6 +160,42 @@ export class CooDecisionEngine {
         this.createOverdueMaintenanceSignal(plan, input.assets, input.sites, input.workOrders, now),
       );
     }
+
+    const upcomingMaintenance = input.maintenancePlans.filter((plan) => {
+      if (plan.status !== 'ACTIVE' || plan.nextDue < now) {
+        return false;
+      }
+
+      const daysUntilDue =
+        (plan.nextDue.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+
+      return daysUntilDue <= 30;
+    });
+
+    for (const plan of upcomingMaintenance.slice(0, 10)) {
+      const assetWorkOrders = input.workOrders.filter(
+        (order) =>
+          order.asset_id === plan.assetId &&
+          this.isOpenWorkOrder(order.status),
+      );
+
+      if (assetWorkOrders.length === 0) {
+        continue;
+      }
+
+      signals.push(
+        this.createMaintenanceOperationalConflictSignal(
+          plan,
+          input.assets,
+          input.sites,
+          assetWorkOrders,
+          now,
+        ),
+      );
+    }
+
+    const stockRiskSignals = this.buildStockRiskSignals(input, now);
+    signals.push(...stockRiskSignals);
 
     const overdueProjects = input.projects.filter(
       (project) => project.progress < 100 && project.end_date !== null && project.end_date < now,
@@ -107,6 +219,7 @@ export class CooDecisionEngine {
         title: `Projeto fora do prazo — ${project.name}`,
         explanation:
           'O projeto ainda não atingiu 100% de progresso e a data final registada já foi ultrapassada.',
+        priorityContext: this.buildProjectPriorityContext(project, input.workOrders),
         evidence: this.buildProjectEvidence(project, input.workOrders, now),
         urgency: this.buildProjectUrgency(project, input.workOrders, now),
         impact: this.buildProjectImpact(project, input.workOrders, now),
@@ -133,7 +246,7 @@ export class CooDecisionEngine {
 
     const staleOpenWorkOrders = input.workOrders.filter(
       (order) =>
-        order.status === 'OPEN' &&
+        this.isOpenWorkOrder(order.status) &&
         Boolean(order.assigned_to_id) &&
         now.getTime() - order.updated_at.getTime() >= 7 * 24 * 60 * 60 * 1000,
     );
@@ -175,7 +288,7 @@ export class CooDecisionEngine {
     }
 
     for (const order of input.workOrders
-      .filter((item) => item.status === 'OPEN' && !item.assigned_to_id)
+      .filter((item) => this.isOpenWorkOrder(item.status) && !item.assigned_to_id)
       .slice(0, 10)) {
       const isHighPriority = order.priority === 'HIGH' || order.priority === 'CRITICAL';
       const context = this.getWorkOrderContext(order, input.projects, input.assets);
@@ -221,6 +334,11 @@ export class CooDecisionEngine {
         explanation: isHighPriority
           ? 'Esta ordem de trabalho de alta prioridade ainda não tem um responsável atribuído.'
           : 'Esta ordem de trabalho aberta ainda não tem um responsável atribuído.',
+        priorityContext: {
+          openWorkOrders: 1,
+          highPriorityOpenWorkOrders: isHighPriority ? 1 : 0,
+          unassignedHighPriorityWorkOrders: isHighPriority ? 1 : 0,
+        },
         evidence: contextualEvidence,
         urgency:
           context.project && projectOverdueDays > 0
@@ -263,7 +381,10 @@ export class CooDecisionEngine {
     return {
       generatedAt: now.toISOString(),
       signalCount: signals.length,
-      signals: signals.sort((a, b) => this.compareSignals(a, b)).slice(0, 20),
+      signals: signals
+        .sort((a, b) => this.compareSignals(a, b))
+        .slice(0, 20)
+        .map((signal) => this.withOperationalContract(signal, input)),
     };
   }
 
@@ -273,7 +394,7 @@ export class CooDecisionEngine {
     assets: Asset[],
   ): OperationalChain | undefined {
     const projectWorkOrders = workOrders.filter(
-      (order) => order.project_id === project.id && order.status === 'OPEN',
+      (order) => order.project_id === project.id && this.isOpenWorkOrder(order.status),
     );
 
     if (projectWorkOrders.length === 0) {
@@ -332,7 +453,7 @@ export class CooDecisionEngine {
     return {
       id: `chain-project-${project.id}`,
       title: 'Obra → ordens de trabalho → ativos',
-      explanation: `A obra ${project.name} tem ${projectWorkOrders.length} ordem(ns) de trabalho aberta(s) relacionadas.`,
+      explanation: `A obra ${project.name} tem ${projectWorkOrders.length} ${this.openWorkOrderPhrase(projectWorkOrders.length)} relacionadas.`,
       impact:
         'As ordens abertas representam trabalho operacional ainda pendente dentro do contexto da obra.',
       recommendedAction:
@@ -372,7 +493,7 @@ export class CooDecisionEngine {
     ];
 
     const openWorkOrders = workOrders.filter(
-      (order) => order.asset_id === asset.id && order.status === 'OPEN',
+      (order) => order.asset_id === asset.id && this.isOpenWorkOrder(order.status),
     );
 
     for (const order of openWorkOrders.slice(0, 3)) {
@@ -412,16 +533,16 @@ export class CooDecisionEngine {
       title: site ? 'Manutenção → ativo → ordens → local' : 'Manutenção → ativo → ordens',
       explanation:
         openWorkOrders.length > 0
-          ? `A manutenção vencida está ligada ao ativo ${asset.name}, que tem ${openWorkOrders.length} ordem(ns) de trabalho aberta(s).`
-          : `A manutenção vencida está ligada ao ativo ${asset.name}.`,
+          ? `A manutenção está associada ao ativo ${asset.name}, que tem ${openWorkOrders.length} ${this.openWorkOrderPhrase(openWorkOrders.length)}.`
+          : `A manutenção está associada ao ativo ${asset.name}.`,
       impact:
         openWorkOrders.length > 0
           ? 'Existe trabalho operacional aberto no mesmo ativo, aumentando a necessidade de coordenação.'
-          : 'A manutenção vencida mantém exposição operacional sobre o ativo.',
+          : 'A manutenção mantém exposição operacional sobre o ativo.',
       recommendedAction:
         openWorkOrders.length > 0
           ? `Rever a manutenção do ativo ${asset.name} em conjunto com as ordens de trabalho abertas.`
-          : `Rever a manutenção vencida do ativo ${asset.name} e confirmar a próxima intervenção.`,
+          : `Rever a manutenção do ativo ${asset.name} e confirmar a próxima intervenção.`,
       nodes,
       edges,
     };
@@ -440,6 +561,34 @@ export class CooDecisionEngine {
     };
   }
 
+  private buildProjectPriorityContext(
+    project: Project,
+    workOrders: WorkOrder[],
+  ): NonNullable<IntelligenceSignal['priorityContext']> {
+    const projectWorkOrders = workOrders.filter(
+      (order) => order.project_id === project.id,
+    );
+
+    const openWorkOrders = projectWorkOrders.filter(
+      (order) => this.isOpenWorkOrder(order.status),
+    );
+
+    const highPriorityOpenWorkOrders = openWorkOrders.filter(
+      (order) => order.priority === 'HIGH' || order.priority === 'CRITICAL',
+    );
+
+    const unassignedHighPriorityWorkOrders = highPriorityOpenWorkOrders.filter(
+      (order) => !order.assigned_to_id,
+    );
+
+    return {
+      relatedOpenWorkOrders: openWorkOrders.length,
+      openWorkOrders: openWorkOrders.length,
+      highPriorityOpenWorkOrders: highPriorityOpenWorkOrders.length,
+      unassignedHighPriorityWorkOrders: unassignedHighPriorityWorkOrders.length,
+    };
+  }
+
   private buildProjectEvidence(project: Project, workOrders: WorkOrder[], now: Date): string[] {
     if (!project.end_date) {
       return [`Progresso registado: ${project.progress}%`];
@@ -447,7 +596,7 @@ export class CooDecisionEngine {
 
     const projectWorkOrders = workOrders.filter((order) => order.project_id === project.id);
 
-    const openWorkOrders = projectWorkOrders.filter((order) => order.status === 'OPEN');
+    const openWorkOrders = projectWorkOrders.filter((order) => this.isOpenWorkOrder(order.status));
 
     const highPriorityOpen = openWorkOrders.filter(
       (order) => order.priority === 'HIGH' || order.priority === 'CRITICAL',
@@ -492,7 +641,7 @@ export class CooDecisionEngine {
     );
 
     const projectWorkOrders = workOrders.filter(
-      (order) => order.project_id === project.id && order.status === 'OPEN',
+      (order) => order.project_id === project.id && this.isOpenWorkOrder(order.status),
     );
 
     const highPriorityOpen = projectWorkOrders.filter(
@@ -507,7 +656,7 @@ export class CooDecisionEngine {
           : 'Requer atenção hoje: a data final já foi ultrapassada.';
 
     if (highPriorityOpen.length > 0) {
-      urgency += ` Existem ${highPriorityOpen.length} ordem(ns) de alta prioridade aberta(s) associada(s).`;
+      urgency += ` Existem ${highPriorityOpen.length} ${this.associatedHighPriorityWorkOrderPhrase(highPriorityOpen.length)}.`;
     }
 
     return urgency;
@@ -519,7 +668,7 @@ export class CooDecisionEngine {
     }
 
     const projectWorkOrders = workOrders.filter(
-      (order) => order.project_id === project.id && order.status === 'OPEN',
+      (order) => order.project_id === project.id && this.isOpenWorkOrder(order.status),
     );
 
     const highPriorityOpen = projectWorkOrders.filter(
@@ -534,15 +683,15 @@ export class CooDecisionEngine {
     );
 
     if (unassignedHighPriority.length > 0) {
-      return `O projeto está ${overdueDays} dia(s) além da data final registada, com ${highPriorityOpen.length} ordem(ns) de alta prioridade aberta(s), incluindo ${unassignedHighPriority.length} ordem de alta prioridade sem responsável.`;
+      return `O projeto está ${overdueDays} dia(s) além da data final registada, com ${highPriorityOpen.length} ${this.highPriorityOpenWorkOrderPhrase(highPriorityOpen.length)}, incluindo ${unassignedHighPriority.length} ${this.highPriorityUnassignedWorkOrderPhrase(unassignedHighPriority.length)}.`;
     }
 
     if (highPriorityOpen.length > 0) {
-      return `O projeto está ${overdueDays} dia(s) além da data final registada, com ${highPriorityOpen.length} ordem(ns) de alta prioridade aberta(s).`;
+      return `O projeto está ${overdueDays} dia(s) além da data final registada, com ${highPriorityOpen.length} ${this.highPriorityOpenWorkOrderPhrase(highPriorityOpen.length)}.`;
     }
 
     if (projectWorkOrders.length > 0) {
-      return `O projeto está ${overdueDays} dia(s) além da data final registada, com ${projectWorkOrders.length} ordem(ns) de trabalho aberta(s).`;
+      return `O projeto está ${overdueDays} dia(s) além da data final registada, com ${projectWorkOrders.length} ${this.openWorkOrderPhrase(projectWorkOrders.length)}.`;
     }
 
     return `O projeto está ${overdueDays} dia(s) além da data final registada e permanece com ${project.progress}% de progresso.`;
@@ -550,7 +699,7 @@ export class CooDecisionEngine {
 
   private buildProjectRecommendation(project: Project, workOrders: WorkOrder[]): string {
     const projectWorkOrders = workOrders.filter(
-      (order) => order.project_id === project.id && order.status === 'OPEN',
+      (order) => order.project_id === project.id && this.isOpenWorkOrder(order.status),
     );
 
     const highPriorityOpen = projectWorkOrders.filter(
@@ -582,14 +731,14 @@ export class CooDecisionEngine {
         orders.some((order) => order.priority === 'CRITICAL') || orders.length >= 5
           ? 'CRITICAL'
           : 'HIGH',
-      title: `${orders.length} ordem(ns) de alta prioridade continuam abertas`,
+      title: `${orders.length} ${this.highPriorityOpenWorkOrderPhrase(orders.length)}`,
       explanation:
         'Existem trabalhos classificados como alta prioridade que ainda não foram concluídos.',
       evidence: orders.slice(0, 5).map((order) => order.title),
       urgency:
         orders.length >= 5
           ? `Requer atenção imediata: existem ${orders.length} ordens de alta prioridade abertas.`
-          : `Requer atenção hoje: existem ${orders.length} ordem(ns) de alta prioridade abertas.`,
+          : `Requer atenção hoje: existem ${orders.length} ${this.highPriorityOpenWorkOrderPhrase(orders.length)}.`,
       impact:
         'Existem ordens de trabalho de alta prioridade que continuam abertas e requerem resolução operacional.',
       recommendedAction:
@@ -602,6 +751,111 @@ export class CooDecisionEngine {
       timestamp: now.toISOString(),
       source: {
         resource: 'work_orders',
+      },
+    };
+  }
+
+  private createMaintenanceOperationalConflictSignal(
+    plan: MaintenancePlan,
+    assets: Asset[],
+    sites: Site[],
+    assetWorkOrders: WorkOrder[],
+    now: Date,
+  ): IntelligenceSignal {
+    const daysUntilDue = Math.max(
+      0,
+      Math.ceil(
+        (plan.nextDue.getTime() - now.getTime()) /
+          (1000 * 60 * 60 * 24),
+      ),
+    );
+
+    const highPriorityAssetWorkOrders = assetWorkOrders.filter(
+      (order) => order.priority === 'HIGH' || order.priority === 'CRITICAL',
+    );
+
+    const asset = assets.find((item) => item.id === plan.assetId);
+
+    const site = asset?.site_id
+      ? sites.find((item) => item.id === asset.site_id)
+      : undefined;
+
+    const severity: IntelligenceSeverity =
+      highPriorityAssetWorkOrders.length > 0 ? 'HIGH' : 'MEDIUM';
+
+    const title = asset
+      ? `Manutenção próxima com conflito operacional — ${asset.name}`
+      : `Manutenção próxima com conflito operacional — ${plan.plan}`;
+
+    const evidence = [
+      `Data prevista: ${plan.nextDue.toISOString()}`,
+      `Faltam ${daysUntilDue} dia(s) para a intervenção`,
+      `Ordens de trabalho abertas associadas: ${assetWorkOrders.length}`,
+    ];
+
+    if (asset) {
+      evidence.unshift(`Equipamento: ${asset.name} (${asset.code})`);
+    }
+
+    if (site) {
+      evidence.push(`Site associado: ${site.name} (${site.code})`);
+    }
+
+    if (highPriorityAssetWorkOrders.length > 0) {
+      evidence.push(
+        `Ordens abertas de alta prioridade: ${highPriorityAssetWorkOrders.length}`,
+      );
+    }
+
+    const recommendedAction =
+      highPriorityAssetWorkOrders.length > 0
+        ? `Rever primeiro as ${highPriorityAssetWorkOrders.length} ${this.highPriorityOpenWorkOrderPhrase(highPriorityAssetWorkOrders.length)} ${highPriorityAssetWorkOrders.length === 1 ? 'associada' : 'associadas'} ao equipamento e coordenar a intervenção de manutenção.`
+        : `Coordenar as ${assetWorkOrders.length} ${this.openWorkOrderPhrase(assetWorkOrders.length)} com a intervenção de manutenção prevista.`;
+
+    const maintenanceAsset = asset;
+
+    const maintenanceChain = maintenanceAsset
+      ? this.buildMaintenanceAssetChain(
+          plan,
+          maintenanceAsset,
+          assetWorkOrders,
+          site,
+        )
+      : undefined;
+
+    return {
+      id: `maintenance-operational-conflict-${plan.id}`,
+      type: 'MAINTENANCE_OPERATIONAL_CONFLICT',
+      severity,
+      title,
+      explanation:
+        'Uma intervenção de manutenção está prevista nos próximos 30 dias e existem ordens de trabalho abertas associadas ao mesmo equipamento.',
+      priorityContext: {
+        openWorkOrders: assetWorkOrders.length,
+        highPriorityOpenWorkOrders: highPriorityAssetWorkOrders.length,
+      },
+      evidence,
+      urgency:
+        highPriorityAssetWorkOrders.length > 0
+          ? `Requer coordenação prioritária: existem ${highPriorityAssetWorkOrders.length} ${this.associatedHighPriorityWorkOrderPhrase(highPriorityAssetWorkOrders.length)} ao equipamento.`
+          : daysUntilDue <= 7
+            ? 'Requer coordenação esta semana: a manutenção aproxima-se e existem ordens de trabalho abertas associadas.'
+            : 'Requer coordenação: a manutenção aproxima-se e existem ordens de trabalho abertas associadas.',
+      impact:
+        highPriorityAssetWorkOrders.length > 0
+          ? `A intervenção de manutenção aproxima-se e pode interferir com ${assetWorkOrders.length} ${this.openWorkOrderPhrase(assetWorkOrders.length)}, incluindo ${highPriorityAssetWorkOrders.length} de alta prioridade.`
+          : `A intervenção de manutenção aproxima-se e pode interferir com ${assetWorkOrders.length} ${this.openWorkOrderPhrase(assetWorkOrders.length)} no mesmo equipamento.`,
+      recommendedAction,
+      ...(maintenanceChain ? { chain: maintenanceChain } : {}),
+      decision: {
+        type: 'REVIEW',
+        label: 'Coordenar manutenção e operação',
+      },
+      status: 'OPEN',
+      timestamp: now.toISOString(),
+      source: {
+        resource: 'maintenance_plans',
+        resourceId: plan.id,
       },
     };
   }
@@ -625,7 +879,7 @@ export class CooDecisionEngine {
     const site = asset?.site_id ? sites.find((item) => item.id === asset.site_id) : undefined;
 
     const assetWorkOrders = workOrders.filter(
-      (order) => order.asset_id === plan.assetId && order.status === 'OPEN',
+      (order) => order.asset_id === plan.assetId && this.isOpenWorkOrder(order.status),
     );
 
     const highPriorityAssetWorkOrders = assetWorkOrders.filter(
@@ -661,9 +915,9 @@ export class CooDecisionEngine {
       'Agendar ou atualizar a intervenção de manutenção e confirmar o próximo passo.';
 
     if (highPriorityAssetWorkOrders.length > 0) {
-      recommendedAction = `Rever primeiro as ${highPriorityAssetWorkOrders.length} ordem(ns) de alta prioridade abertas associadas ao equipamento e confirmar a intervenção de manutenção.`;
+      recommendedAction = `Rever primeiro as ${highPriorityAssetWorkOrders.length} ${this.highPriorityOpenWorkOrderPhrase(highPriorityAssetWorkOrders.length)} ${highPriorityAssetWorkOrders.length === 1 ? 'associada' : 'associadas'} ao equipamento e confirmar a intervenção de manutenção.`;
     } else if (assetWorkOrders.length > 0) {
-      recommendedAction = `Rever as ${assetWorkOrders.length} ordem(ns) de trabalho abertas associadas ao equipamento e confirmar a intervenção de manutenção.`;
+      recommendedAction = `Rever as ${assetWorkOrders.length} ${this.associatedOpenWorkOrderPhrase(assetWorkOrders.length)} ao equipamento e confirmar a intervenção de manutenção.`;
     }
 
     const maintenanceAsset = assets.find((asset) => asset.id === plan.assetId);
@@ -682,6 +936,10 @@ export class CooDecisionEngine {
       severity,
       title,
       explanation: 'Um plano de manutenção ativo ultrapassou a data prevista de intervenção.',
+      priorityContext: {
+        openWorkOrders: assetWorkOrders.length,
+        highPriorityOpenWorkOrders: highPriorityAssetWorkOrders.length,
+      },
       evidence,
       urgency:
         overdueDays >= 30
@@ -691,7 +949,7 @@ export class CooDecisionEngine {
             : 'Requer atenção hoje: a data prevista de manutenção já foi ultrapassada.',
       impact:
         assetWorkOrders.length > 0
-          ? `A manutenção está ${overdueDays} dia(s) em atraso e existem ${assetWorkOrders.length} ordem(ns) de trabalho aberta(s) associada(s) ao ativo.`
+          ? `A manutenção está ${overdueDays} dia(s) em atraso e existem ${assetWorkOrders.length} ${this.associatedOpenWorkOrderPhrase(assetWorkOrders.length)} ao ativo.`
           : `A manutenção está ${overdueDays} dia(s) em atraso.`,
       recommendedAction,
       ...(maintenanceChain ? { chain: maintenanceChain } : {}),
@@ -711,6 +969,516 @@ export class CooDecisionEngine {
         resource: 'maintenance_plans',
         resourceId: plan.id,
       },
+    };
+  }
+
+  private buildStockRiskSignals(
+    input: CooDecisionInput,
+    now: Date,
+  ): IntelligenceSignal[] {
+    const materials = input.materials ?? [];
+    const inventoryStock = input.inventoryStock ?? [];
+    const workOrderMaterials = input.workOrderMaterials ?? [];
+
+    if (materials.length === 0) {
+      return [];
+    }
+
+    const openWorkOrderIds = new Set(
+      input.workOrders
+        .filter((order) => this.isOpenWorkOrder(order.status))
+        .map((order) => order.id),
+    );
+
+    const stockByKey = new Map(
+      inventoryStock.map((stock) => [
+        `${stock.site_id}:${stock.material_id}`,
+        stock,
+      ]),
+    );
+
+    const demandByKey = new Map<string, number>();
+
+    for (const workOrderMaterial of workOrderMaterials) {
+      if (!openWorkOrderIds.has(workOrderMaterial.work_order_id)) {
+        continue;
+      }
+
+      const remainingDemand = Math.max(
+        0,
+        workOrderMaterial.required_quantity -
+          workOrderMaterial.reserved_quantity -
+          workOrderMaterial.consumed_quantity,
+      );
+
+      if (remainingDemand <= 0) {
+        continue;
+      }
+
+      const key = `${workOrderMaterial.site_id}:${workOrderMaterial.material_id}`;
+      demandByKey.set(
+        key,
+        (demandByKey.get(key) ?? 0) + remainingDemand,
+      );
+    }
+
+    const sitesById = new Map(input.sites.map((site) => [site.id, site]));
+
+    const signals: IntelligenceSignal[] = [];
+
+    for (const material of materials) {
+      if (!material.active || material.reorder_point === null) {
+        continue;
+      }
+
+      const relevantSiteIds = new Set<string>();
+
+      for (const stock of inventoryStock) {
+        if (stock.material_id === material.id) {
+          relevantSiteIds.add(stock.site_id);
+        }
+      }
+
+      for (const workOrderMaterial of workOrderMaterials) {
+        if (
+          workOrderMaterial.material_id === material.id &&
+          openWorkOrderIds.has(workOrderMaterial.work_order_id)
+        ) {
+          relevantSiteIds.add(workOrderMaterial.site_id);
+        }
+      }
+
+      for (const siteId of relevantSiteIds) {
+        const key = `${siteId}:${material.id}`;
+        const stock = stockByKey.get(key);
+        const onHand = stock?.quantity_on_hand ?? 0;
+        const reserved = stock?.quantity_reserved ?? 0;
+        const available = onHand - reserved;
+        const outstandingDemand = demandByKey.get(key) ?? 0;
+        const projectedAvailable = available - outstandingDemand;
+
+        if (available > material.reorder_point && projectedAvailable > material.reorder_point) {
+          continue;
+        }
+
+        const site = sitesById.get(siteId);
+
+        const severity: IntelligenceSeverity =
+          projectedAvailable < 0
+            ? 'CRITICAL'
+            : projectedAvailable <= material.reorder_point
+              ? outstandingDemand > 0
+                ? 'HIGH'
+                : 'MEDIUM'
+              : 'MEDIUM';
+
+        const title = `Stock em risco — ${material.name} · ${site?.name ?? siteId}`;
+
+        const evidence = [
+          `Material: ${material.name} (${material.code})`,
+          `Site: ${site?.name ?? siteId}`,
+          `Stock físico: ${onHand} ${material.unit}`,
+          `Stock reservado: ${reserved} ${material.unit}`,
+          `Stock disponível: ${available} ${material.unit}`,
+          `Procura pendente: ${outstandingDemand} ${material.unit}`,
+          `Disponibilidade projetada: ${projectedAvailable} ${material.unit}`,
+          `Ponto de reposição: ${material.reorder_point} ${material.unit}`,
+        ];
+
+        if (material.reorder_quantity !== null) {
+          evidence.push(
+            `Quantidade de reposição configurada: ${material.reorder_quantity} ${material.unit}`,
+          );
+        }
+
+        const urgency =
+          projectedAvailable < 0
+            ? `Requer atenção imediata: faltam ${Math.abs(projectedAvailable)} ${material.unit} para cobrir a procura operacional pendente.`
+            : outstandingDemand > 0
+              ? 'Requer revisão prioritária: a disponibilidade projetada está no ou abaixo do ponto de reposição.'
+              : 'Requer revisão: o stock disponível está no ou abaixo do ponto de reposição.';
+
+        const impact =
+          projectedAvailable < 0
+            ? `A disponibilidade atual não cobre a procura pendente de ${outstandingDemand} ${material.unit}, criando risco operacional para ordens de trabalho abertas.`
+            : `A posição de stock para este material está no ou abaixo do ponto de reposição e pode comprometer a continuidade operacional se não houver reposição.`;
+
+        signals.push({
+          id: `stock-risk-${siteId}-${material.id}`,
+          type: 'STOCK_RISK',
+          severity,
+          priorityContext: {
+            openWorkOrders: workOrderMaterials.filter(
+              (item) =>
+                item.site_id === siteId &&
+                item.material_id === material.id &&
+                openWorkOrderIds.has(item.work_order_id),
+            ).length,
+          },
+          title,
+          explanation:
+            'A posição de stock está abaixo do nível operacional definido para reposição.',
+          evidence,
+          urgency,
+          impact,
+          recommendedAction:
+            `Rever o aprovisionamento de ${material.name} para ${site?.name ?? siteId} e confirmar a próxima reposição.`,
+          decision: {
+            type: 'REVIEW',
+            label: 'Rever aprovisionamento',
+          },
+          status: 'OPEN',
+          timestamp: now.toISOString(),
+          stockRiskContext: {
+            siteId,
+            materialId: material.id,
+          },
+          source: {
+            resource: 'inventory_stock',
+            resourceId: stock?.id,
+          },
+        });
+      }
+    }
+
+    return signals;
+  }
+
+  private isOpenWorkOrder(status: string): boolean {
+    return !['COMPLETED', 'CLOSED', 'CANCELLED'].includes(status.toUpperCase());
+  }
+
+  private buildEvidenceItems(
+    evidence: string[],
+    source: IntelligenceSignal['source'],
+  ): IntelligenceEvidence[] {
+    return evidence.map((value, index) => ({
+      id: `${source.resource}:${source.resourceId ?? 'unknown'}:evidence:${index + 1}`,
+      kind: 'FACT',
+      label: value,
+      value,
+      source,
+    }));
+  }
+
+  private buildRecommendations(
+    signal: IntelligenceSignal,
+  ): IntelligenceRecommendation[] {
+    if (!signal.action) {
+      return [
+        {
+          id: `${signal.id}:recommendation:monitor`,
+          type: 'MONITOR',
+          title: 'Monitorizar operação',
+          explanation: signal.recommendedAction,
+          resource: signal.source.resource,
+          resourceId: signal.source.resourceId ?? '',
+          executable: false,
+        },
+      ];
+    }
+
+    const type: IntelligenceRecommendation['type'] =
+      signal.action.type === 'ASSIGN_WORK_ORDER'
+        ? 'ASSIGN'
+        : signal.action.type === 'UPDATE_MAINTENANCE'
+          ? 'RESCHEDULE'
+          : signal.action.type === 'SET_PROJECT_STATUS'
+            ? 'UPDATE_STATUS'
+            : 'REVIEW';
+
+    return [
+      {
+        id: `${signal.id}:recommendation:1`,
+        type,
+        title: 'Ação recomendada pelo Astra',
+        explanation: signal.recommendedAction,
+        resource: signal.action.resource,
+        resourceId: signal.action.resourceId,
+        executable: true,
+      },
+    ];
+  }
+
+  private buildOperationalContext(
+    signal: IntelligenceSignal,
+    input: CooDecisionInput,
+  ): OperationalContext {
+    const resourceId = signal.source.resourceId;
+    const resource = signal.source.resource;
+
+    const context: OperationalContext = {
+      workOrders: {
+        open: 0,
+        highPriorityOpen: 0,
+        unassignedHighPriority: 0,
+      },
+    };
+
+    if (signal.chain) {
+      context.chain = signal.chain;
+    }
+
+    const setWorkOrderContext = (workOrders: CooDecisionInput['workOrders']) => {
+      const openWorkOrders = workOrders.filter((order) =>
+        this.isOpenWorkOrder(order.status),
+      );
+
+      const highPriorityOpenWorkOrders = openWorkOrders.filter(
+        (order) => order.priority === 'HIGH' || order.priority === 'CRITICAL',
+      );
+
+      const unassignedHighPriorityWorkOrders =
+        highPriorityOpenWorkOrders.filter((order) => !order.assigned_to_id);
+
+      context.workOrders = {
+        open: openWorkOrders.length,
+        highPriorityOpen: highPriorityOpenWorkOrders.length,
+        unassignedHighPriority: unassignedHighPriorityWorkOrders.length,
+      };
+    };
+
+    if (resource === 'projects' && resourceId) {
+      const project = input.projects.find((item) => item.id === resourceId);
+
+      if (project) {
+        context.project = {
+          id: project.id,
+          name: project.name,
+        };
+      }
+
+      setWorkOrderContext(
+        input.workOrders.filter((order) => order.project_id === resourceId),
+      );
+
+      return context;
+    }
+
+    if (resource === 'work_orders' && resourceId) {
+      const workOrder = input.workOrders.find((item) => item.id === resourceId);
+
+      if (!workOrder) {
+        return context;
+      }
+
+      setWorkOrderContext(
+        input.workOrders.filter(
+          (order) =>
+            order.id === resourceId ||
+            (workOrder.project_id !== null &&
+              order.project_id === workOrder.project_id) ||
+            (workOrder.asset_id !== null &&
+              order.asset_id === workOrder.asset_id),
+        ),
+      );
+
+      if (workOrder.project_id) {
+        const project = input.projects.find(
+          (item) => item.id === workOrder.project_id,
+        );
+
+        if (project) {
+          context.project = {
+            id: project.id,
+            name: project.name,
+          };
+        }
+      }
+
+      if (workOrder.asset_id) {
+        const asset = input.assets.find(
+          (item) => item.id === workOrder.asset_id,
+        );
+
+        if (asset) {
+          context.asset = {
+            id: asset.id,
+            name: asset.name,
+          };
+
+          if (asset.site_id) {
+            const site = input.sites.find(
+              (item) => item.id === asset.site_id,
+            );
+
+            if (site) {
+              context.site = {
+                id: site.id,
+                name: site.name,
+              };
+            }
+          }
+        }
+      }
+
+      return context;
+    }
+
+    if (resource === 'inventory_stock') {
+      const stockMetadata = signal.stockRiskContext;
+
+      const selectedStock = resourceId
+        ? input.inventoryStock?.find((item) => item.id === resourceId)
+        : stockMetadata
+          ? (input.inventoryStock ?? []).find(
+              (item) =>
+                item.site_id === stockMetadata.siteId &&
+                item.material_id === stockMetadata.materialId,
+            )
+          : undefined;
+
+      const materialId =
+        stockMetadata?.materialId ?? selectedStock?.material_id;
+      const siteId = stockMetadata?.siteId ?? selectedStock?.site_id;
+
+      if (!materialId || !siteId) {
+        return context;
+      }
+
+      const material = input.materials?.find(
+        (item) => item.id === materialId,
+      );
+      const site = input.sites.find((item) => item.id === siteId);
+
+      if (!material || !site || material.reorder_point === null) {
+        return context;
+      }
+
+      const onHand = selectedStock?.quantity_on_hand ?? 0;
+      const reserved = selectedStock?.quantity_reserved ?? 0;
+      const available = onHand - reserved;
+
+      const outstandingDemand = (input.workOrderMaterials ?? [])
+        .filter(
+          (item) =>
+            item.material_id === materialId &&
+            item.site_id === siteId &&
+            this.isOpenWorkOrder(
+              input.workOrders.find(
+                (order) => order.id === item.work_order_id,
+              )?.status ?? 'CLOSED',
+            ),
+        )
+        .reduce(
+          (total, item) =>
+            total +
+            Math.max(
+              0,
+              item.required_quantity -
+                item.reserved_quantity -
+                item.consumed_quantity,
+            ),
+          0,
+        );
+
+      context.site = {
+        id: site.id,
+        name: site.name,
+      };
+
+      context.inventory = {
+        material: {
+          id: material.id,
+          name: material.name,
+          code: material.code,
+          unit: material.unit,
+        },
+        site: {
+          id: site.id,
+          name: site.name,
+          code: site.code,
+        },
+        onHand,
+        reserved,
+        available,
+        outstandingDemand,
+        projectedAvailable: available - outstandingDemand,
+        reorderPoint: material.reorder_point,
+        ...(material.reorder_quantity !== null
+          ? { reorderQuantity: material.reorder_quantity }
+          : {}),
+      };
+
+      return context;
+    }
+
+    if (resource === 'maintenance_plans' && resourceId) {
+      const maintenance = input.maintenancePlans.find(
+        (item) => item.id === resourceId,
+      );
+
+      if (!maintenance) {
+        return context;
+      }
+
+      context.maintenance = {
+        id: maintenance.id,
+        nextDue: maintenance.nextDue.toISOString(),
+      };
+
+      const asset = input.assets.find(
+        (item) => item.id === maintenance.assetId,
+      );
+
+      if (!asset) {
+        return context;
+      }
+
+      context.asset = {
+        id: asset.id,
+        name: asset.name,
+      };
+
+      if (asset.site_id) {
+        const site = input.sites.find(
+          (item) => item.id === asset.site_id,
+        );
+
+        if (site) {
+          context.site = {
+            id: site.id,
+            name: site.name,
+          };
+        }
+      }
+
+      setWorkOrderContext(
+        input.workOrders.filter((order) => order.asset_id === asset.id),
+      );
+
+      return context;
+    }
+
+    setWorkOrderContext(input.workOrders);
+
+    return context;
+  }
+
+  private withOperationalContract(
+    signal: IntelligenceSignal,
+    input: CooDecisionInput,
+  ): IntelligenceSignal {
+    const evidenceItems = this.buildEvidenceItems(
+      signal.evidence,
+      signal.source,
+    );
+    const recommendations = this.buildRecommendations(signal);
+    const operationalContext = this.buildOperationalContext(signal, input);
+
+    const decisionContext: IntelligenceDecisionContext = {
+      evidence: evidenceItems,
+      operationalContext,
+      recommendations,
+      confidence: 1,
+    };
+
+    return {
+      ...signal,
+      evidenceItems,
+      operationalContext,
+      recommendations,
+      decisionContext,
     };
   }
 
@@ -737,51 +1505,41 @@ export class CooDecisionEngine {
   }
 
   private operationalPriority(signal: IntelligenceSignal) {
+    const context = signal.priorityContext;
+
     switch (signal.type) {
       case 'OVERDUE_PROJECT':
-        if (
-          signal.evidence.some((item) =>
-            item.includes('Ordens de alta prioridade sem responsável:'),
-          )
-        ) {
+        if (context?.unassignedHighPriorityWorkOrders) {
           return 30;
         }
 
-        if (signal.evidence.some((item) => item.includes('Ordens abertas de alta prioridade:'))) {
+        if (context?.highPriorityOpenWorkOrders) {
           return 25;
         }
 
-        if (
-          signal.evidence.some((item) => item.includes('Ordens de trabalho abertas associadas:'))
-        ) {
+        if (context?.openWorkOrders) {
           return 20;
         }
 
         return 15;
 
       case 'OVERDUE_MAINTENANCE':
-        if (signal.evidence.some((item) => item.includes('alta prioridade'))) {
+        if (context?.highPriorityOpenWorkOrders) {
           return 25;
         }
 
-        if (signal.evidence.some((item) => item.includes('ordem(ns) de trabalho aberta(s)'))) {
+        if (context?.openWorkOrders) {
           return 20;
         }
 
         return 10;
 
       case 'STALE_OPEN_WORK_ORDER':
-        if (
-          signal.severity === 'CRITICAL' &&
-          signal.evidence.some((item) => item.includes('Sem responsável atribuído.'))
-        ) {
+        if (signal.severity === 'CRITICAL') {
           return 28;
         }
 
-        if (
-          signal.severity === 'HIGH' &&
-          signal.evidence.some((item) => item.includes('Sem responsável atribuído.'))
-        ) {
+        if (signal.severity === 'HIGH') {
           return 26;
         }
 
@@ -793,11 +1551,27 @@ export class CooDecisionEngine {
 
       case 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER':
         return 25;
+
       case 'UNASSIGNED_WORK_ORDER':
         return 10;
 
       case 'HIGH_PRIORITY_WORK_ORDER':
         return 15;
+
+      case 'STOCK_RISK':
+        if (signal.severity === 'CRITICAL') {
+          return 32;
+        }
+
+        if (signal.severity === 'HIGH') {
+          return 27;
+        }
+
+        if (signal.severity === 'MEDIUM') {
+          return 16;
+        }
+
+        return 8;
 
       default:
         return 0;

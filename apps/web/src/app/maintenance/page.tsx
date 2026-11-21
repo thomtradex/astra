@@ -1,9 +1,9 @@
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { MaintenanceClient } from '@/components/maintenance/maintenance-client';
-import { getMaintenancePlans } from '@/lib/maintenance-server';
+import { getMaintenanceOperationalData } from '@/lib/maintenance-server';
 
 export default async function MaintenancePage() {
-  const plans = await getMaintenancePlans();
+  const { plans, assets, briefing } = await getMaintenanceOperationalData();
 
   return (
     <DashboardShell>
@@ -17,17 +17,17 @@ export default async function MaintenancePage() {
               Manutenção
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              Acompanhe os planos de manutenção, identifique intervenções em
-              atraso e mantenha os ativos operacionais.
+              Saiba que equipamentos precisam de atenção, o que está em
+              atraso e que intervenções se aproximam.
             </p>
           </div>
 
           <div className="text-sm text-slate-500">
-            {plans.length} plano(s) registado(s)
+            {plans.length} intervenção(ões) planeada(s)
           </div>
         </header>
 
-        <MaintenanceClient plans={plans} />
+        <MaintenanceClient plans={plans} assets={assets} briefing={briefing} />
       </div>
     </DashboardShell>
   );

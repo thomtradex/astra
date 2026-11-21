@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -26,7 +27,10 @@ export function DeleteCustomerButton({
         method: 'DELETE',
       });
 
-      const data = await response.json().catch(() => null);
+      const data = (await response.json().catch(() => null)) as {
+        id?: string;
+        message?: string | string[];
+      } | null;
 
       if (!response.ok) {
         const message = Array.isArray(data?.message)
@@ -89,7 +93,7 @@ export function DeleteCustomerButton({
         <button
           type="button"
           disabled={deleting}
-          onClick={handleDelete}
+          onClick={() => void handleDelete()}
           className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition hover:opacity-90 disabled:opacity-60"
         >
           {deleting ? 'A eliminar…' : 'Confirmar eliminação'}

@@ -5,7 +5,15 @@ import { CreateProjectForm } from '@/components/projects/create-project-form';
 import { getApiBaseUrl } from '@/lib/api-client';
 import { ACCESS_TOKEN_COOKIE } from '@/lib/auth-constants';
 
-async function getCollection(path: string, accessToken: string) {
+type CollectionItem = {
+  id: string;
+  name: string;
+};
+
+async function getCollection(
+  path: string,
+  accessToken: string,
+): Promise<CollectionItem[]> {
   try {
     const response = await fetch(getApiBaseUrl() + '/' + path, {
       headers: {
@@ -22,13 +30,38 @@ async function getCollection(path: string, accessToken: string) {
     const payload: unknown = await response.json();
 
     if (Array.isArray(payload)) {
-      return payload;
+      return payload.filter(
+        (item): item is CollectionItem =>
+          typeof item === 'object' &&
+          item !== null &&
+          !Array.isArray(item),
+      );
     }
 
     if (payload !== null && typeof payload === 'object') {
-      const record = payload as { data?: unknown; items?: unknown };
-      if (Array.isArray(record.data)) return record.data;
-      if (Array.isArray(record.items)) return record.items;
+      const record = payload as {
+        data?: unknown;
+        items?: unknown;
+      };
+
+      const collection = Array.isArray(record.data)
+        ? record.data
+        : Array.isArray(record.items)
+          ? record.items
+          : [];
+
+      return collection
+        .filter(
+          (item): item is CollectionItem =>
+            typeof item === 'object' &&
+            item !== null &&
+            !Array.isArray(item),
+        )
+        .filter(
+          (item): item is CollectionItem & { id: string; name: string } =>
+            typeof item.id === 'string' &&
+            typeof item.name === 'string',
+        );
     }
 
     return [];

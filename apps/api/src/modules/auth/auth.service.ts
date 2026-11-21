@@ -1,16 +1,16 @@
 import { createHash, randomBytes } from 'crypto';
 
-import { AuditAction } from '@astra/database';
+import { AuditAction, Prisma } from '@astra/database';
 import { AuthTokens, JwtAccessPayload, Permission, SystemRole, SYSTEM_ROLES } from '@astra/shared';
-import { Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
-import { BillingService } from '../billing/billing.service';
 
+import { lockActiveSession, revokeSession } from './auth-session-concurrency';
 import { LoginDto } from './dto/auth.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
@@ -23,7 +23,6 @@ interface RequestContext {
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly billingService: BillingService,
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -43,6 +42,7 @@ export class AuthService {
     const usernameBase = (
       dto.username?.trim().toLowerCase() ||
       `${firstName}.${lastName}`
+        .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9._-]/g, '')
@@ -110,6 +110,27 @@ export class AuthService {
         },
       });
 
+      const freePlan = await tx.billingPlan.findUnique({
+        where: { code: 'FREE' },
+      });
+
+      if (!freePlan || !freePlan.isActive || freePlan.monthlyPriceCents !== 0) {
+        throw new ConflictException('FREE billing plan is not available');
+      }
+
+      const now = new Date();
+
+      await tx.subscription.create({
+        data: {
+          organizationId: organization.id,
+          planId: freePlan.id,
+          status: 'ACTIVE',
+          currentPeriodStart: now,
+          currentPeriodEnd: new Date('2099-12-31T23:59:59.999Z'),
+          cancelAtPeriodEnd: false,
+        },
+      });
+
       const user = await tx.user.create({
         data: {
           email,
@@ -151,7 +172,9 @@ export class AuthService {
     });
 
     const authenticatedUser = this.mapToAuthenticatedUser(result);
-    const tokens = await this.issueTokens(authenticatedUser, context);
+    const tokens = await this.prisma.$transaction((tx) =>
+      this.issueTokens(authenticatedUser, context, tx),
+    );
 
     await this.auditService.log({
       organizationId: result.organizationId,
@@ -169,8 +192,6 @@ export class AuthService {
         organizationId: result.organizationId,
       },
     });
-
-    await this.billingService.ensureFreeSubscription(result.organizationId);
 
     return tokens;
   }
@@ -221,7 +242,9 @@ export class AuthService {
     });
 
     const authenticatedUser = this.mapToAuthenticatedUser(user);
-    const tokens = await this.issueTokens(authenticatedUser, context);
+    const tokens = await this.prisma.$transaction((tx) =>
+      this.issueTokens(authenticatedUser, context, tx),
+    );
 
     await this.auditService.log({
       organizationId: user.organizationId,
@@ -275,13 +298,32 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    await this.prisma.refreshToken.update({
-      where: { id: storedToken.id },
-      data: { revokedAt: new Date() },
-    });
-
     const authenticatedUser = this.mapToAuthenticatedUser(storedToken.user);
-    const tokens = await this.issueTokens(authenticatedUser, context);
+
+    const tokens = await this.prisma.$transaction(async (tx) => {
+      if (!storedToken.sessionId) {
+        throw new UnauthorizedException('Legacy refresh token requires reauthentication');
+      }
+
+      await lockActiveSession(tx, storedToken.sessionId);
+
+      const now = new Date();
+
+      const consumed = await tx.refreshToken.updateMany({
+        where: {
+          id: storedToken.id,
+          revokedAt: null,
+          expiresAt: { gt: now },
+        },
+        data: { revokedAt: now },
+      });
+
+      if (consumed.count !== 1) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      return this.issueTokens(authenticatedUser, context, tx, storedToken.sessionId);
+    });
 
     await this.auditService.log({
       organizationId: storedToken.user.organizationId,
@@ -304,27 +346,24 @@ export class AuthService {
 
     const storedToken = await this.prisma.refreshToken.findUnique({
       where: { tokenHash },
-      include: {
-        user: true,
-      },
+      include: { user: true },
     });
 
-    if (!storedToken) {
+    if (!storedToken) return;
+
+    if (!storedToken.sessionId) {
+      await this.prisma.refreshToken.updateMany({
+        where: { id: storedToken.id, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
       return;
     }
 
-    if (storedToken.revokedAt) {
-      return;
-    }
-
-    if (storedToken.expiresAt < new Date()) {
-      return;
-    }
-
-    await this.prisma.refreshToken.update({
-      where: { id: storedToken.id },
-      data: { revokedAt: new Date() },
+    const revoked = await this.prisma.$transaction(async (tx) => {
+      return revokeSession(tx, storedToken.sessionId!);
     });
+
+    if (!revoked) return;
 
     await this.auditService.log({
       organizationId: storedToken.user.organizationId,
@@ -396,11 +435,43 @@ export class AuthService {
       return null;
     }
 
+    if (!payload.sessionId) {
+      return null;
+    }
+
+    {
+      const session = await this.prisma.authSession.findUnique({
+        where: { id: payload.sessionId },
+        select: { userId: true, revokedAt: true },
+      });
+
+      if (
+        !session ||
+        session.userId !== user.id ||
+        session.revokedAt !== null
+      ) {
+        return null;
+      }
+    }
+
     return this.mapToAuthenticatedUser(user);
   }
 
-  private async issueTokens(user: AuthenticatedUser, context: RequestContext): Promise<AuthTokens> {
+  private async issueTokens(
+    user: AuthenticatedUser,
+    context: RequestContext,
+    tokenStore: Prisma.TransactionClient | PrismaService = this.prisma,
+    existingSessionId?: string,
+  ): Promise<AuthTokens> {
+    const sessionId = existingSessionId ?? (
+      await tokenStore.authSession.create({
+        data: { userId: user.id },
+        select: { id: true },
+      })
+    ).id;
+
     const payload: JwtAccessPayload = {
+      sessionId,
       sub: user.id,
       email: user.email,
       organizationId: user.organizationId,
@@ -422,9 +493,10 @@ export class AuthService {
     const refreshToken = randomBytes(64).toString('hex');
     const refreshExpiresMs = this.parseDurationToMs(refreshExpiresIn);
 
-    await this.prisma.refreshToken.create({
+    await tokenStore.refreshToken.create({
       data: {
         tokenHash: this.hashToken(refreshToken),
+        sessionId,
         userId: user.id,
         expiresAt: new Date(Date.now() + refreshExpiresMs),
         ipAddress: context.ipAddress,
@@ -473,13 +545,11 @@ export class AuthService {
         (user) => user.organization.slug === organizationSlug,
       );
 
-      if (filtered.length === 1) {
-        return filtered[0];
-      }
-
-      if (filtered.length > 1) {
+      if (filtered.length !== 1) {
         throw new UnauthorizedException('Invalid credentials');
       }
+
+      return filtered[0];
     }
 
     if (users.length === 1) {

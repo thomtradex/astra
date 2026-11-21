@@ -8,6 +8,7 @@ export type IntelligenceSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 export type IntelligenceSignalType =
   | 'HIGH_PRIORITY_WORK_ORDER'
   | 'OVERDUE_MAINTENANCE'
+  | 'MAINTENANCE_OPERATIONAL_CONFLICT'
   | 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER'
   | 'UNASSIGNED_WORK_ORDER'
   | 'OVERDUE_PROJECT'
@@ -39,6 +40,75 @@ export interface OperationalChain {
   edges: OperationalChainEdge[];
 }
 
+export type IntelligenceEvidenceKind = 'FACT' | 'RELATION' | 'STATE' | 'HISTORY' | 'THRESHOLD';
+
+export interface IntelligenceEvidence {
+  id: string;
+  kind: IntelligenceEvidenceKind;
+  label: string;
+  value: string;
+  source: {
+    resource: string;
+    resourceId?: string;
+  };
+}
+
+export interface OperationalContext {
+  project?: {
+    id: string;
+    name?: string;
+  };
+  asset?: {
+    id: string;
+    name?: string;
+  };
+  site?: {
+    id: string;
+    name?: string;
+  };
+  maintenance?: {
+    id: string;
+    nextDue?: string;
+  };
+  workOrders: {
+    open: number;
+    highPriorityOpen: number;
+    unassignedHighPriority: number;
+  };
+  chain?: OperationalChain;
+}
+
+export type IntelligenceRecommendationType =
+  'REVIEW' | 'ASSIGN' | 'RESCHEDULE' | 'UPDATE_STATUS' | 'MONITOR';
+
+export interface IntelligenceRecommendation {
+  id: string;
+  type: IntelligenceRecommendationType;
+  title: string;
+  explanation: string;
+  resource: string;
+  resourceId: string;
+  executable: boolean;
+}
+
+export interface IntelligenceDecisionContext {
+  evidence: IntelligenceEvidence[];
+  operationalContext: OperationalContext;
+  recommendations: IntelligenceRecommendation[];
+  confidence: number;
+}
+
+export type AIAnalysisStatus = 'GENERATED' | 'UNAVAILABLE';
+
+export interface AIAnalysis {
+  status: AIAnalysisStatus;
+  summary: string;
+  rationale: string;
+  recommendedRecommendationId?: string;
+  confidence: number;
+  provider: string;
+}
+
 export interface IntelligenceSignal {
   id: string;
   type: IntelligenceSignalType;
@@ -46,8 +116,13 @@ export interface IntelligenceSignal {
   title: string;
   explanation: string;
   evidence: string[];
+  evidenceItems?: IntelligenceEvidence[];
   urgency: string;
   impact: string;
+  operationalContext?: OperationalContext;
+  recommendations?: IntelligenceRecommendation[];
+  decisionContext?: IntelligenceDecisionContext;
+  aiAnalysis?: AIAnalysis;
   owner?: {
     type: 'USER' | 'TEAM' | 'ORGANIZATION';
     id?: string;
@@ -86,8 +161,12 @@ export interface IntelligenceChange {
   title: string;
   explanation: string;
   evidence: string[];
+  evidenceItems?: IntelligenceEvidence[];
   impact: string;
   recommendedAction: string;
+  operationalContext?: OperationalContext;
+  recommendations?: IntelligenceRecommendation[];
+  decisionContext?: IntelligenceDecisionContext;
   timestamp: string;
   source: {
     resource: string;
@@ -95,12 +174,73 @@ export interface IntelligenceChange {
   };
 }
 
+export interface DailyBriefingSummary {
+  headline: string;
+  explanation: string;
+  critical: number;
+  high: number;
+  medium: number;
+  total: number;
+}
+
+export interface DailyBriefingPriority {
+  rank: number;
+  severity: IntelligenceSeverity;
+  title: string;
+  why: string;
+  impact: string;
+  recommendedAction: string;
+  source: {
+    resource: string;
+    resourceId?: string;
+  };
+  evidenceItems?: IntelligenceEvidence[];
+  operationalContext?: OperationalContext;
+  recommendations?: IntelligenceRecommendation[];
+  decisionContext?: IntelligenceDecisionContext;
+  action?: IntelligenceSignal['action'];
+  aiAnalysis?: AIAnalysis;
+}
+
+export interface DailyBriefing {
+  date: string;
+  generatedAt: string;
+  summary: DailyBriefingSummary;
+  priorities: DailyBriefingPriority[];
+  nextStep: string;
+}
+
+export interface IntelligenceDecisionVerification {
+  status: 'VERIFIED' | 'STILL_OPEN' | 'NOT_VERIFIED';
+  label: string;
+  explanation: string;
+  checkedAt: string;
+}
+
+export interface IntelligenceDecisionHistory {
+  id: string;
+  timestamp: string;
+  status: 'EXECUTED' | 'DENIED' | 'FAILED';
+  actionType: string;
+  resource: string;
+  resourceId: string;
+  actor?: {
+    id: string;
+    name?: string;
+    email?: string;
+  };
+  message: string;
+  verification?: IntelligenceDecisionVerification;
+}
+
 export interface IntelligenceBriefing {
   generatedAt: string;
   signalCount: number;
   signals: IntelligenceSignal[];
   changes: IntelligenceChange[];
+  daily: DailyBriefing;
   decisionMetrics: { executed: number; denied: number; failed: number };
+  decisionHistory: IntelligenceDecisionHistory[];
 }
 
 export async function getIntelligenceBriefing(): Promise<IntelligenceBriefing> {

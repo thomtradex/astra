@@ -1,5 +1,7 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
+
 import { executeCooAction } from '@/lib/intelligence-client';
 
 export async function rescheduleMaintenance(maintenancePlanId: string, nextDue: string) {
@@ -26,6 +28,9 @@ export async function rescheduleMaintenance(maintenancePlanId: string, nextDue: 
   if (!outcome.allowed || outcome.status !== 'EXECUTED') {
     throw new Error(outcome.message || 'Não foi possível reagendar a manutenção.');
   }
+
+  revalidatePath('/intelligence');
+  revalidatePath('/maintenance');
 
   return outcome;
 }

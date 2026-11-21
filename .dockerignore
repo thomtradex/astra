@@ -51,3 +51,6 @@ backups/
 
 # Temporary audit artifacts
 .astra-audit/
+
+**/bin/
+**/obj/

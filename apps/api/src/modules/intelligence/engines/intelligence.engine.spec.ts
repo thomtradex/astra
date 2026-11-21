@@ -32,6 +32,123 @@ describe('CooDecisionEngine', () => {
     expect(result.signals[0]!.severity).toBe('HIGH');
   });
 
+  it('does not create an aggregate high-priority signal when all high-priority work is already represented by unassigned signals', () => {
+    const result = engine.analyze({
+      now,
+      workOrders: [
+        {
+          id: 'wo-unassigned-1',
+          title: 'Inspeção sem responsável 1',
+          status: 'IN_PROGRESS',
+          priority: 'HIGH',
+          assigned_to_id: null,
+          project_id: null,
+          asset_id: null,
+          updated_at: new Date(),
+        },
+        {
+          id: 'wo-unassigned-2',
+          title: 'Inspeção sem responsável 2',
+          status: 'IN_PROGRESS',
+          priority: 'HIGH',
+          assigned_to_id: null,
+          project_id: null,
+          asset_id: null,
+          updated_at: new Date(),
+        },
+      ],
+      maintenancePlans: [],
+      assets: [],
+      sites: [],
+      projects: [],
+    });
+
+    expect(
+      result.signals.some(
+        (item) => item.type === 'HIGH_PRIORITY_WORK_ORDER',
+      ),
+    ).toBe(false);
+
+    expect(
+      result.signals.filter(
+        (item) => item.type === 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER',
+      ),
+    ).toHaveLength(2);
+  });
+
+  it('builds operational context from source facts for aggregate high-priority work', () => {
+    const result = engine.analyze({
+      now,
+      workOrders: [
+        {
+          id: 'wo-assigned-1',
+          title: 'Trabalho atribuído',
+          status: 'IN_PROGRESS',
+          priority: 'HIGH',
+          assigned_to_id: 'user-1',
+          project_id: null,
+          asset_id: null,
+          updated_at: new Date(),
+        },
+        {
+          id: 'wo-assigned-2',
+          title: 'Outro trabalho atribuído',
+          status: 'OPEN',
+          priority: 'CRITICAL',
+          assigned_to_id: 'user-2',
+          project_id: null,
+          asset_id: null,
+          updated_at: new Date(),
+        },
+      ],
+      maintenancePlans: [],
+      assets: [],
+      sites: [],
+      projects: [],
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'HIGH_PRIORITY_WORK_ORDER',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.operationalContext?.workOrders).toEqual({
+      open: 2,
+      highPriorityOpen: 2,
+      unassignedHighPriority: 0,
+    });
+  });
+
+  it('treats IN_PROGRESS high-priority work orders as operationally open', () => {
+    const result = engine.analyze({
+      now,
+      workOrders: [
+        {
+          id: 'wo-in-progress',
+          title: 'Inspeção operacional em curso',
+          status: 'IN_PROGRESS',
+          priority: 'HIGH',
+          assigned_to_id: 'user-1',
+          project_id: 'project-1',
+          asset_id: 'asset-1',
+          updated_at: new Date(),
+        },
+      ],
+      maintenancePlans: [],
+      assets: [],
+      sites: [],
+      projects: [],
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'HIGH_PRIORITY_WORK_ORDER',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.severity).toBe('HIGH');
+    expect(signal!.evidence).toContain('Inspeção operacional em curso');
+  });
+
   it('explains why overdue maintenance requires attention today when delay is under 7 days', () => {
     const result = engine.analyze({
       now,
@@ -270,7 +387,7 @@ describe('CooDecisionEngine', () => {
       projects: [],
     });
 
-    expect(result.signals).toHaveLength(3);
+    expect(result.signals).toHaveLength(2);
 
     const signal = result.signals.find((item) => item.type === 'OVERDUE_MAINTENANCE');
 
@@ -287,7 +404,7 @@ describe('CooDecisionEngine', () => {
         'Ordens abertas de alta prioridade: 1',
       ]),
     );
-    expect(signal.recommendedAction).toContain('ordem(ns) de alta prioridade');
+    expect(signal.recommendedAction).toContain('ordem de alta prioridade aberta associada');
     expect(signal.action).toEqual({
       type: 'UPDATE_MAINTENANCE',
       resource: 'maintenance_plans',
@@ -939,6 +1056,61 @@ describe('CooDecisionEngine', () => {
     expect(unassignedSignal!.evidence).toContain('Ordem de trabalho: Substituição urgente');
   });
 
+  it('removes an unassigned high-priority signal after the work order receives a responsible person', () => {
+    const engine = new CooDecisionEngine();
+    const now = new Date('2026-09-08T10:00:00.000Z');
+
+    const input = {
+      workOrders: [
+        {
+          id: 'wo-resolution-assignment',
+          title: 'Intervenção urgente',
+          status: 'OPEN',
+          priority: 'CRITICAL',
+          assigned_to_id: null,
+          project_id: null,
+          asset_id: null,
+          updated_at: now,
+        },
+      ],
+      maintenancePlans: [],
+      assets: [],
+      sites: [],
+      projects: [],
+      now,
+    };
+
+    const before = engine.analyze(input);
+
+    expect(
+      before.signals.some(
+        (item) =>
+          item.type === 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER' &&
+          item.source.resourceId === 'wo-resolution-assignment',
+      ),
+    ).toBe(true);
+
+    Object.assign(input.workOrders[0]!, { assigned_to_id: 'user-1' });
+
+    const after = engine.analyze(input);
+
+    expect(
+      after.signals.some(
+        (item) =>
+          item.type === 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER' &&
+          item.source.resourceId === 'wo-resolution-assignment',
+      ),
+    ).toBe(false);
+
+    expect(
+      after.signals.some(
+        (item) =>
+          item.type === 'UNASSIGNED_WORK_ORDER' &&
+          item.source.resourceId === 'wo-resolution-assignment',
+      ),
+    ).toBe(false);
+  });
+
   it('adds project context to an unassigned work order decision', () => {
     const now = new Date('2026-09-08T10:00:00.000Z');
 
@@ -1112,5 +1284,935 @@ describe('CooDecisionEngine', () => {
     });
 
     expect(result.signals.some((item) => item.type === 'STALE_OPEN_WORK_ORDER')).toBe(false);
+  });
+
+
+  describe('upcoming maintenance operational coordination', () => {
+    it('does not create a situation when upcoming maintenance has no open work orders', () => {
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const result = engine.analyze({
+        now,
+        workOrders: [],
+        maintenancePlans: [
+          {
+            id: 'maintenance-upcoming-clean',
+            plan: 'Manutenção mensal',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-09-20T10:00:00.000Z'),
+            assetId: 'asset-upcoming-clean',
+          },
+        ],
+        assets: [
+          {
+            id: 'asset-upcoming-clean',
+            name: 'Betoneira ProMix',
+            code: 'BET-001',
+            serial_number: null,
+            status: 'ACTIVE',
+            site_id: null,
+          },
+        ],
+        sites: [],
+        projects: [],
+      });
+
+      expect(
+        result.signals.some(
+          (item) => item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT',
+        ),
+      ).toBe(false);
+    });
+
+    it('creates a medium coordination situation for an upcoming maintenance with a normal open work order', () => {
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const result = engine.analyze({
+        now,
+        workOrders: [
+          {
+            id: 'wo-maintenance-normal',
+            title: 'Preparar equipamento para obra',
+            status: 'OPEN',
+            priority: 'MEDIUM',
+            assigned_to_id: 'user-1',
+            project_id: null,
+            asset_id: 'asset-maintenance-normal',
+            updated_at: now,
+          },
+        ],
+        maintenancePlans: [
+          {
+            id: 'maintenance-upcoming-normal',
+            plan: 'Manutenção mensal',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-09-20T10:00:00.000Z'),
+            assetId: 'asset-maintenance-normal',
+          },
+        ],
+        assets: [
+          {
+            id: 'asset-maintenance-normal',
+            name: 'Escavadora CAT 320',
+            code: 'CAT-320',
+            serial_number: null,
+            status: 'ACTIVE',
+            site_id: null,
+          },
+        ],
+        sites: [],
+        projects: [],
+      });
+
+      const signal = result.signals.find(
+        (item) => item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT',
+      );
+
+      expect(signal).toBeDefined();
+      expect(signal!.severity).toBe('MEDIUM');
+      expect(signal!.source.resourceId).toBe('maintenance-upcoming-normal');
+      expect(signal!.priorityContext?.openWorkOrders).toBe(1);
+      expect(signal!.priorityContext?.highPriorityOpenWorkOrders).toBe(0);
+      expect(signal!.chain?.explanation).toContain(
+        'A manutenção está associada ao ativo Escavadora CAT 320',
+      );
+      expect(signal!.chain?.explanation).not.toContain('manutenção vencida');
+      expect(signal!.chain?.recommendedAction).not.toContain('manutenção vencida');
+    });
+
+    it('creates a high-priority coordination situation when an upcoming maintenance has a high-priority open work order', () => {
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const result = engine.analyze({
+        now,
+        workOrders: [
+          {
+            id: 'wo-maintenance-high',
+            title: 'Falha crítica do equipamento',
+            status: 'OPEN',
+            priority: 'HIGH',
+            assigned_to_id: null,
+            project_id: null,
+            asset_id: 'asset-maintenance-high',
+            updated_at: now,
+          },
+        ],
+        maintenancePlans: [
+          {
+            id: 'maintenance-upcoming-high',
+            plan: 'Manutenção mensal',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-09-12T10:00:00.000Z'),
+            assetId: 'asset-maintenance-high',
+          },
+        ],
+        assets: [
+          {
+            id: 'asset-maintenance-high',
+            name: 'Grua Torre GT-500',
+            code: 'GT-500',
+            serial_number: null,
+            status: 'ACTIVE',
+            site_id: null,
+          },
+        ],
+        sites: [],
+        projects: [],
+      });
+
+      const signal = result.signals.find(
+        (item) => item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT',
+      );
+
+      expect(signal).toBeDefined();
+      expect(signal!.severity).toBe('HIGH');
+      expect(signal!.priorityContext?.openWorkOrders).toBe(1);
+      expect(signal!.priorityContext?.highPriorityOpenWorkOrders).toBe(1);
+    });
+
+    it('creates a coordination situation when maintenance is exactly 30 days away', () => {
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const result = engine.analyze({
+        now,
+        workOrders: [
+          {
+            id: 'wo-maintenance-boundary',
+            title: 'Intervenção programada',
+            status: 'OPEN',
+            priority: 'MEDIUM',
+            assigned_to_id: 'user-1',
+            project_id: null,
+            asset_id: 'asset-maintenance-boundary',
+            updated_at: now,
+          },
+        ],
+        maintenancePlans: [
+          {
+            id: 'maintenance-boundary',
+            plan: 'Manutenção mensal',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-10-08T10:00:00.000Z'),
+            assetId: 'asset-maintenance-boundary',
+          },
+        ],
+        assets: [
+          {
+            id: 'asset-maintenance-boundary',
+            name: 'Escavadora de teste',
+            code: 'ESC-BOUNDARY',
+            serial_number: null,
+            status: 'ACTIVE',
+            site_id: null,
+          },
+        ],
+        sites: [],
+        projects: [],
+      });
+
+      const signal = result.signals.find(
+        (item) => item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT',
+      );
+
+      expect(signal).toBeDefined();
+      expect(signal!.source.resourceId).toBe('maintenance-boundary');
+      expect(signal!.type).toBe('MAINTENANCE_OPERATIONAL_CONFLICT');
+      expect(signal!.evidence).toContain('Faltam 30 dia(s) para a intervenção');
+
+      expect(
+        result.signals.some(
+          (item) =>
+            item.type === 'OVERDUE_MAINTENANCE' &&
+            item.source.resourceId === 'maintenance-boundary',
+        ),
+      ).toBe(false);
+    });
+
+    it('removes an overdue maintenance signal after the intervention is rescheduled into the future', () => {
+      const engine = new CooDecisionEngine();
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const input = {
+        now,
+        workOrders: [],
+        maintenancePlans: [
+          {
+            id: 'maintenance-resolution',
+            plan: 'Manutenção corretiva',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-09-01T10:00:00.000Z'),
+            assetId: 'asset-resolution',
+          },
+        ],
+        assets: [
+          {
+            id: 'asset-resolution',
+            name: 'Escavadora de teste',
+            code: 'ESC-RESOLUTION',
+            serial_number: null,
+            status: 'ACTIVE',
+            site_id: null,
+          },
+        ],
+        sites: [],
+        projects: [],
+      };
+
+      const before = engine.analyze(input);
+
+      expect(
+        before.signals.some(
+          (item) =>
+            item.type === 'OVERDUE_MAINTENANCE' &&
+            item.source.resourceId === 'maintenance-resolution',
+        ),
+      ).toBe(true);
+
+      input.maintenancePlans[0]!.nextDue = new Date('2026-10-15T10:00:00.000Z');
+
+      const after = engine.analyze(input);
+
+      expect(
+        after.signals.some(
+          (item) =>
+            item.type === 'OVERDUE_MAINTENANCE' &&
+            item.source.resourceId === 'maintenance-resolution',
+        ),
+      ).toBe(false);
+    });
+
+    it('does not create a coordination situation one second beyond the 30-day boundary', () => {
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const result = engine.analyze({
+        now,
+        workOrders: [
+          {
+            id: 'wo-maintenance-boundary-far',
+            title: 'Intervenção futura',
+            status: 'OPEN',
+            priority: 'MEDIUM',
+            assigned_to_id: 'user-1',
+            project_id: null,
+            asset_id: 'asset-maintenance-boundary-far',
+            updated_at: now,
+          },
+        ],
+        maintenancePlans: [
+          {
+            id: 'maintenance-boundary-far',
+            plan: 'Manutenção mensal',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-10-08T10:00:01.000Z'),
+            assetId: 'asset-maintenance-boundary-far',
+          },
+        ],
+        assets: [
+          {
+            id: 'asset-maintenance-boundary-far',
+            name: 'Gerador de teste',
+            code: 'GEN-BOUNDARY',
+            serial_number: null,
+            status: 'ACTIVE',
+            site_id: null,
+          },
+        ],
+        sites: [],
+        projects: [],
+      });
+
+      expect(
+        result.signals.some(
+          (item) =>
+            item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT' &&
+            item.source.resourceId === 'maintenance-boundary-far',
+        ),
+      ).toBe(false);
+
+      expect(
+        result.signals.some(
+          (item) =>
+            item.type === 'OVERDUE_MAINTENANCE' &&
+            item.source.resourceId === 'maintenance-boundary-far',
+        ),
+      ).toBe(false);
+    });
+
+    it('does not create a coordination situation when maintenance is more than 30 days away', () => {
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const result = engine.analyze({
+        now,
+        workOrders: [
+          {
+            id: 'wo-maintenance-far',
+            title: 'Trabalho futuro',
+            status: 'OPEN',
+            priority: 'HIGH',
+            assigned_to_id: null,
+            project_id: null,
+            asset_id: 'asset-maintenance-far',
+            updated_at: now,
+          },
+        ],
+        maintenancePlans: [
+          {
+            id: 'maintenance-upcoming-far',
+            plan: 'Manutenção mensal',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-10-15T10:00:00.000Z'),
+            assetId: 'asset-maintenance-far',
+          },
+        ],
+        assets: [
+          {
+            id: 'asset-maintenance-far',
+            name: 'Gerador Industrial 500KW',
+            code: 'GEN-500',
+            serial_number: null,
+            status: 'ACTIVE',
+            site_id: null,
+          },
+        ],
+        sites: [],
+        projects: [],
+      });
+
+      expect(
+        result.signals.some(
+          (item) => item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT',
+        ),
+      ).toBe(false);
+    });
+
+    it('does not create a coordination situation for overdue maintenance', () => {
+      const now = new Date('2026-09-08T10:00:00.000Z');
+
+      const result = engine.analyze({
+        now,
+        workOrders: [
+          {
+            id: 'wo-overdue-maintenance',
+            title: 'Intervenção do equipamento',
+            status: 'OPEN',
+            priority: 'HIGH',
+            assigned_to_id: null,
+            project_id: null,
+            asset_id: 'asset-overdue-maintenance',
+            updated_at: now,
+          },
+        ],
+        maintenancePlans: [
+          {
+            id: 'maintenance-overdue-only',
+            plan: 'Manutenção mensal',
+            status: 'ACTIVE',
+            nextDue: new Date('2026-09-01T10:00:00.000Z'),
+            assetId: 'asset-overdue-maintenance',
+          },
+        ],
+        assets: [],
+        sites: [],
+        projects: [],
+      });
+
+      expect(
+        result.signals.some(
+          (item) =>
+            item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT' &&
+            item.source.resourceId === 'maintenance-overdue-only',
+        ),
+      ).toBe(false);
+
+      expect(
+        result.signals.some(
+          (item) =>
+            item.type === 'OVERDUE_MAINTENANCE' &&
+            item.source.resourceId === 'maintenance-overdue-only',
+        ),
+      ).toBe(true);
+    });
+  });
+
+});
+
+
+describe('stock risk intelligence', () => {
+  const now = new Date('2026-09-18T12:00:00Z');
+
+  const baseInput = {
+    workOrders: [
+      {
+        id: 'stock-wo-1',
+        title: 'Aplicação de material',
+        priority: 'NORMAL',
+        status: 'OPEN',
+        asset_id: null,
+        project_id: null,
+        assigned_to_id: 'user-1',
+        updated_at: now,
+      },
+    ],
+    maintenancePlans: [],
+    assets: [],
+    sites: [
+      {
+        id: 'stock-site-1',
+        name: 'Obra Stock',
+        code: 'STOCK-01',
+      },
+    ],
+    projects: [],
+    materials: [
+      {
+        id: 'stock-material-1',
+        code: 'MAT-001',
+        name: 'Cimento',
+        unit: 'saco',
+        reorder_point: 20,
+        reorder_quantity: 50,
+        active: true,
+      },
+    ],
+    inventoryStock: [
+      {
+        id: 'stock-row-1',
+        site_id: 'stock-site-1',
+        material_id: 'stock-material-1',
+        quantity_on_hand: 15,
+        quantity_reserved: 0,
+      },
+    ],
+    workOrderMaterials: [],
+    now,
+  };
+
+  it('creates a medium stock risk when available stock is at or below reorder point without pending demand', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze(baseInput);
+
+    const signal = result.signals.find(
+      (item) => item.type === 'STOCK_RISK',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.severity).toBe('MEDIUM');
+    expect(signal!.source.resource).toBe('inventory_stock');
+    expect(signal!.source.resourceId).toBe('stock-row-1');
+    expect(signal!.decision).toEqual({
+      type: 'REVIEW',
+      label: 'Rever aprovisionamento',
+    });
+    expect(signal!.recommendations).toEqual([
+      expect.objectContaining({
+        type: 'MONITOR',
+        executable: false,
+      }),
+    ]);
+  });
+
+  it('creates a high stock risk when pending demand pushes projected availability to the reorder point', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      ...baseInput,
+      inventoryStock: [
+        {
+          ...baseInput.inventoryStock[0]!,
+          quantity_on_hand: 30,
+          quantity_reserved: 0,
+        },
+      ],
+      workOrderMaterials: [
+        {
+          id: 'stock-wom-1',
+          work_order_id: 'stock-wo-1',
+          material_id: 'stock-material-1',
+          site_id: 'stock-site-1',
+          required_quantity: 10,
+          reserved_quantity: 0,
+          consumed_quantity: 0,
+          status: 'REQUIRED',
+        },
+      ],
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'STOCK_RISK',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.severity).toBe('HIGH');
+    expect(signal!.operationalContext?.inventory).toEqual(
+      expect.objectContaining({
+        onHand: 30,
+        reserved: 0,
+        available: 30,
+        outstandingDemand: 10,
+        projectedAvailable: 20,
+        reorderPoint: 20,
+        reorderQuantity: 50,
+      }),
+    );
+  });
+
+  it('creates a critical stock risk when projected availability is negative', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      ...baseInput,
+      inventoryStock: [
+        {
+          ...baseInput.inventoryStock[0]!,
+          quantity_on_hand: 10,
+          quantity_reserved: 0,
+        },
+      ],
+      workOrderMaterials: [
+        {
+          id: 'stock-wom-2',
+          work_order_id: 'stock-wo-1',
+          material_id: 'stock-material-1',
+          site_id: 'stock-site-1',
+          required_quantity: 25,
+          reserved_quantity: 0,
+          consumed_quantity: 0,
+          status: 'REQUIRED',
+        },
+      ],
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'STOCK_RISK',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.severity).toBe('CRITICAL');
+    expect(signal!.operationalContext?.inventory).toEqual(
+      expect.objectContaining({
+        available: 10,
+        outstandingDemand: 25,
+        projectedAvailable: -15,
+      }),
+    );
+  });
+
+  it('does not count reserved stock as available stock', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      ...baseInput,
+      inventoryStock: [
+        {
+          ...baseInput.inventoryStock[0]!,
+          quantity_on_hand: 30,
+          quantity_reserved: 15,
+        },
+      ],
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'STOCK_RISK',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.severity).toBe('MEDIUM');
+    expect(signal!.operationalContext?.inventory).toEqual(
+      expect.objectContaining({
+        onHand: 30,
+        reserved: 15,
+        available: 15,
+      }),
+    );
+  });
+
+  it('creates a critical stock risk when pending demand exists without an inventory stock row', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      ...baseInput,
+      inventoryStock: [],
+      workOrderMaterials: [
+        {
+          id: 'stock-wom-3',
+          work_order_id: 'stock-wo-1',
+          material_id: 'stock-material-1',
+          site_id: 'stock-site-1',
+          required_quantity: 25,
+          reserved_quantity: 0,
+          consumed_quantity: 0,
+          status: 'REQUIRED',
+        },
+      ],
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'STOCK_RISK',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.severity).toBe('CRITICAL');
+    expect(signal!.source.resource).toBe('inventory_stock');
+    expect(signal!.source.resourceId).toBeUndefined();
+    expect(signal!.operationalContext?.inventory).toEqual(
+      expect.objectContaining({
+        onHand: 0,
+        reserved: 0,
+        available: 0,
+        outstandingDemand: 25,
+        projectedAvailable: -25,
+      }),
+    );
+  });
+
+  it('ignores materials without a reorder point', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      ...baseInput,
+      materials: [
+        {
+          ...baseInput.materials[0]!,
+          reorder_point: null,
+        },
+      ],
+    });
+
+    expect(
+      result.signals.some((item) => item.type === 'STOCK_RISK'),
+    ).toBe(false);
+  });
+
+  it('ignores inactive materials even when stock is below the configured reorder point', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      ...baseInput,
+      materials: [
+        {
+          ...baseInput.materials[0]!,
+          active: false,
+        },
+      ],
+    });
+
+    expect(
+      result.signals.some((item) => item.type === 'STOCK_RISK'),
+    ).toBe(false);
+  });
+
+  it('does not create a stock risk when available and projected stock are both above reorder point', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      ...baseInput,
+      inventoryStock: [
+        {
+          ...baseInput.inventoryStock[0]!,
+          quantity_on_hand: 100,
+          quantity_reserved: 10,
+        },
+      ],
+      workOrderMaterials: [
+        {
+          id: 'stock-wom-4',
+          work_order_id: 'stock-wo-1',
+          material_id: 'stock-material-1',
+          site_id: 'stock-site-1',
+          required_quantity: 10,
+          reserved_quantity: 0,
+          consumed_quantity: 0,
+          status: 'REQUIRED',
+        },
+      ],
+    });
+
+    expect(
+      result.signals.some((item) => item.type === 'STOCK_RISK'),
+    ).toBe(false);
+  });
+});
+
+describe('Operational Intelligence V4 contract', () => {
+  it('exposes structured evidence for every generated signal', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      workOrders: [
+        {
+          id: 'v4-wo-1',
+          title: 'Intervenção urgente',
+          priority: 'HIGH',
+          status: 'OPEN',
+          asset_id: null,
+          project_id: null,
+          assigned_to_id: null,
+          updated_at: new Date('2026-09-18T10:00:00Z'),
+        },
+      ],
+      maintenancePlans: [],
+      assets: [],
+      sites: [],
+      projects: [],
+      now: new Date('2026-09-18T12:00:00Z'),
+    });
+
+    const signal = result.signals[0];
+
+    expect(signal).toBeDefined();
+    expect(signal!.evidenceItems).toHaveLength(signal!.evidence.length);
+    expect(signal!.decisionContext?.evidence).toEqual(signal!.evidenceItems);
+  });
+
+  it('exposes deterministic operational context and recommendations', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      workOrders: [
+        {
+          id: 'v4-wo-2',
+          title: 'Ordem sem responsável',
+          priority: 'CRITICAL',
+          status: 'OPEN',
+          asset_id: null,
+          project_id: null,
+          assigned_to_id: null,
+          updated_at: new Date('2026-09-18T10:00:00Z'),
+        },
+      ],
+      maintenancePlans: [],
+      assets: [],
+      sites: [],
+      projects: [],
+      now: new Date('2026-09-18T12:00:00Z'),
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'UNASSIGNED_HIGH_PRIORITY_WORK_ORDER',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.operationalContext?.workOrders.highPriorityOpen).toBeGreaterThan(0);
+    expect(signal!.recommendations).toBeDefined();
+    expect(signal!.decisionContext?.confidence).toBe(1);
+  });
+
+  it('builds maintenance operational context through the maintenance asset', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      workOrders: [
+        {
+          id: 'maintenance-context-wo',
+          title: 'Intervenção urgente no equipamento',
+          priority: 'HIGH',
+          status: 'OPEN',
+          asset_id: 'maintenance-context-asset',
+          project_id: 'maintenance-context-project',
+          assigned_to_id: null,
+          updated_at: new Date('2026-09-18T10:00:00Z'),
+        },
+        {
+          id: 'unrelated-wo',
+          title: 'Ordem de outro equipamento',
+          priority: 'HIGH',
+          status: 'OPEN',
+          asset_id: 'different-asset',
+          project_id: 'different-project',
+          assigned_to_id: 'user-1',
+          updated_at: new Date('2026-09-18T10:00:00Z'),
+        },
+      ],
+      maintenancePlans: [
+        {
+          id: 'maintenance-context-plan',
+          plan: 'Manutenção preventiva',
+          status: 'ACTIVE',
+          nextDue: new Date('2026-09-25T10:00:00Z'),
+          assetId: 'maintenance-context-asset',
+        },
+      ],
+      assets: [
+        {
+          id: 'maintenance-context-asset',
+          name: 'Escavadora operacional',
+          code: 'ESC-001',
+          serial_number: null,
+          status: 'ACTIVE',
+          site_id: 'maintenance-context-site',
+        },
+        {
+          id: 'different-asset',
+          name: 'Betoneira',
+          code: 'BET-001',
+          serial_number: null,
+          status: 'ACTIVE',
+          site_id: null,
+        },
+      ],
+      sites: [
+        {
+          id: 'maintenance-context-site',
+          name: 'Obra Principal',
+          code: 'SITE-001',
+        },
+      ],
+      projects: [
+        {
+          id: 'maintenance-context-project',
+          name: 'Obra Principal',
+          status: 'IN_PROGRESS',
+          progress: 50,
+          end_date: new Date('2026-12-31T00:00:00Z'),
+        },
+      ],
+      now: new Date('2026-09-18T12:00:00Z'),
+    });
+
+    const signal = result.signals.find(
+      (item) => item.type === 'MAINTENANCE_OPERATIONAL_CONFLICT',
+    );
+
+    expect(signal).toBeDefined();
+    expect(signal!.source.resource).toBe('maintenance_plans');
+    expect(signal!.source.resourceId).toBe('maintenance-context-plan');
+
+    expect(signal!.operationalContext?.maintenance).toEqual({
+      id: 'maintenance-context-plan',
+      nextDue: '2026-09-25T10:00:00.000Z',
+    });
+
+    expect(signal!.operationalContext?.asset).toEqual({
+      id: 'maintenance-context-asset',
+      name: 'Escavadora operacional',
+    });
+
+    expect(signal!.operationalContext?.site).toEqual({
+      id: 'maintenance-context-site',
+      name: 'Obra Principal',
+    });
+
+    expect(signal!.operationalContext?.workOrders).toEqual({
+      open: 1,
+      highPriorityOpen: 1,
+      unassignedHighPriority: 1,
+    });
+  });
+
+  it('preserves operational chains inside structured context', () => {
+    const engine = new CooDecisionEngine();
+
+    const result = engine.analyze({
+      workOrders: [
+        {
+          id: 'v4-chain-wo',
+          title: 'Intervenção equipamento',
+          priority: 'HIGH',
+          status: 'OPEN',
+          asset_id: 'v4-chain-asset',
+          project_id: 'v4-chain-project',
+          assigned_to_id: null,
+          updated_at: new Date('2026-09-18T10:00:00Z'),
+        },
+      ],
+      maintenancePlans: [],
+      assets: [
+        {
+          id: 'v4-chain-asset',
+          name: 'Escavadora V4',
+          code: 'V4-ESC-01',
+          serial_number: null,
+          status: 'ACTIVE',
+          site_id: 'v4-chain-site',
+        },
+      ],
+      sites: [
+        {
+          id: 'v4-chain-site',
+          name: 'Site V4',
+          code: 'SITE-V4',
+        },
+      ],
+      projects: [
+        {
+          id: 'v4-chain-project',
+          name: 'Obra V4',
+          status: 'IN_PROGRESS',
+          progress: 40,
+          end_date: new Date('2026-09-10T00:00:00Z'),
+        },
+      ],
+      now: new Date('2026-09-18T12:00:00Z'),
+    });
+
+    const signal = result.signals.find(
+      (item) => item.source.resourceId === 'v4-chain-wo',
+    );
+
+    if (signal?.chain) {
+      expect(signal.operationalContext?.chain).toEqual(signal.chain);
+      expect(signal.decisionContext?.operationalContext.chain).toEqual(signal.chain);
+    }
   });
 });

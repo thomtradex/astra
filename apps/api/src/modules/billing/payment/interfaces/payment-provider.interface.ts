@@ -3,6 +3,9 @@ export interface CreateCheckoutSessionInput {
   organizationName?: string;
   customerEmail: string;
   planCode: string;
+  stripePriceId: string;
+  checkoutAttemptId: string;
+  idempotencyKey: string;
   trialDays: number;
   successUrl: string;
   cancelUrl: string;
@@ -12,6 +15,7 @@ export interface CheckoutSessionResult {
   id: string;
   url?: string | null;
   provider: string;
+  expiresAt?: Date | null;
 }
 
 export interface PaymentProvider {

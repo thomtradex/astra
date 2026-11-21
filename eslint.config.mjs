@@ -7,6 +7,7 @@ import tseslint from 'typescript-eslint';
 export default tseslint.config(
   {
     ignores: [
+      '**/.backup/**',
       '**/.next/**',
       '**/node_modules/**',
       '**/dist/**',

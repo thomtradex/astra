@@ -1,10 +1,18 @@
 import { AuditAction } from '@astra/database';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import { AiService } from '../ai/ai.service';
+import { IntelligenceAiContextBuilder } from '../ai/context/intelligence-ai-context.builder';
+import { UsageLimitExceededException } from '../billing/usage/usage-limit-exceeded.exception';
 
+import { DailyBriefingService } from './daily-briefing.service';
 import { CooDecisionEngine } from './engines/intelligence.engine';
-import { IntelligenceChange } from './intelligence.types';
+import {
+  IntelligenceChange,
+  IntelligenceDecisionHistory,
+  IntelligenceSignal,
+} from './intelligence.types';
 
 const CHANGE_WINDOW_HOURS = 24;
 const CHANGE_LIMIT = 20;
@@ -14,11 +22,24 @@ export class IntelligenceService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly engine: CooDecisionEngine,
+    private readonly dailyBriefingService: DailyBriefingService,
+    @Inject(AiService)
+    private readonly aiService: Pick<AiService, 'analyze'>,
+    private readonly aiContextBuilder: IntelligenceAiContextBuilder,
   ) {}
 
   async analyze(organizationId: string) {
-    const [workOrders, maintenancePlans, assets, sites, projects, recentAuditLogs] =
-      await Promise.all([
+    const [
+      workOrders,
+      maintenancePlans,
+      assets,
+      sites,
+      projects,
+      materials,
+      inventoryStock,
+      workOrderMaterials,
+      recentAuditLogs,
+    ] = await Promise.all([
         this.prisma.work_orders.findMany({
           where: {
             organization_id: organizationId,
@@ -81,6 +102,51 @@ export class IntelligenceService {
             end_date: true,
           },
         }),
+        this.prisma.materials.findMany({
+          where: {
+            organization_id: organizationId,
+            active: true,
+            reorder_point: {
+              not: null,
+            },
+          },
+          select: {
+            id: true,
+            code: true,
+            name: true,
+            unit: true,
+            reorder_point: true,
+            reorder_quantity: true,
+            active: true,
+          },
+        }),
+        this.prisma.inventory_stock.findMany({
+          where: {
+            organization_id: organizationId,
+          },
+          select: {
+            id: true,
+            site_id: true,
+            material_id: true,
+            quantity_on_hand: true,
+            quantity_reserved: true,
+          },
+        }),
+        this.prisma.work_order_materials.findMany({
+          where: {
+            organization_id: organizationId,
+          },
+          select: {
+            id: true,
+            work_order_id: true,
+            material_id: true,
+            site_id: true,
+            required_quantity: true,
+            reserved_quantity: true,
+            consumed_quantity: true,
+            status: true,
+          },
+        }),
         this.prisma.auditLog.findMany({
           where: {
             organizationId,
@@ -91,7 +157,12 @@ export class IntelligenceService {
               in: ['projects', 'work-orders', 'work_orders', 'maintenance', 'maintenance_plans'],
             },
             action: {
-              in: [AuditAction.CREATE, AuditAction.UPDATE, AuditAction.DELETE],
+              in: [
+                AuditAction.CREATE,
+                AuditAction.UPDATE,
+                AuditAction.DELETE,
+                AuditAction.ACCESS_DENIED,
+              ],
             },
           },
           orderBy: {
@@ -104,6 +175,14 @@ export class IntelligenceService {
             resourceId: true,
             createdAt: true,
             metadata: true,
+            actor: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
           },
         }),
       ]);
@@ -114,6 +193,22 @@ export class IntelligenceService {
       assets,
       sites,
       projects,
+      materials: materials.map((material) => ({
+        ...material,
+        reorder_point: material.reorder_point?.toNumber() ?? null,
+        reorder_quantity: material.reorder_quantity?.toNumber() ?? null,
+      })),
+      inventoryStock: inventoryStock.map((stock) => ({
+        ...stock,
+        quantity_on_hand: stock.quantity_on_hand.toNumber(),
+        quantity_reserved: stock.quantity_reserved.toNumber(),
+      })),
+      workOrderMaterials: workOrderMaterials.map((item) => ({
+        ...item,
+        required_quantity: item.required_quantity.toNumber(),
+        reserved_quantity: item.reserved_quantity.toNumber(),
+        consumed_quantity: item.consumed_quantity.toNumber(),
+      })),
     });
 
     const lastCooActions = new Map<
@@ -139,13 +234,23 @@ export class IntelligenceService {
         metadata.outcomeStatus !== 'FAILED'
       )
         continue;
-      lastCooActions.set(log.resourceId, {
+      const key = `${log.resource}:${log.resourceId}`;
+
+      lastCooActions.set(key, {
         status: metadata.outcomeStatus,
         timestamp: log.createdAt.toISOString(),
         actionType: typeof metadata.actionType === 'string' ? metadata.actionType : 'COO_ACTION',
         message: typeof metadata.message === 'string' ? metadata.message : '',
       });
     }
+
+    const decisionHistory = this.buildDecisionHistory(
+      recentAuditLogs,
+      projects,
+      workOrders,
+      maintenancePlans,
+      new Date(briefing.generatedAt),
+    );
 
     const decisionMetrics = recentAuditLogs.reduce(
       (metrics, log) => {
@@ -159,22 +264,358 @@ export class IntelligenceService {
       { executed: 0, denied: 0, failed: 0 },
     );
 
-    const signals = briefing.signals.map((signal) => ({
-      ...signal,
-      lastAction: signal.action ? lastCooActions.get(signal.action.resourceId) : undefined,
-    }));
+    const signals = await Promise.all(
+      briefing.signals.map(async (signal) => {
+        const enrichedSignal = await this.enrichSignalWithAi(
+          organizationId,
+          signal,
+        );
+
+        return {
+          ...enrichedSignal,
+          lastAction: signal.action
+            ? lastCooActions.get(`${signal.action.resource}:${signal.action.resourceId}`)
+            : undefined,
+        };
+      }),
+    );
+
+    const recentChanges = recentAuditLogs.filter(
+      (log) => !this.isCooAction(log.metadata) && log.resourceId,
+    );
+    const seenChanges = new Set<string>();
+    const deduplicatedChanges = recentChanges.filter((log) => {
+      const key = `${log.resource}:${log.resourceId}:${log.action}`;
+      if (seenChanges.has(key)) {
+        return false;
+      }
+
+      seenChanges.add(key);
+      return true;
+    });
+
+    const changes = this.buildChanges(
+      deduplicatedChanges.slice(0, CHANGE_LIMIT),
+      projects,
+      workOrders,
+      maintenancePlans,
+    );
 
     return {
       ...briefing,
       signals,
       decisionMetrics,
-      changes: this.buildChanges(
-        recentAuditLogs.filter((log) => !this.isCooAction(log.metadata)).slice(0, CHANGE_LIMIT),
-        projects,
-        workOrders,
-        maintenancePlans,
-      ),
+      decisionHistory,
+      changes,
+      daily: this.dailyBriefingService.build(signals, new Date(briefing.generatedAt)),
     };
+  }
+
+  private async enrichSignalWithAi(
+    organizationId: string,
+    signal: IntelligenceSignal,
+  ): Promise<IntelligenceSignal> {
+    const context = this.aiContextBuilder.build(signal);
+
+    if (!context) {
+      return signal;
+    }
+
+    try {
+      const aiAnalysis = await this.aiService.analyze(
+        organizationId,
+        context,
+      );
+
+      return {
+        ...signal,
+        aiAnalysis,
+      };
+    } catch (error) {
+      if (error instanceof UsageLimitExceededException) {
+        return {
+          ...signal,
+          aiAnalysis: {
+            status: 'UNAVAILABLE',
+            summary: 'O limite mensal de pedidos AI deste plano foi atingido.',
+            rationale:
+              'A análise operacional determinística continua disponível. O pedido AI não foi enviado ao provider porque a quota mensal do plano foi atingida.',
+            confidence: 0,
+            confidenceSource: 'UNAVAILABLE',
+            provider: 'unavailable',
+            unavailableReason: 'MONTHLY_LIMIT_REACHED',
+          },
+        };
+      }
+
+      return {
+        ...signal,
+        aiAnalysis: {
+          status: 'UNAVAILABLE',
+          summary: 'A análise AI não está disponível neste momento.',
+          rationale:
+            'A análise operacional determinística continua disponível e não foi afetada pela indisponibilidade do provider AI.',
+          confidence: 0,
+          confidenceSource: 'UNAVAILABLE',
+          provider: 'unavailable',
+          unavailableReason: 'PROVIDER_UNAVAILABLE',
+        },
+      };
+    }
+  }
+
+  private buildDecisionHistory(
+    auditLogs: Array<{
+      id: string;
+      action: AuditAction;
+      resource: string;
+      resourceId: string | null;
+      createdAt: Date;
+      metadata: unknown;
+      actor: {
+        id: string;
+        email: string;
+        firstName: string | null;
+        lastName: string | null;
+      } | null;
+    }>,
+    projects: Array<{
+      id: string;
+      name: string;
+      status: string;
+      progress: number;
+      end_date: Date | null;
+    }>,
+    workOrders: Array<{
+      id: string;
+      assigned_to_id: string | null;
+      status: string;
+    }>,
+    maintenancePlans: Array<{
+      id: string;
+      nextDue: Date;
+    }>,
+    checkedAt: Date,
+  ): IntelligenceDecisionHistory[] {
+    return auditLogs
+      .filter((log) => this.isCooAction(log.metadata))
+      .map((log): IntelligenceDecisionHistory | null => {
+        if (!log.resourceId) return null;
+
+        const metadata = log.metadata as {
+          outcomeStatus?: unknown;
+          actionType?: unknown;
+          message?: unknown;
+          assignedToId?: unknown;
+          status?: unknown;
+          nextDue?: unknown;
+        };
+
+        if (
+          metadata.outcomeStatus !== 'EXECUTED' &&
+          metadata.outcomeStatus !== 'DENIED' &&
+          metadata.outcomeStatus !== 'FAILED'
+        ) {
+          return null;
+        }
+
+        const actorName = log.actor
+          ? [log.actor.firstName, log.actor.lastName].filter(Boolean).join(' ') || undefined
+          : undefined;
+
+        const verification = this.verifyDecision(
+          log.resource,
+          log.resourceId,
+          typeof metadata.actionType === 'string' ? metadata.actionType : undefined,
+          metadata.outcomeStatus,
+          typeof metadata.assignedToId === 'string' ? metadata.assignedToId : undefined,
+          typeof metadata.status === 'string' ? metadata.status : undefined,
+          typeof metadata.nextDue === 'string' ? metadata.nextDue : undefined,
+          projects,
+          workOrders,
+          maintenancePlans,
+          checkedAt,
+        );
+
+        return {
+          id: log.id,
+          timestamp: log.createdAt.toISOString(),
+          status: metadata.outcomeStatus,
+          actionType: typeof metadata.actionType === 'string' ? metadata.actionType : 'COO_ACTION',
+          resource: log.resource,
+          resourceId: log.resourceId,
+          actor: log.actor
+            ? {
+                id: log.actor.id,
+                name: actorName,
+                email: log.actor.email,
+              }
+            : undefined,
+          message: typeof metadata.message === 'string' ? metadata.message : '',
+          verification,
+        };
+      })
+      .filter((item): item is IntelligenceDecisionHistory => item !== null);
+  }
+
+  private verifyDecision(
+    resource: string,
+    resourceId: string,
+    actionType: string | undefined,
+    outcomeStatus: 'EXECUTED' | 'DENIED' | 'FAILED',
+    assignedToId: string | undefined,
+    targetStatus: string | undefined,
+    targetNextDue: string | undefined,
+    projects: Array<{
+      id: string;
+      status: string;
+    }>,
+    workOrders: Array<{
+      id: string;
+      assigned_to_id: string | null;
+      status: string;
+    }>,
+    maintenancePlans: Array<{
+      id: string;
+      nextDue: Date;
+    }>,
+    checkedAt: Date,
+  ):
+    | {
+        status: 'VERIFIED' | 'STILL_OPEN' | 'NOT_VERIFIED';
+        label: string;
+        explanation: string;
+        checkedAt: string;
+      }
+    | undefined {
+    if (outcomeStatus !== 'EXECUTED') {
+      return undefined;
+    }
+
+    if (actionType === 'SET_PROJECT_STATUS' && resource === 'projects') {
+      const project = projects.find((item) => item.id === resourceId);
+
+      if (!project) {
+        return {
+          status: 'NOT_VERIFIED',
+          label: 'Não foi possível verificar',
+          explanation: 'O projeto já não está disponível no estado atual.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      if (!targetStatus) {
+        return {
+          status: 'NOT_VERIFIED',
+          label: 'Não foi possível verificar',
+          explanation: 'A decisão não contém o estado que deveria ter sido definido.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      if (project.status === targetStatus) {
+        return {
+          status: 'VERIFIED',
+          label: 'Resultado confirmado',
+          explanation: 'O estado definido pela decisão está atualmente aplicado ao projeto.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      return {
+        status: 'STILL_OPEN',
+        label: 'Situação continua aberta',
+        explanation: 'O projeto não está atualmente no estado definido pela decisão.',
+        checkedAt: checkedAt.toISOString(),
+      };
+    }
+
+    if (actionType === 'UPDATE_MAINTENANCE' && resource === 'maintenance_plans') {
+      const maintenancePlan = maintenancePlans.find((plan) => plan.id === resourceId);
+
+      if (!maintenancePlan) {
+        return {
+          status: 'NOT_VERIFIED',
+          label: 'Não foi possível verificar',
+          explanation: 'O plano de manutenção já não está disponível no estado atual.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      if (!targetNextDue) {
+        return {
+          status: 'NOT_VERIFIED',
+          label: 'Não foi possível verificar',
+          explanation: 'A decisão não contém a data que deveria ter sido definida.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      const targetDate = new Date(targetNextDue);
+
+      if (
+        Number.isNaN(targetDate.getTime()) ||
+        maintenancePlan.nextDue.toISOString() !== targetDate.toISOString()
+      ) {
+        return {
+          status: 'STILL_OPEN',
+          label: 'Situação continua aberta',
+          explanation:
+            'O plano de manutenção não está atualmente agendado para a data definida pela decisão.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      return {
+        status: 'VERIFIED',
+        label: 'Resultado confirmado',
+        explanation:
+          'A data definida pela decisão está atualmente aplicada ao plano de manutenção.',
+        checkedAt: checkedAt.toISOString(),
+      };
+    }
+
+    if (actionType === 'ASSIGN_WORK_ORDER' && resource === 'work_orders') {
+      const workOrder = workOrders.find((order) => order.id === resourceId);
+
+      if (!workOrder) {
+        return {
+          status: 'NOT_VERIFIED',
+          label: 'Não foi possível verificar',
+          explanation: 'A ordem de trabalho já não está disponível no estado atual.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      if (!assignedToId) {
+        return {
+          status: 'NOT_VERIFIED',
+          label: 'Não foi possível verificar',
+          explanation: 'A decisão não contém o responsável que deveria ter sido atribuído.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      if (workOrder.assigned_to_id === assignedToId) {
+        return {
+          status: 'VERIFIED',
+          label: 'Resultado confirmado',
+          explanation:
+            'O responsável definido pela decisão está atualmente atribuído à ordem de trabalho.',
+          checkedAt: checkedAt.toISOString(),
+        };
+      }
+
+      return {
+        status: 'STILL_OPEN',
+        label: 'Situação continua aberta',
+        explanation:
+          'A ordem de trabalho não está atualmente atribuída ao responsável definido pela decisão.',
+        checkedAt: checkedAt.toISOString(),
+      };
+    }
+
+    return undefined;
   }
 
   private buildChanges(

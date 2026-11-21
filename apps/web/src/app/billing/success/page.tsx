@@ -10,10 +10,19 @@ export default function BillingSuccessPage() {
   const [status, setStatus] = useState('A confirmar a sua subscrição…');
   const [error, setError] = useState(false);
 
+  const [retryAttempt, setRetryAttempt] = useState(0);
+  const [isChecking, setIsChecking] = useState(true);
+
   useEffect(() => {
     let active = true;
+    let retryTimer: number | undefined;
+    let redirectTimer: number | undefined;
 
     async function confirmSubscription() {
+      setIsChecking(true);
+      setError(false);
+      setStatus('A confirmar a sua subscrição…');
+
       try {
         const subscription = await getCurrentSubscription();
 
@@ -21,7 +30,7 @@ export default function BillingSuccessPage() {
 
         if (subscription) {
           setStatus('Subscrição confirmada. A preparar a sua empresa…');
-          window.setTimeout(() => {
+          redirectTimer = window.setTimeout(() => {
             if (active) {
               router.replace('/onboarding');
               router.refresh();
@@ -30,33 +39,26 @@ export default function BillingSuccessPage() {
           return;
         }
 
-        setStatus('Estamos a sincronizar a confirmação do pagamento…');
-
-        window.setTimeout(async () => {
-          try {
-            const retry = await getCurrentSubscription();
-
-            if (!active) return;
-
-            if (retry) {
-              router.replace('/onboarding');
-              router.refresh();
-              return;
-            }
-
-            setError(true);
-            setStatus('A confirmação ainda não ficou disponível.');
-          } catch {
+        if (retryAttempt === 0) {
+          setStatus('Estamos a sincronizar a confirmação do pagamento…');
+          retryTimer = window.setTimeout(() => {
             if (active) {
-              setError(true);
-              setStatus('Não foi possível confirmar a subscrição.');
+              setRetryAttempt(1);
             }
-          }
-        }, 2500);
+          }, 2500);
+          return;
+        }
+
+        setError(true);
+        setStatus('A confirmação ainda não ficou disponível.');
       } catch {
         if (active) {
           setError(true);
-          setStatus('Não foi possível confirmar a subscrição.');
+          setStatus('Não foi possível confirmar a subscrição. Verifique a sessão e tente novamente.');
+        }
+      } finally {
+        if (active) {
+          setIsChecking(false);
         }
       }
     }
@@ -65,48 +67,40 @@ export default function BillingSuccessPage() {
 
     return () => {
       active = false;
+
+      if (retryTimer !== undefined) {
+        window.clearTimeout(retryTimer);
+      }
+
+      if (redirectTimer !== undefined) {
+        window.clearTimeout(redirectTimer);
+      }
     };
-  }, [router]);
+  }, [router, retryAttempt]);
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 px-6 text-white">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.14),transparent_55%)]" />
-
-      <div className="relative w-full max-w-xl rounded-3xl border border-white/10 bg-white/[0.06] p-10 text-center shadow-2xl backdrop-blur md:p-14">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-cyan-300/20 bg-cyan-300/10">
-          {error ? (
-            <span className="text-xl text-amber-300">!</span>
-          ) : (
-            <span className="text-xl text-cyan-300">✓</span>
-          )}
+      <div className="relative z-10 w-full max-w-lg rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center shadow-2xl backdrop-blur">
+        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-cyan-400/30 bg-cyan-400/10 text-cyan-300">
+          {error ? '!' : '✓'}
         </div>
 
-        <p className="mt-7 text-sm font-medium uppercase tracking-[0.28em] text-cyan-300">
-          Astra
-        </p>
-
-        <h1 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">
-          {error ? 'Quase tudo pronto' : 'Subscrição ativada'}
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {error ? 'Confirmação pendente' : 'Pagamento recebido'}
         </h1>
 
-        <p className="mx-auto mt-5 max-w-md text-base leading-7 text-white/60">
-          {status}
-        </p>
+        <p className="mt-3 text-sm leading-6 text-slate-300">{status}</p>
 
         {error && (
           <button
             type="button"
-            onClick={() => router.replace('/dashboard')}
-            className="mt-8 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-white/90"
+            onClick={() => setRetryAttempt((current) => current + 1)}
+            disabled={isChecking}
+            className="mt-6 rounded-xl bg-white px-5 py-3 text-sm font-medium text-slate-950 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Continuar para a plataforma
+            {isChecking ? 'A verificar…' : 'Tentar novamente'}
           </button>
-        )}
-
-        {!error && (
-          <div className="mx-auto mt-8 h-1.5 max-w-xs overflow-hidden rounded-full bg-white/10">
-            <div className="h-full w-1/2 animate-pulse rounded-full bg-cyan-300" />
-          </div>
         )}
       </div>
     </main>

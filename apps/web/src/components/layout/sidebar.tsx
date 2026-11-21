@@ -23,7 +23,7 @@ const sections = [
   {
     label: 'Decisão',
     items: [
-      { href: '/intelligence', label: 'Briefing COO', icon: '✦' },
+      { href: '/intelligence', label: 'Resumo da operação', icon: '✦' },
     ],
   },
   {
@@ -58,7 +58,7 @@ export function Sidebar() {
       <div className="flex-1 overflow-y-auto px-3 py-5">
         {sections.map((section) => (
           <div key={section.label} className="mb-7">
-            <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+            <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
               {section.label}
             </div>
 
