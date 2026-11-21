@@ -26,7 +26,8 @@
     "docker:up": "docker compose -f docker/docker-compose.yml up -d",
     "docker:down": "docker compose -f docker/docker-compose.yml down",
     "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
-    "clean": "turbo run clean && rm -rf node_modules"
+    "clean": "turbo run clean && rm -rf node_modules",
+    "db:bootstrap": "pnpm db:migrate:deploy && pnpm --filter @astra/database db:seed:rbac && pnpm --filter @astra/database exec tsx prisma/seed-billing.ts"
   },
   "devDependencies": {
     "@astra/eslint-config": "workspace:*",

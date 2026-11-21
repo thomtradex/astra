@@ -52,6 +52,7 @@ model User {
   updatedAt      DateTime       @updatedAt @map("updated_at")
   auditLogs      AuditLog[]     @relation("AuditActor")
   refreshTokens  RefreshToken[]
+  authSessions   AuthSession[]
   roles          UserRole[]
   organization   Organization   @relation(fields: [organizationId], references: [id])
   work_orders    work_orders[]
@@ -118,9 +119,12 @@ model RefreshToken {
   revokedAt DateTime? @map("revoked_at")
   ipAddress String?   @map("ip_address")
   userAgent String?   @map("user_agent")
+  sessionId String?      @map("session_id")
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session   AuthSession? @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([sessionId])
   @@index([expiresAt])
   @@map("refresh_tokens")
 }
@@ -467,6 +471,7 @@ model CheckoutAttempt {
   cancelUrl            String                @map("cancel_url")
   idempotencyKey       String                @unique @map("idempotency_key")
   stripeSessionId      String?               @unique @map("stripe_session_id")
+  providerSubscriptionId String? @map("provider_subscription_id")
   checkoutUrl          String?               @map("checkout_url")
   status               CheckoutAttemptStatus @default(CREATING)
   activeOrganizationId String?               @unique @map("active_organization_id")
@@ -590,4 +595,16 @@ model StripeSubscriptionSyncLock {
 
   @@index([expiresAt])
   @@map("stripe_subscription_sync_locks")
+}
+
+model AuthSession {
+  id            String         @id @default(cuid())
+  userId        String         @map("user_id")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  revokedAt     DateTime?      @map("revoked_at")
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
+
+  @@index([userId])
+  @@map("auth_sessions")
 }

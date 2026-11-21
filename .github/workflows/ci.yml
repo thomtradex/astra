@@ -68,5 +68,344 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Test
-        run: pnpm test
+      - name: API unit tests (isolated)
+        env:
+          NODE_ENV: test
+          ASTRA_IGNORE_ENV_FILE: "true"
+          ASTRA_ALLOW_ISOLATED_TESTS: "false"
+          TEST_DATABASE_URL: ""
+          ASTRA_TEST_DATABASE_ID: ""
+          ASTRA_EXPECTED_TEST_DATABASE_ID: ""
+          DATABASE_URL: "postgresql://synthetic:fake@127.0.0.1:1/astra_test?schema=public"
+          STRIPE_SECRET_KEY: "sk_test_synthetic_not_a_real_key"
+          STRIPE_WEBHOOK_SECRET: "whsec_synthetic_not_a_real_secret"
+        run: pnpm --filter @astra/api test:unit
+
+      - name: Frontend unit tests
+        run: pnpm --filter @astra/web test
+
+      - name: Database package test script
+        run: pnpm --filter @astra/database test
+
+      - name: Shared package test script
+        run: pnpm --filter @astra/shared test
+
+  auth-integration:
+    name: Authentication PostgreSQL integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: astra_auth_cert
+          POSTGRES_PASSWORD: astra_ci_synthetic_password_2026
+          POSTGRES_DB: astra_auth_cert
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U astra_auth_cert -d astra_auth_cert"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      NODE_ENV: test
+      ASTRA_IGNORE_ENV_FILE: "true"
+      ASTRA_ALLOW_ISOLATED_TESTS: "true"
+      ASTRA_REFRESH_TRANSACTION_INTEGRATION: "1"
+      ASTRA_AUTH_CERT_PORT: "5433"
+      ASTRA_TEST_DATABASE_ID: "astra_ci_auth_cert_2026"
+      ASTRA_EXPECTED_TEST_DATABASE_ID: "astra_ci_auth_cert_2026"
+      DATABASE_URL: "postgresql://astra_auth_cert:astra_ci_synthetic_password_2026@127.0.0.1:5433/astra_auth_cert?schema=public"
+      TEST_DATABASE_URL: "postgresql://astra_auth_cert:astra_ci_synthetic_password_2026@127.0.0.1:5433/astra_auth_cert?schema=public"
+      JWT_ACCESS_SECRET: "astra_ci_access_synthetic_not_production_2026"
+      JWT_REFRESH_SECRET: "astra_ci_refresh_synthetic_not_production_2026"
+      CORS_ORIGIN: "http://localhost:3000"
+      STRIPE_SECRET_KEY: "sk_test_synthetic_not_a_real_key"
+      STRIPE_WEBHOOK_SECRET: "whsec_synthetic_not_a_real_secret"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Build internal workspace dependencies
+        run: pnpm --filter @astra/database --filter @astra/shared build
+
+      - name: Verify disposable PostgreSQL identity and empty baseline
+        env:
+          ASTRA_CI_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          set -euo pipefail
+          test -n "$ASTRA_CI_POSTGRES_CONTAINER"
+          actual="$(docker exec "$ASTRA_CI_POSTGRES_CONTAINER"             psql -X -A -t -q -v ON_ERROR_STOP=1             -U astra_auth_cert -d astra_auth_cert             -c 'SELECT current_database(), current_user;')"
+          test "$actual" = "astra_auth_cert|astra_auth_cert"
+          existing="$(docker exec "$ASTRA_CI_POSTGRES_CONTAINER"             psql -X -A -t -q -v ON_ERROR_STOP=1             -U astra_auth_cert -d astra_auth_cert             -c "SELECT count(*) FROM pg_tables WHERE schemaname = 'public';")"
+          test "$existing" = "0"
+          echo "Disposable empty PostgreSQL verified"
+
+      - name: Apply historical Prisma migrations
+        run: pnpm --filter @astra/database exec prisma migrate deploy
+
+      - name: Verify migrated schema matches Prisma
+        run: |
+          pnpm --filter @astra/database exec prisma migrate diff \
+            --from-url "$DATABASE_URL" \
+            --to-schema-datamodel prisma/schema.prisma \
+            --exit-code
+
+      - name: Run permanent authentication integration tests
+        run: |
+          pnpm --filter @astra/api exec jest             --config jest.integration.config.js             --runInBand             --runTestsByPath             test/integration/auth-refresh-transaction.integration.spec.ts             --verbose --json --outputFile="$RUNNER_TEMP/astra-auth-jest-results.json"
+      - name: Verify authentication Jest results
+        run: |
+          python3 - <<'PYVERIFY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path(os.environ["RUNNER_TEMP"]) / "astra-auth-jest-results.json"
+
+          if not path.is_file():
+              raise SystemExit("FAIL: missing Jest report")
+
+          data = json.loads(path.read_text(encoding="utf-8"))
+
+          expected = {
+              "numTotalTestSuites": 1,
+              "numPassedTestSuites": 1,
+              "numFailedTestSuites": 0,
+              "numPendingTestSuites": 0,
+              "numTotalTests": 5,
+              "numPassedTests": 5,
+              "numFailedTests": 0,
+              "numPendingTests": 0,
+              "numTodoTests": 0,
+          }
+
+          for key, value in expected.items():
+              actual = data.get(key)
+              if type(actual) is not int or actual != value:
+                  raise SystemExit(
+                      f"FAIL: {key}: expected {value}, got {actual}"
+                  )
+
+          if data.get("success") is not True:
+              raise SystemExit("FAIL: Jest success is not true")
+
+          suites = data.get("testResults")
+
+          if not isinstance(suites, list) or len(suites) != 1:
+              raise SystemExit("FAIL: expected exactly one suite")
+
+          suite = suites[0]
+
+          if suite.get("status") != "passed":
+              raise SystemExit("FAIL: suite did not pass")
+
+          if not str(suite.get("name", "")).endswith(
+              "/auth-refresh-transaction.integration.spec.ts"
+          ):
+              raise SystemExit("FAIL: unexpected suite")
+
+          assertions = suite.get("assertionResults")
+
+          if not isinstance(assertions, list) or len(assertions) != 5:
+              raise SystemExit("FAIL: expected five assertions")
+
+          if any(
+              not isinstance(item, dict)
+              or item.get("status") != "passed"
+              for item in assertions
+          ):
+              raise SystemExit("FAIL: non-passing assertion")
+
+          print("PASS: exactly 5 tests, 0 skipped, 0 failed")
+          PYVERIFY
+
+  commercial-integration:
+    name: Commercial PostgreSQL integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: astra_commercial_cert
+          POSTGRES_PASSWORD: astra_ci_commercial_synthetic_2026
+          POSTGRES_DB: astra_commercial_cert
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd "pg_isready -U astra_commercial_cert -d astra_commercial_cert"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      CI: "true"
+      NODE_ENV: test
+      AI_PROVIDER: deterministic
+      API_HOST: "127.0.0.1"
+      ASTRA_IGNORE_ENV_FILE: "true"
+      ASTRA_ALLOW_ISOLATED_TESTS: "true"
+      ASTRA_BILLING_FREE_INTEGRATION: "1"
+      ASTRA_AUTH_CERT_PORT: "5434"
+      ASTRA_TEST_DATABASE_ID: "astra_ci_commercial_cert_2026"
+      ASTRA_EXPECTED_TEST_DATABASE_ID: "astra_ci_commercial_cert_2026"
+      DATABASE_URL: "postgresql://astra_commercial_cert:astra_ci_commercial_synthetic_2026@127.0.0.1:5434/astra_commercial_cert?schema=public"
+      TEST_DATABASE_URL: "postgresql://astra_commercial_cert:astra_ci_commercial_synthetic_2026@127.0.0.1:5434/astra_commercial_cert?schema=public"
+      JWT_ACCESS_SECRET: "astra_ci_commercial_access_synthetic_2026"
+      JWT_REFRESH_SECRET: "astra_ci_commercial_refresh_synthetic_2026"
+      CORS_ORIGIN: "http://localhost:3000"
+      STRIPE_WORKER_ENABLED: "false"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Build internal workspace dependencies
+        run: pnpm --filter @astra/database --filter @astra/shared build
+
+      - name: Verify dedicated PostgreSQL identity and empty baseline
+        env:
+          CERT_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          set -euo pipefail
+          test -n "$CERT_CONTAINER"
+          identity="$(docker exec "$CERT_CONTAINER" psql -X -A -t -q -v ON_ERROR_STOP=1 -U astra_commercial_cert -d astra_commercial_cert -c 'SELECT current_database(), current_user;')"
+          test "$identity" = "astra_commercial_cert|astra_commercial_cert"
+          count="$(docker exec "$CERT_CONTAINER" psql -X -A -t -q -v ON_ERROR_STOP=1 -U astra_commercial_cert -d astra_commercial_cert -c "SELECT count(*) FROM pg_tables WHERE schemaname='public';")"
+          test "$count" = "0"
+          echo "PASS: dedicated empty PostgreSQL"
+
+      - name: Apply historical Prisma migrations
+        run: pnpm --filter @astra/database exec prisma migrate deploy
+
+      - name: Verify Prisma schema
+        run: |
+          pnpm --filter @astra/database exec prisma migrate diff \
+            --from-url "$DATABASE_URL" \
+            --to-schema-datamodel prisma/schema.prisma \
+            --exit-code
+
+      - name: Execute six commercial integration suites
+        run: |
+          pnpm --filter @astra/api exec jest \
+            --config jest.integration.config.js \
+            --runInBand \
+            --runTestsByPath \
+            test/integration/billing-authorization.integration.spec.ts \
+            test/integration/billing-entitlements.integration.spec.ts \
+            test/integration/billing-free-concurrency.integration.spec.ts \
+            test/integration/stripe-lock-service.integration.spec.ts \
+            test/integration/stripe-lock.integration.spec.ts \
+            test/integration/stripe-webhook-worker.integration.spec.ts \
+            --json \
+            --outputFile="$RUNNER_TEMP/astra-commercial-results.json"
+
+      - name: Certify exactly 23 passing commercial tests
+        run: |
+          python3 - <<'PYVERIFY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path(os.environ["RUNNER_TEMP"]) / "astra-commercial-results.json"
+          if not path.is_file():
+              raise SystemExit("FAIL: missing Jest report")
+
+          data = json.loads(path.read_text(encoding="utf-8"))
+          expected = {
+              "numTotalTestSuites": 6,
+              "numPassedTestSuites": 6,
+              "numFailedTestSuites": 0,
+              "numTotalTests": 23,
+              "numPassedTests": 23,
+              "numFailedTests": 0,
+              "numPendingTests": 0,
+              "numTodoTests": 0,
+          }
+
+          for key, value in expected.items():
+              actual = data.get(key)
+              if type(actual) is not int or actual != value:
+                  raise SystemExit(
+                      f"FAIL: {key}: expected {value}, got {actual}"
+                  )
+
+          if data.get("success") is not True:
+              raise SystemExit("FAIL: Jest success is not true")
+
+          expected_files = {
+              "billing-authorization.integration.spec.ts",
+              "billing-entitlements.integration.spec.ts",
+              "billing-free-concurrency.integration.spec.ts",
+              "stripe-lock-service.integration.spec.ts",
+              "stripe-lock.integration.spec.ts",
+              "stripe-webhook-worker.integration.spec.ts",
+          }
+
+          suites = data.get("testResults")
+          if not isinstance(suites, list) or len(suites) != 6:
+              raise SystemExit("FAIL: expected six suites")
+
+          actual_files = {
+              Path(str(suite.get("name", ""))).name
+              for suite in suites
+          }
+
+          if actual_files != expected_files:
+              raise SystemExit("FAIL: unexpected suite selection")
+
+          for suite in suites:
+              if suite.get("status") != "passed":
+                  raise SystemExit("FAIL: non-passing suite")
+              assertions = suite.get("assertionResults")
+              if not isinstance(assertions, list):
+                  raise SystemExit("FAIL: missing assertions")
+              if any(
+                  not isinstance(item, dict)
+                  or item.get("status") != "passed"
+                  for item in assertions
+              ):
+                  raise SystemExit("FAIL: non-passing assertion")
+
+          print("PASS: 6 suites, 23 tests, zero skipped")
+          PYVERIFY
